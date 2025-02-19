@@ -1,2 +1,2 @@
 # hhInsightsatellite
-haohai insightsatellite 2.0
+haohai insightsatellite 3.0
