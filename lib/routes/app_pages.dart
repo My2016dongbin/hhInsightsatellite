@@ -4,10 +4,6 @@ import 'package:insightsatellite/pages/common/launch/launch_view.dart';
 
 import '../pages/home/home_binding.dart';
 import '../pages/home/home_view.dart';
-import '../pages/home/main/main_binding.dart';
-import '../pages/home/main/main_view.dart';
-import '../pages/home/space/space_binding.dart';
-import '../pages/home/space/space_view.dart';
 
 part 'app_routes.dart';
 

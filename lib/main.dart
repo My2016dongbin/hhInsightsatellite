@@ -13,10 +13,6 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/pages/common/launch/launch_controller.dart';
-import 'package:insightsatellite/pages/common/share/manage/share_manage_binding.dart';
-import 'package:insightsatellite/pages/common/share/manage/share_manage_view.dart';
-import 'package:insightsatellite/pages/home/device/detail/call/call_binding.dart';
-import 'package:insightsatellite/pages/home/device/detail/call/call_view.dart';
 import 'package:insightsatellite/pages/home/home_controller.dart';
 import 'package:insightsatellite/pages/home/home_view.dart';
 import 'package:insightsatellite/res/strings.dart';
@@ -118,9 +114,7 @@ class MyAppState extends State<HhApp> {
       xgPushClickAction: (Map<String, dynamic> msg) async {
         HhLog.d("HomePage -> xgPushClickAction -> $msg");
         dynamic custom = jsonDecode(msg['customMessage']);
-        if(CommonData.personal && custom!=null && custom['otherInfomation']['messageType']== "deviceShare"){
-          Get.to(() => ShareManagePage(), binding: ShareManageBinding());
-        }
+
       },
       onReceiveNotificationResponse: (Map<String, dynamic> msg) async {
         HhLog.d("HomePage -> onReceiveNotificationResponse -> $msg");

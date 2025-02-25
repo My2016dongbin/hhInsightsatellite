@@ -46,7 +46,6 @@ dependencies:
   dio_cookie_manager: ^3.1.1
   package_info_plus: ^5.0.1
   device_info_plus: ^9.1.2
-  url_launcher: ^6.2.5
   intl: ^0.18.1
   permission_handler: ^11.3.1
   image_gallery_saver: ^2.0.3
@@ -59,38 +58,20 @@ dependencies:
   infinite_scroll_pagination: ^4.0.0
   toggle_switch: ^2.3.0
   flutter_styled_toast: ^2.2.1
-  qr_code_scanner: ^1.0.1
-  qr_code_tools: ^0.1.0
-#  qrscan: ^0.3.3
-  web_socket_channel: ^2.4.0
-#  slide_to_act: ^2.0.2 滑动解锁
-#  speech_to_text: ^6.6.2 语音转文字
-#  flutter_native_splash 启动图
 
   date_picker_plus: ^4.1.0 #日历
   flutter_audio_waveforms: ^1.2.1+8 #wave
   dotted_dashed_line: ^0.0.3 #虚线
-  overlay_tooltip: ^0.2.3 #tips
   bouncing_widget: ^2.0.0
-  draggable_widget: ^2.0.0
 
-  fl_chart: ^0.40.0
-  mqtt_client: ^10.3.0 #MQTT
   open_file: ^3.3.2
-#  flutter_downloader: ^1.11.7
-  step_progress_indicator: ^1.0.2
+  step_progress_indicator: ^1.0.2 #进度条
   photo_view: ^0.15.0
   flutter_switch: ^0.3.2
-  screen_recorder: ^0.3.0 #屏幕控件录制
-  screenshot: ^2.5.0 #屏幕截图
   flutter_datetime_picker_plus: ^2.2.0
   flutter_bugly: ^1.0.2
   webview_flutter: ^4.8.0
-  just_audio: ^0.9.39
   path_provider: ^2.1.4
-  record: ^5.0.5
-  flutter_sound: ^9.2.13 #any #^9.2.13
-  fijkplayer: ^0.11.0
   shared_preferences: ^2.2.3
   flutter_bmflocation: ^3.3.0
   flutter_baidu_mapapi_map: ^3.8.1

@@ -8,8 +8,15 @@ class SPKeys{
   final String sex = 'sex';
   final String avatar = 'avatar';
   final String roles = 'roles';
-  final String socialUsers = 'socialUsers';
-  final String posts = 'posts';
+
+  final String companyName = 'CompanyName';
+  final String provinceNo = 'ProvinceNo';
+  final String provinceName = 'ProvinceName';
+  final String cityNo = 'CityNo';
+  final String cityName = 'CityName';
+  final String countyNo = 'CountyNo';
+  final String countyName = 'CountyName';
+  final String endTime = 'EndTime';
 
   final String second = 'second';
   final String token = 'token';

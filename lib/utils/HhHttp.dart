@@ -53,8 +53,8 @@ class HhHttp {
     // }
     // 头部添加token
     // options.headers["token"] = "xxx";
-    options.headers["Tenant-Id"] = "${CommonData.tenant}";
-    options.headers["tenant-user-type"] = "${CommonData.tenantUserType}";
+    // options.headers["Tenant-Id"] = "${CommonData.tenant}";
+    // options.headers["tenant-user-type"] = "${CommonData.tenantUserType}";
     options.headers["Authorization"] = "Bearer ${CommonData.token}";
     // 更多业务需求
     handler.next(options);
@@ -70,7 +70,7 @@ class HhHttp {
       // print("响应结果: $response");
     } else {
       // 处理异常结果
-      HhLog.e("响应异常");
+      HhLog.e("响应异常 $response");
       EventBusUtil.getInstance().fire(HhToast(title: '服务器状态异常请稍后重试'));
       EventBusUtil.getInstance().fire(HhLoading(show: false));
     }

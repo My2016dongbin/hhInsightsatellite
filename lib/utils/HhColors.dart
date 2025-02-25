@@ -38,7 +38,8 @@ class HhColors {
   static const blackTextColor = Color(0xFF333333);//黑色字体颜色
   static const mainBlueColor = Color(0xFF4E88FD);//主蓝色字体颜色
   static const mainBlueColorUn = Color(0xFFE5F1FF);//主蓝色字体颜色
-  static const mainBlueColorTrans = Color(0x883477FF);//主蓝色字体颜色
+  // static const mainBlueColorTrans = Color(0x883477FF);//主蓝色字体颜色
+  static const mainBlueColorTrans = Color(0xFF7ad6f2);//主蓝色字体颜色
   static const mainGrayColorTrans = Color(0x44999999);
   static const mainGrayColor = Color(0x55000000);
   static const mainRedColor = Color(0xFFF56F6F);//主红色字体颜色
@@ -87,6 +88,7 @@ class HhColors {
   static const discoverLike = Color(0xFFf01e06);
   static const trans = Color(0x00000000);
   static const transBlack = Color(0x66000000);
+  static const transBlack33 = Color(0x33000000);
   static const transUn = Color(0x33e8e8e8);
   static const transTextUn = Color(0xaae8e8e8);
   static const transYellow = Color(0x99F5CD5B);

@@ -17,6 +17,7 @@ import 'package:insightsatellite/utils/RequestUtils.dart';
 import 'package:insightsatellite/utils/SPKeys.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tpns_flutter_plugin/tpns_flutter_plugin.dart';
 
 class LaunchController extends GetxController {
   final Rx<bool> testStatus = true.obs;
@@ -30,30 +31,31 @@ class LaunchController extends GetxController {
   }
 
   Future<void> info() async {
+    String? xgToken = await XgFlutterPlugin.xgToken;
+    Map<String, dynamic> map = {};
+    map['Token'] = CommonData.token;
+    map['xgToken'] = xgToken;
     EventBusUtil.getInstance().fire(HhLoading(show: true, title: '自动登录中..'));
     var result = await HhHttp().request(
       RequestUtils.userInfo,
       method: DioMethod.get,
-      data: {},
+      params: map,
     );
     HhLog.d("info -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
-    if (result["code"] == 0 && result["data"] != null) {
+    if (result != null) {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SPKeys().endpoint, '${result["data"]["endpoint"]}');
-      await prefs.setString(SPKeys().id, '${result["data"]["id"]}');
-      await prefs.setString(SPKeys().username, '${result["data"]["username"]}');
-      await prefs.setString(SPKeys().nickname, '${result["data"]["nickname"]}');
-      await prefs.setString(SPKeys().email, '${result["data"]["email"]}');
-      await prefs.setString(SPKeys().mobile, '${result["data"]["mobile"]}');
-      await prefs.setString(SPKeys().sex, '${result["data"]["sex"]}');
-      await prefs.setString(SPKeys().avatar, '${result["data"]["avatar"]}');
-      await prefs.setString(SPKeys().roles, '${result["data"]["roles"]}');
-      await prefs.setString(
-          SPKeys().socialUsers, '${result["data"]["socialUsers"]}');
-      await prefs.setString(SPKeys().posts, '${result["data"]["posts"]}');
+      await prefs.setString(SPKeys().id, '${result["UserId"]}');
+      await prefs.setString(SPKeys().username, '${result["UserName"]}');
+      await prefs.setString(SPKeys().companyName, '${result["CompanyName"]}');
+      await prefs.setString(SPKeys().provinceNo, '${result["ProvinceNo"]}');
+      await prefs.setString(SPKeys().provinceName, '${result["ProvinceName"]}');
+      await prefs.setString(SPKeys().cityNo, '${result["CityNo"]}');
+      await prefs.setString(SPKeys().cityName, '${result["CityName"]}');
+      await prefs.setString(SPKeys().countyNo, '${result["CountyNo"]}');
+      await prefs.setString(SPKeys().countyName, '${result["CountyName"]}');
+      await prefs.setString(SPKeys().endTime, '${result["EndTime"]}');
 
-      CommonData.endpoint = prefs.getString(SPKeys().endpoint);
       Future.delayed(const Duration(seconds: 2), () {
         Get.off(() => HomePage(), binding: HomeBinding(),
             transition: Transition.fadeIn,
@@ -61,10 +63,7 @@ class LaunchController extends GetxController {
       });
     } else {
       EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString(result["msg"])));
-      // Future.delayed(const Duration(seconds: 2), () {
-      //   Get.offAll(() => LoginPage(), binding: LoginBinding());
-      // });
+          .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
       CommonUtils().tokenDown();
     }
   }
@@ -85,14 +84,17 @@ class LaunchController extends GetxController {
       CommonData.tenantName = tenantName;
       info();
     } else {
-      if(second == true){
+      /*if(second == true){
         Future.delayed(const Duration(seconds: 2), () {
           CommonUtils().toLogin();
         });
       }else{
         ///首次进入
 
-      }
+      }*/
+      Future.delayed(const Duration(seconds: 2), () {
+        CommonUtils().toLogin();
+      });
     }
   }
 
@@ -104,9 +106,9 @@ class LaunchController extends GetxController {
       Permission.location,
       Permission.storage,
       Permission.camera,
-      Permission.microphone,
+      /*Permission.microphone,*/
     ].request();
-    if(statuses[Permission.location] != PermissionStatus.denied && statuses[Permission.storage] != PermissionStatus.denied && statuses[Permission.camera] != PermissionStatus.denied&& statuses[Permission.microphone] != PermissionStatus.denied){
+    if(statuses[Permission.location] != PermissionStatus.denied && statuses[Permission.storage] != PermissionStatus.denied && statuses[Permission.camera] != PermissionStatus.denied/*&& statuses[Permission.microphone] != PermissionStatus.denied*/){
       next();
     }else{
 

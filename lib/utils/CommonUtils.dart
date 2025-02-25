@@ -8,16 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/route_manager.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
-import 'package:insightsatellite/pages/common/login/company/company_login_binding.dart';
-import 'package:insightsatellite/pages/common/login/company/company_login_view.dart';
 import 'package:insightsatellite/pages/common/login/personal/personal_login_binding.dart';
 import 'package:insightsatellite/pages/common/login/personal/personal_login_view.dart';
-import 'package:insightsatellite/pages/home/device/detail/daozha/daozha_detail_binding.dart';
-import 'package:insightsatellite/pages/home/device/detail/daozha/daozha_detail_view.dart';
-import 'package:insightsatellite/pages/home/device/detail/device_detail_binding.dart';
-import 'package:insightsatellite/pages/home/device/detail/device_detail_view.dart';
-import 'package:insightsatellite/pages/home/device/detail/yunweixiang/yunwei_detail_binding.dart';
-import 'package:insightsatellite/pages/home/device/detail/yunweixiang/yunwei_detail_view.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
 import 'package:insightsatellite/utils/HhHttp.dart';
@@ -1128,17 +1120,10 @@ class CommonUtils {
   }
 
   toLogin() async {
-    if (CommonData.personal) {
-      Get.offAll(() => PersonalLoginPage(),
-          binding: PersonalLoginBinding(),
-          transition: Transition.fadeIn,
-          duration: const Duration(milliseconds: 1000));
-    } else {
-      Get.offAll(() => CompanyLoginPage(),
-          binding: CompanyLoginBinding(),
-          transition: Transition.fadeIn,
-          duration: const Duration(milliseconds: 1000));
-    }
+    Get.offAll(() => PersonalLoginPage(),
+        binding: PersonalLoginBinding(),
+        transition: Transition.fadeIn,
+        duration: const Duration(milliseconds: 1000));
   }
 
   parseCache(double size) {
@@ -1196,35 +1181,7 @@ class CommonUtils {
   }
 
   Future<void> parseRouteDetail(item) async {
-    /*EventBusUtil.getInstance().fire(HhLoading(show: true));
-    Map<String, dynamic> map = {};
-    map['pageNo'] = 1;
-    map['pageSize'] = 10;
-    // map['label'] = "";
-    map['dictType'] = "device_type";
-    var result = await HhHttp().request(RequestUtils.productType,
-        method: DioMethod.get, params: map);
-    HhLog.d("productType -- $item");
-    HhLog.d("productType -- $map");
-    HhLog.d("productType -- $result");
-    EventBusUtil.getInstance().fire(HhLoading(show: false));
-    if (result["code"] == 0) {
-      // EventBusUtil.getInstance().fire(HhToast(title: "操作成功", type: 1));
-    } else {
-      EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString(result["msg"])));
-    }*/
 
-    if(item['productKey'] == '5MiTcinKdSasKdKQ'){
-      ///道闸
-      Get.to(()=>DaoZhaDetailPage('${item['deviceNo']}','${item['id']}',item['shareMark']),binding: DaoZhaDetailBinding());
-    // }else if(item['productKey'] == 'R45bbC4eBxm3555D'){//TODO 测试调试
-    }else if(item['productKey'] == 'Dhs5Kt8bbZaKrCCz'){
-      ///运维箱
-      Get.to(()=>YunWeiDetailPage('${item['deviceNo']}','${item['id']}',item['shareMark']),binding: YunWeiDetailBinding());
-    }else{
-      Get.to(()=>DeviceDetailPage('${item['deviceNo']}','${item['id']}',item['shareMark']),binding: DeviceDetailBinding());
-    }
   }
 
   parseDeviceImage(item){

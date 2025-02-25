@@ -26,8 +26,8 @@ apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 
-def flutterVersionCode = "6"
-def flutterVersionName = "1.0.5.6"
+def flutterVersionCode = "1"
+def flutterVersionName = "1.0.1.2"
 
 android {
     compileSdkVersion 34
@@ -86,7 +86,7 @@ android {
         haohaiVersion {
             dimension 'app'
             applicationId "com.ehaohai.insightsatellite"//包名
-//            resValue "string", "app_name", "浩海万联"   // 设置默认的app_name
+//            resValue "string", "app_name", "慧眼卫星"   // 设置默认的app_name
             manifestPlaceholders = [
                     APP_ICON: "@drawable/logo",//app图标
                     CHANNEL_NAME: "haohaiVersion",

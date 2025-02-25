@@ -32,8 +32,8 @@ class PersonalLoginPage extends StatelessWidget {
     // 在这里设置状态栏字体为深色
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, // 状态栏背景色
-      statusBarBrightness: Brightness.dark, // 状态栏字体亮度
-      statusBarIconBrightness: Brightness.dark, // 状态栏图标亮度
+      statusBarBrightness: Brightness.light, // 状态栏字体亮度
+      statusBarIconBrightness: Brightness.light, // 状态栏图标亮度
     ));
     return WillPopScope(
       onWillPop: onBackPressed,
@@ -55,7 +55,7 @@ class PersonalLoginPage extends StatelessWidget {
     return SingleChildScrollView(
       child: Stack(
         children: [
-          Image.asset('assets/images/common/icon_bg.png',width:1.sw,height: 1.sh,fit: BoxFit.fill,),
+          Image.asset('assets/images/common/ic_login_bj.png',width:1.sw,height: 1.sh,fit: BoxFit.fill,),
           SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
@@ -64,15 +64,8 @@ class PersonalLoginPage extends StatelessWidget {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                    margin: EdgeInsets.fromLTRB(29.w*3, 100.h*3, 0, 0),
-                    child: Text('浩海万联',style: TextStyle(color: HhColors.textBlackColor,fontSize: 42.sp*3,fontWeight: FontWeight.bold),),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                      margin: EdgeInsets.fromLTRB(29.w*3, 8.h*3, 0, 0),
-                      child: Text('智  能  安  全  生  活',style: TextStyle(color: HhColors.textBlackColor,fontSize: 18.sp*3,),)
+                      margin: EdgeInsets.fromLTRB(50.w*3, 100.h*3, 50.w*3, 0),
+                      child: Image.asset('assets/images/common/ic_loginlogo1.png',width:1.sw,height: 40.w*3,fit: BoxFit.fill,)
                   ),
                 ),
                 Container(
@@ -81,125 +74,124 @@ class PersonalLoginPage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ///账号
-                      Container(
-                        height: 48.h*3,
-                        decoration: BoxDecoration(
-                            color: HhColors.mainGrayColorTrans,
-                            borderRadius: BorderRadius.all(Radius.circular(24.w*3))),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                textAlign: TextAlign.left,
-                                maxLines: 1,
-                                maxLength: 20,
-                                cursorColor: HhColors.titleColor_99,
-                                controller: logic.accountController,
-                                keyboardType: logic.pageStatus.value?TextInputType.number:TextInputType.text,
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.fromLTRB(20.w*3, 0, 0, 0),
-                                  border: const OutlineInputBorder(
-                                      borderSide: BorderSide.none
+                      ColorFiltered(
+                        colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.6), BlendMode.modulate),
+                        child: Container(
+                          height: 48.h*3,
+                          clipBehavior: Clip.hardEdge,
+                          decoration: BoxDecoration(
+                              color: HhColors.mainGrayColorTrans,
+                              borderRadius: BorderRadius.all(Radius.circular(24.w*3))),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  textAlign: TextAlign.left,
+                                  maxLines: 1,
+                                  maxLength: 20,
+                                  cursorColor: HhColors.titleColor_99,
+                                  controller: logic.accountController,
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.fromLTRB(20.w*3, 0, 0, 0),
+                                    border: const OutlineInputBorder(
+                                        borderSide: BorderSide.none
+                                    ),
+                                    counterText: '',
+                                    hintText: '用户名/手机号',
+                                    hintStyle: TextStyle(
+                                        color: HhColors.grayCCTextColor, fontSize: 15.sp*3,fontWeight: FontWeight.w200),
                                   ),
-                                  counterText: '',
-                                  hintText: logic.pageStatus.value?'手机号':'用户名/手机号',
-                                  hintStyle: TextStyle(
-                                      color: HhColors.whiteColor, fontSize: 15.sp*3,fontWeight: FontWeight.w200),
+                                  style:
+                                  TextStyle(color: HhColors.whiteColor, fontSize: 15.sp*3,fontWeight: FontWeight.bold),
+                                  onChanged: (s){
+                                    logic.accountStatus.value = s.isNotEmpty;
+                                  },
                                 ),
-                                style:
-                                TextStyle(color: HhColors.whiteColor, fontSize: 15.sp*3,fontWeight: FontWeight.bold),
-                                onChanged: (s){
-                                  logic.accountStatus.value = s.isNotEmpty;
+                              ),
+                              logic.accountStatus.value? BouncingWidget(
+                                duration: const Duration(milliseconds: 100),
+                                scaleFactor: 1.2,
+                                onPressed: (){
+                                  logic.accountController!.clear();
+                                  logic.accountStatus.value = false;
                                 },
-                              ),
-                            ),
-                            logic.accountStatus.value? BouncingWidget(
-                              duration: const Duration(milliseconds: 100),
-                              scaleFactor: 1.2,
-                              onPressed: (){
-                                logic.accountController!.clear();
-                                logic.accountStatus.value = false;
-                              },
-                              child: Container(
-                                  padding: EdgeInsets.all(5.w*3),
-                                  child: Image.asset('assets/images/common/ic_close_white.png',height:18.w*3,width: 18.w*3,fit: BoxFit.fill,)
-                              ),
-                            ):const SizedBox(),
-                            SizedBox(width: 12.w*3,),
-                          ],
+                                child: Container(
+                                    padding: EdgeInsets.all(5.w*3),
+                                    child: Image.asset('assets/images/common/ic_close_white.png',height:18.w*3,width: 18.w*3,fit: BoxFit.fill,)
+                                ),
+                              ):const SizedBox(),
+                              SizedBox(width: 12.w*3,),
+                            ],
+                          ),
                         ),
                       ),
-                      /*Container(
-                  color: HhColors.grayCCTextColor,
-                  height: 0.5.w,
-                ),*/
                       SizedBox(height: 19.h*3,),
                       ///密码
-                      logic.pageStatus.value?const SizedBox():Container(
-                        height: 48.h*3,
-                        decoration: BoxDecoration(
-                            color: HhColors.mainGrayColorTrans,
-                            borderRadius: BorderRadius.all(Radius.circular(24.w*3))),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                textAlign: TextAlign.left,
-                                maxLines: 1,
-                                maxLength: 20,
-                                cursorColor: HhColors.titleColor_99,
-                                controller: logic.passwordController,
-                                keyboardType: TextInputType.visiblePassword,
-                                obscureText: !logic.passwordShowStatus.value,
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.fromLTRB(20.w*3, 0, 0, 0),
-                                  border: const OutlineInputBorder(
-                                      borderSide: BorderSide.none
+                      ColorFiltered(
+                        colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.6), BlendMode.modulate),
+                        child: Container(
+                          height: 48.h*3,
+                          decoration: BoxDecoration(
+                              color: HhColors.mainGrayColorTrans,
+                              borderRadius: BorderRadius.all(Radius.circular(24.w*3))),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  textAlign: TextAlign.left,
+                                  maxLines: 1,
+                                  maxLength: 20,
+                                  cursorColor: HhColors.titleColor_99,
+                                  controller: logic.passwordController,
+                                  keyboardType: TextInputType.visiblePassword,
+                                  obscureText: !logic.passwordShowStatus.value,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.fromLTRB(20.w*3, 0, 0, 0),
+                                    border: const OutlineInputBorder(
+                                        borderSide: BorderSide.none
+                                    ),
+                                    counterText: '',
+                                    hintText: '密码',
+                                    hintStyle: TextStyle(
+                                        color: HhColors.grayCCTextColor, fontSize: 15.sp*3,fontWeight: FontWeight.w200),
                                   ),
-                                  counterText: '',
-                                  hintText: '密码',
-                                  hintStyle: TextStyle(
-                                      color: HhColors.whiteColor, fontSize: 15.sp*3,fontWeight: FontWeight.w200),
+                                  style:
+                                  TextStyle(color: HhColors.whiteColor, fontSize: 15.sp*3,fontWeight: FontWeight.w300),
+                                  onChanged: (s){
+                                    logic.passwordStatus.value = s.isNotEmpty;
+                                  },
                                 ),
-                                style:
-                                TextStyle(color: HhColors.whiteColor, fontSize: 15.sp*3,fontWeight: FontWeight.w300),
-                                onChanged: (s){
-                                  logic.passwordStatus.value = s.isNotEmpty;
+                              ),
+                              logic.passwordStatus.value?
+                              BouncingWidget(
+                                duration: const Duration(milliseconds: 100),
+                                scaleFactor: 1.2,
+                                onPressed: (){
+                                  logic.passwordController!.clear();
+                                  logic.passwordStatus.value = false;
                                 },
+                                child: Container(
+                                    padding: EdgeInsets.all(5.w*3),
+                                    child: Image.asset('assets/images/common/ic_close_white.png',height:18.w*3,width: 18.w*3,fit: BoxFit.fill,)
+                                ),
+                              ):const SizedBox(),
+                              SizedBox(width: 2.w*3,),
+                              BouncingWidget(
+                                duration: const Duration(milliseconds: 100),
+                                scaleFactor: 1.2,
+                                onPressed: (){
+                                  logic.passwordShowStatus.value = !logic.passwordShowStatus.value;
+                                },
+                                child: Container(
+                                    padding: EdgeInsets.all(5.w*3),
+                                    child: Image.asset(logic.passwordShowStatus.value?'assets/images/common/icon_bi_white.png':'assets/images/common/icon_zheng_white.png',height:18.w*3,width: 18.w*3,fit: BoxFit.fill,)
+                                ),
                               ),
-                            ),
-                            logic.passwordStatus.value?
-                            BouncingWidget(
-                              duration: const Duration(milliseconds: 100),
-                              scaleFactor: 1.2,
-                              onPressed: (){
-                                logic.passwordController!.clear();
-                                logic.passwordStatus.value = false;
-                              },
-                              child: Container(
-                                  padding: EdgeInsets.all(5.w*3),
-                                  child: Image.asset('assets/images/common/ic_close_white.png',height:18.w*3,width: 18.w*3,fit: BoxFit.fill,)
-                              ),
-                            ):const SizedBox(),
-                            SizedBox(width: 2.w*3,),
-                            BouncingWidget(
-                              duration: const Duration(milliseconds: 100),
-                              scaleFactor: 1.2,
-                              onPressed: (){
-                                logic.passwordShowStatus.value = !logic.passwordShowStatus.value;
-                              },
-                              child: Container(
-                                  padding: EdgeInsets.all(5.w*3),
-                                  child: Image.asset(logic.passwordShowStatus.value?'assets/images/common/icon_bi_white.png':'assets/images/common/icon_zheng_white.png',height:18.w*3,width: 18.w*3,fit: BoxFit.fill,)
-                              ),
-                            ),
-                            SizedBox(width: 12.w*3,),
-                          ],
+                              SizedBox(width: 12.w*3,),
+                            ],
+                          ),
                         ),
-                      ),
-                      logic.pageStatus.value?const SizedBox():Container(
-                        color: HhColors.grayCCTextColor,
-                        height: 0.5.w,
                       ),
                       SizedBox(height: 17.h*3,),
                       ///协议
@@ -235,7 +227,7 @@ class PersonalLoginPage extends StatelessWidget {
                               // showWebDialog();
                               Get.to(WebViewPage(title: '隐私协议', url: 'http://117.132.5.139:18034/admin-file/insightsatellite-test/public/2024/9/24/haohai_insightsatellite_privacy_agreement.html',));
                             },
-                            child: Text('《浩海万联平台隐私政策》',
+                            child: Text('《慧眼卫星平台隐私政策》',
                               style: TextStyle(color: HhColors.backBlueOutColor,fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                             ),
                           ),
@@ -249,43 +241,20 @@ class PersonalLoginPage extends StatelessWidget {
                           //隐藏输入法
                           FocusScope.of(logic.context).requestFocus(FocusNode());
 
-                          if(logic.pageStatus.value){
-                            ///验证码点击
-                            if(logic.accountController!.text.isEmpty){
-                              EventBusUtil.getInstance().fire(HhToast(title: '手机号不能为空'));
-                              return;
-                            }
-                            if(logic.accountController!.text.length<11){
-                              EventBusUtil.getInstance().fire(HhToast(title: '请输入正确的手机号'));
-                              return;
-                            }
-                            if(!logic.confirmStatus.value){
-                              EventBusUtil.getInstance().fire(HhToast(title: '请阅读并同意隐私协议'));
-                              return;
-                            }
-                            Future.delayed(const Duration(milliseconds: 500),(){
-                              logic.sendCode();
-                            });
-                          }else{
-                            ///登录点击
-                            if(logic.accountController!.text.isEmpty){
-                              EventBusUtil.getInstance().fire(HhToast(title: '账号不能为空'));
-                              return;
-                            }
-                            if(logic.passwordController!.text.isEmpty){
-                              EventBusUtil.getInstance().fire(HhToast(title: '密码不能为空'));
-                              return;
-                            }
-                            // if(!CommonUtils().validatePassword(logic.passwordController!.text)){
-                            //   EventBusUtil.getInstance().fire(HhToast(title: '密码必须为8-16位由字母、数字、特殊字符两种以上组成'));
-                            //   return;
-                            // }
-                            if (!logic.confirmStatus.value) {
-                              showAgreeDialog();
-                              return;
-                            }
-                            logic.getTenant();
+                          ///登录点击
+                          if(logic.accountController!.text.isEmpty){
+                            EventBusUtil.getInstance().fire(HhToast(title: '账号不能为空'));
+                            return;
                           }
+                          if(logic.passwordController!.text.isEmpty){
+                            EventBusUtil.getInstance().fire(HhToast(title: '密码不能为空'));
+                            return;
+                          }
+                          if (!logic.confirmStatus.value) {
+                            showAgreeDialog();
+                            return;
+                          }
+                          logic.login();
                         },
                         child: Container(
                           width: 1.sw,
@@ -296,46 +265,11 @@ class PersonalLoginPage extends StatelessWidget {
                               borderRadius: BorderRadius.all(Radius.circular(24.w*3))),
                           child: Center(
                             child: Text(
-                              logic.pageStatus.value?"获取验证码":"登录",
+                              "登录",
                               textAlign: TextAlign.center,
                               style: TextStyle(color: HhColors.whiteColor, fontSize: 15.sp*3,fontWeight: FontWeight.w200),
                             ),
                           ),
-                        ),
-                      ),
-                      /*///切换
-                BouncingWidget(
-                  duration: const Duration(milliseconds: 100),
-                  scaleFactor: 1.2,
-                  onPressed: (){
-                    logic.pageStatus.value = !logic.pageStatus.value;
-                    //隐藏输入法
-                    FocusScope.of(logic.context).requestFocus(FocusNode());
-                    logic.accountController!.text = '';
-                    if(!logic.pageStatus.value){
-                      logic.accountController!.text = logic.account!;
-                    }
-                  },
-                  child: Container(
-                      margin: EdgeInsets.fromLTRB(0, 5.w, 0, 0),
-                      padding: EdgeInsets.all(5.w),
-                      color: HhColors.trans,
-                      child: Text(logic.pageStatus.value?'密码登录':'验证码登录',style: TextStyle(color: HhColors.whiteColor,fontSize: 26.sp,),)
-                  ),
-                ),
-                SizedBox(height: 30.w,),*/
-                      ///忘记密码
-                      BouncingWidget(
-                        duration: const Duration(milliseconds: 100),
-                        scaleFactor: 1.2,
-                        onPressed: (){
-                          Get.to(()=>PersonalForgetPage(),binding: PersonalForgetBinding());
-                        },
-                        child: Container(
-                            margin: EdgeInsets.fromLTRB(0, 5.w, 0, 0),
-                            padding: EdgeInsets.all(5.w),
-                            color: HhColors.trans,
-                            child: Text('忘记密码',style: TextStyle(color: HhColors.whiteColor,fontSize: 14.sp*3,),)
                         ),
                       ),
                       SizedBox(height: 30.w,),
@@ -344,50 +278,6 @@ class PersonalLoginPage extends StatelessWidget {
                 ),
 
               ],
-            ),
-          ),
-          ///注册
-          Align(
-            alignment: Alignment.topRight,
-            child: BouncingWidget(
-              duration: const Duration(milliseconds: 100),
-              scaleFactor: 1.2,
-              onPressed: (){
-                logic.getTenantId();
-                Get.to(()=>RegisterPage(),binding: RegisterBinding());
-              },
-              child: Container(
-                  margin: EdgeInsets.fromLTRB(0, 48.h*3, 17.w*3, 0),
-                  padding: EdgeInsets.all(5.w),
-                  color: HhColors.trans,
-                  child: Text('注册',style: TextStyle(color: HhColors.whiteColor,fontSize: 16.sp*3,),)
-              ),
-            ),
-          ),
-          ///返回
-          Align(
-            alignment: Alignment.topLeft,
-            child: BouncingWidget(
-              duration: const Duration(milliseconds: 100),
-              scaleFactor: 1.2,
-              onPressed: () {
-                int time_ = DateTime.now().millisecondsSinceEpoch;
-                if (time_ - timeForExit > 2000) {
-                  EventBusUtil.getInstance().fire(HhToast(title: '再按一次退出程序'));
-                  timeForExit = time_;
-                } else {
-                  SystemNavigator.pop();
-                }
-              },
-              child: Container(
-                  margin: EdgeInsets.fromLTRB(24.w*3, 53.h*3, 0, 0),
-                  padding: EdgeInsets.fromLTRB(20.w, 10.w, 20.w, 10.w),
-                  child: Image.asset(
-                    'assets/images/common/back_white.png',
-                    height: 17.w*3,
-                    width: 10.w*3,
-                    fit: BoxFit.fill,
-                  )),
             ),
           ),
         ],
@@ -453,7 +343,7 @@ class PersonalLoginPage extends StatelessWidget {
                     child: Container(
                         margin: EdgeInsets.fromLTRB(0, 30.h*3, 0, 0),
                         child: Text(
-                          '欢迎使用浩海通行证！',
+                          '欢迎使用慧眼卫星',
                           style: TextStyle(
                               color: HhColors.textBlackColor,
                               fontSize: 16.sp*3,
@@ -482,7 +372,7 @@ class PersonalLoginPage extends StatelessWidget {
                                 Get.to(WebViewPage(title: '隐私协议', url: 'http://117.132.5.139:18034/admin-file/insightsatellite-test/public/2024/9/24/haohai_insightsatellite_privacy_agreement.html',));
                               },
                               child: Text(
-                                '《浩海万联平台隐私政策》',
+                                '《慧眼卫星平台隐私政策》',
                                 style: TextStyle(
                                     decoration: TextDecoration.none,
                                     color: HhColors.mainBlueColor,
@@ -520,7 +410,7 @@ class PersonalLoginPage extends StatelessWidget {
                       logic.confirmStatus.value = true;
                       Navigator.pop(context);
                       //继续
-                      logic.getTenant();
+                      logic.login();
                     },
                     child: Container(
                       width: 275.w*3,

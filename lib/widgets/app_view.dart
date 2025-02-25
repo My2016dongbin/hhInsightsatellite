@@ -29,15 +29,15 @@ class AppView extends StatelessWidget {
         //textScaleFactor: Config.textScaleFactor,
       ),
       child: LoaderOverlay(
-        overlayColor: HhColors.whiteColor,
+        overlayColor: HhColors.transBlack33,
         closeOnBackButton: true,
         useDefaultLoading: false,
         overlayWidgetBuilder: (_) { //ignored progress for the moment
           return const Center(
-            child: SpinKitDualRing(
-              color: HhColors.mainBlueColor,
-              size: 50.0,
-              lineWidth: 5,
+            child: SpinKitCircle(
+              color: HhColors.mainBlueColorTrans,
+              size: 60.0,
+              // lineWidth: 5,
             ),
           );
         },

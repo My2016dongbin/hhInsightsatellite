@@ -109,128 +109,59 @@ class PersonalLoginController extends GetxController {
     super.onInit();
   }
 
-  Future<void> getTenantId() async {
-    Map<String, dynamic> map = {};
-    map['name'] = CommonData.tenantName;
-    var tenantResult = await HhHttp().request(
-      RequestUtils.tenantId,
-      method: DioMethod.get,
-      params: map,
-    );
-    HhLog.d("tenant -- $tenantResult");
-    if (tenantResult["code"] == 0 && tenantResult["data"] != null) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SPKeys().tenant, '${tenantResult["data"]['id']}');
-      await prefs.setString(SPKeys().tenantName, CommonData.tenantName!);
-      CommonData.tenant = '${tenantResult["data"]['id']}';
-      CommonData.tenantName = CommonData.tenantName;
-      CommonData.tenantUserType = '${tenantResult["data"]['userType']}';
-      await prefs.setString(SPKeys().tenantUserType, CommonData.tenantUserType!);
-    } else {
-      EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString("租户信息不存在"/*tenantResult["msg"]*/),type: 2));
-    }
-  }
-
-  Future<void> sendCode() async {
-    EventBusUtil.getInstance().fire(HhLoading(show: true,title: '正在发送短信..'));
-    var result = await HhHttp().request(
-      RequestUtils.codeSend,
-      method: DioMethod.post,
-      data: {'mobile':accountController!.text,'scene':21},
-    );
-    HhLog.d("sendCode -- $result");
-    EventBusUtil.getInstance().fire(HhLoading(show: false));
-    if (result["code"] == 0 && result["data"] != null) {
-      Get.to(()=>CodePage(accountController!.text),binding: CodeBinding());
-    } else {
-      EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString(result["msg"]),type: 2));
-    }
-  }
-
-  Future<void> getTenant() async {
-    EventBusUtil.getInstance().fire(HhLoading(show: true, title: '正在登录..'));
-    Map<String, dynamic> map = {};
-    map['name'] = CommonData.tenantName;
-    var tenantResult = await HhHttp().request(
-      RequestUtils.tenantId,
-      method: DioMethod.get,
-      params: map,
-    );
-    HhLog.d("tenant -- ${RequestUtils.tenantId}");
-    HhLog.d("tenant -- $map");
-    HhLog.d("tenant -- $tenantResult");
-    if (tenantResult["code"] == 0 && tenantResult["data"] != null) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SPKeys().tenant, '${tenantResult["data"]['id']}');
-      await prefs.setString(SPKeys().tenantName, CommonData.tenantName!);
-      CommonData.tenant = '${tenantResult["data"]["id"]}';
-      CommonData.tenantUserType = '${tenantResult["data"]["userType"]}';
-      await prefs.setString(SPKeys().tenantUserType, CommonData.tenantUserType!);
-      login();
-    } else {
-      EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString("租户信息不存在"/*tenantResult["msg"]*/),type: 2));
-      EventBusUtil.getInstance().fire(HhLoading(show: false));
-    }
-  }
-
   Future<void> login() async {
+    Map<String, dynamic> map = {};
+    map['username'] = accountController?.text;
+    map['password'] = passwordController?.text;
     var result = await HhHttp().request(
       RequestUtils.login,
-      method: DioMethod.post,
-      data: {
-        "username": accountController?.text,
-        "password": passwordController?.text,
-        "tenantName": "${CommonData.tenantName}"
-      },
+      method: DioMethod.get,
+      params: map
     );
     HhLog.d("login -- $result");
-    if (result["code"] == 0 && result["data"] != null) {
+    if (result["type"] == 1 && result["message"] != null) {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SPKeys().token, result["data"]["accessToken"]);
+      await prefs.setString(SPKeys().token, result["message"]);
       await prefs.setString(SPKeys().account, accountController!.text);
       await prefs.setString(SPKeys().password, passwordController!.text);
-      CommonData.token = result["data"]["accessToken"];
+      CommonData.token = result["message"];
 
       info();
 
     } else {
       EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString(result["msg"]),type: 2));
+          .fire(HhToast(title: CommonUtils().msgString(result["message"]),type: 2));
       EventBusUtil.getInstance().fire(HhLoading(show: false));
     }
   }
 
   Future<void> info() async {
+    String? xgToken = await XgFlutterPlugin.xgToken;
+    Map<String, dynamic> map = {};
+    map['Token'] = CommonData.token;
+    map['xgToken'] = xgToken;
     var result = await HhHttp().request(
       RequestUtils.userInfo,
       method: DioMethod.get,
-      data: {},
+      params: map,
     );
     HhLog.d("info -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
-    if (result["code"] == 0 && result["data"] != null) {
+    if (result != null) {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SPKeys().endpoint, '${result["data"]["endpoint"]}');
-      CommonData.endpoint = '${result["data"]["endpoint"]}';
-      await prefs.setString(SPKeys().id, '${result["data"]["id"]}');
-      await prefs.setString(SPKeys().username, '${result["data"]["username"]}');
-      await prefs.setString(SPKeys().nickname, '${result["data"]["nickname"]}');
-      await prefs.setString(SPKeys().email, '${result["data"]["email"]}');
-      await prefs.setString(SPKeys().mobile, '${result["data"]["mobile"]}');
-      await prefs.setString(SPKeys().sex, '${result["data"]["sex"]}');
-      await prefs.setString(SPKeys().avatar, '${result["data"]["avatar"]}');
-      await prefs.setString(SPKeys().roles, '${result["data"]["roles"]}');
-      await prefs.setString(
-          SPKeys().socialUsers, '${result["data"]["socialUsers"]}');
-      await prefs.setString(SPKeys().posts, '${result["data"]["posts"]}');
+      await prefs.setString(SPKeys().id, '${result["UserId"]}');
+      await prefs.setString(SPKeys().username, '${result["UserName"]}');
+      await prefs.setString(SPKeys().companyName, '${result["CompanyName"]}');
+      await prefs.setString(SPKeys().provinceNo, '${result["ProvinceNo"]}');
+      await prefs.setString(SPKeys().provinceName, '${result["ProvinceName"]}');
+      await prefs.setString(SPKeys().cityNo, '${result["CityNo"]}');
+      await prefs.setString(SPKeys().cityName, '${result["CityName"]}');
+      await prefs.setString(SPKeys().countyNo, '${result["CountyNo"]}');
+      await prefs.setString(SPKeys().countyName, '${result["CountyName"]}');
+      await prefs.setString(SPKeys().endTime, '${result["EndTime"]}');
 
 
-      // XgFlutterPlugin().setTags(["${result["data"]["id"]}"]);
-      // XgFlutterPlugin().setAccount("${result["data"]["id"]}",AccountType.UNKNOWN);
-      XgFlutterPlugin().deleteAccount('${result["data"]["id"]}',AccountType.UNKNOWN);
+      XgFlutterPlugin().deleteAccount('${result["id"]}',AccountType.UNKNOWN);
       XgFlutterPlugin().deleteAccount("${CommonData.token}", AccountType.UNKNOWN);
       XgFlutterPlugin().deleteTags(["${CommonData.token}","test"]);
       EventBusUtil.getInstance().fire(HhToast(title: '登录成功',type: 1));
@@ -246,7 +177,7 @@ class PersonalLoginController extends GetxController {
       });
     } else {
       EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString(result["msg"]),type: 2));
+          .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
     }
   }
 }

@@ -1,27 +1,17 @@
+import 'package:bouncing_widget/bouncing_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
-import 'package:insightsatellite/pages/home/mqtt/mqtt_controller.dart';
+import 'package:insightsatellite/pages/home/home_controller.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
-
-import '../../cell/bottom_bar.dart';
-import '../../res/images.dart';
-import '../../res/strings.dart';
-import '../../res/styles.dart';
-import '../../utils/HhColors.dart';
-import 'device/device_view.dart';
-import 'home_controller.dart';
-import 'main/main_view.dart';
-import 'message/message_view.dart';
-import 'my/my_view.dart';
+import 'package:insightsatellite/utils/HhColors.dart';
 class HomePage extends StatelessWidget {
   final logic = Get.find<HomeController>();
-  final logicMqtt = Get.find<MqttController>();
 
   HomePage({super.key});
 
@@ -40,63 +30,12 @@ class HomePage extends StatelessWidget {
       onWillPop: onBackPressed,
       child: Scaffold(
         backgroundColor: HhColors.backColor,
-        body: IndexedStack(
-          index: logic.index.value,
-          children:  [
-            MainPage(),
-            DevicePage(),
-            MessagePage(),
-            MyPage(),
-          ],
-        ),
-        bottomNavigationBar: BottomBar(
-          index: logic.index.value,
-          items: [
-            BottomBarItem(
-              selectedImgRes: ImageRes.chatPressed,
-              unselectedImgRes: ImageRes.chat,
-              selectedStyle: Styles.ts_39CD80_10sp_bold,
-              unselectedStyle: Styles.ts_333333_10sp,
-              label: StrRes.chatTab,
-              imgWidth: 22.w*3,
-              imgHeight: 22.h*3,
-              onClick: logic.switchTab,
-              onDoubleClick: logic.scrollToUnreadMessage,
-              count: logic.unreadMsgCount.value,
-            ),
-            BottomBarItem(
-              selectedImgRes: ImageRes.momentsPressed,
-              unselectedImgRes: ImageRes.moments,
-              selectedStyle: Styles.ts_39CD80_10sp_bold,
-              unselectedStyle: Styles.ts_333333_10sp,
-              label: StrRes.momentTab,
-              imgWidth: 22.w*3,
-              imgHeight: 22.w*3,
-              onClick: logic.switchTab,
-              count: logic.unhandledCount.value,
-            ),
-            BottomBarItem(
-              selectedImgRes: ImageRes.servicePressed,
-              unselectedImgRes: ImageRes.service,
-              selectedStyle: Styles.ts_39CD80_10sp_bold,
-              unselectedStyle: Styles.ts_333333_10sp,
-              label: StrRes.serviceTab,
-              imgWidth: 22.w*3,
-              imgHeight: 22.w*3,
-              onClick: logic.switchTab,
-            ),
-            BottomBarItem(
-              selectedImgRes: ImageRes.minePressed,
-              unselectedImgRes: ImageRes.mine,
-              selectedStyle: Styles.ts_39CD80_10sp_bold,
-              unselectedStyle: Styles.ts_333333_10sp,
-              label: StrRes.mineTab,
-              imgWidth: 22.w*3,
-              imgHeight: 22.w*3,
-              onClick: logic.switchTab,
-            ),
-          ],
-        ),
+        body: logic.viewStatus.value?Builder(builder: (BuildContext context) {
+          return home(context);
+        },):const SizedBox(),
+        endDrawer: mapDrawer(),
+        endDrawerEnableOpenDragGesture: false,
+        drawerEdgeDragWidth: 0.7.sw,
       ),
     ));
   }
@@ -118,5 +57,217 @@ class HomePage extends StatelessWidget {
       logic.index.value = 0;
     }
     return Future.value(exit);
+  }
+
+  home(context) {
+    double statusBarHeight = MediaQuery.of(logic.context).padding.top;
+    return Stack(
+      children: [
+        Container(
+          color: HhColors.mainBlueColorTrans,
+          height: statusBarHeight,
+          width: 1.sw,
+        ),
+        Container(
+          margin: EdgeInsets.only(top: statusBarHeight),
+          child: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),//禁用滑动
+            child: SizedBox(
+              height: 1.2.sh,//遮盖水印
+              width: 1.sw,
+              child: BMFMapWidget(
+                onBMFMapCreated: (controller) {
+                  logic.onBMFMapCreated(controller);
+                },
+                mapOptions: logic.mapOptions(),
+              ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: Container(
+            margin: EdgeInsets.fromLTRB(0, 100.h*3, 20.w*3, 0),
+            child: Column(
+              children: [
+                BouncingWidget(
+                    duration: const Duration(milliseconds: 100),
+                    scaleFactor: 0.6,
+                    onPressed: (){
+
+                    },
+                    child: Image.asset('assets/images/common/ic_set.png',width:55.w*3,height: 55.w*3,fit: BoxFit.fill,)
+                ),
+                SizedBox(height: 3.w*3,),
+                BouncingWidget(
+                    duration: const Duration(milliseconds: 100),
+                    scaleFactor: 0.6,
+                    onPressed: (){
+
+                    },
+                    child: Image.asset('assets/images/common/ic_list.png',width:55.w*3,height: 55.w*3,fit: BoxFit.fill,)
+                ),
+                SizedBox(height: 3.w*3,),
+                BouncingWidget(
+                    duration: const Duration(milliseconds: 100),
+                    scaleFactor: 0.6,
+                    onPressed: (){
+
+                    },
+                    child: Image.asset('assets/images/common/ic_search.png',width:55.w*3,height: 55.w*3,fit: BoxFit.fill,)
+                ),
+                SizedBox(height: 3.w*3,),
+                BouncingWidget(
+                    duration: const Duration(milliseconds: 100),
+                    scaleFactor: 0.6,
+                    onPressed: (){
+                      Scaffold.of(context).openEndDrawer();
+                    },
+                    child: Image.asset('assets/images/common/ic_tuceng.png',width:55.w*3,height: 55.w*3,fit: BoxFit.fill,)
+                ),
+                SizedBox(height: 3.w*3,),
+                BouncingWidget(
+                    duration: const Duration(milliseconds: 100),
+                    scaleFactor: 0.6,
+                    onPressed: (){
+                      logic.postFire();
+                    },
+                    child: Image.asset('assets/images/common/ic_refresh.png',width:55.w*3,height: 55.w*3,fit: BoxFit.fill,)
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        ///地图加载
+        logic.loading.value?Container(
+          height: 1.sh,
+          width: 1.sw,
+          color: HhColors.blackRealColor,
+          margin: EdgeInsets.only(top: statusBarHeight),
+          child: Center(child: Image.asset("assets/images/common/loading.gif")),
+        ):const SizedBox(),
+      ],
+    );
+  }
+
+  mapDrawer(){
+    return Container(
+      color: HhColors.whiteColor,
+      width: 0.7.sw,
+      height: 1.sh,
+      margin: EdgeInsets.only(top: MediaQuery.of(logic.context).padding.top),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ///图层切换
+          Container(
+            margin: EdgeInsets.fromLTRB(10.w*3, 20.w*3, 0, 0),
+            child: Text("图层切换",style: TextStyle(color: HhColors.titleColor_33,fontSize: 14.sp*3),),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: (){
+                    Navigator.pop(logic.context);
+                    logic.mapTypeTag.value = 3;
+                    logic.myMapController.updateMapOptions(logic.mapOptions());
+                    logic.mapLoading();
+                  },
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(10.w*3, 16.w*3, 5.w*3, 0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(logic.mapTypeTag.value==3?"assets/images/common/ic_tdt_sl_select.png":"assets/images/common/ic_tdt_sl.png",height: 0.16.sw,fit: BoxFit.fill,),
+                        SizedBox(height: 16.w*3,),
+                        Text("天地图矢量",style: TextStyle(color: logic.mapTypeTag.value==3?HhColors.themeColor:HhColors.titleColor_33,fontSize: 12.sp*3),)
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: (){
+                    Navigator.pop(logic.context);
+                    logic.mapTypeTag.value = 4;
+                    logic.myMapController.updateMapOptions(logic.mapOptions());
+                    logic.mapLoading();
+                  },
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(5.w*3, 16.w*3, 10.w*3, 0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(logic.mapTypeTag.value==4?"assets/images/common/ic_tdt_yx_select.png":"assets/images/common/ic_tdt_yx.png",height: 0.16.sw,fit: BoxFit.fill,),
+                        SizedBox(height: 16.w*3,),
+                        Text("天地图影像",style: TextStyle(color: logic.mapTypeTag.value==4?HhColors.themeColor:HhColors.titleColor_33,fontSize: 12.sp*3),)
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          ///二维三维切换
+          Container(
+            margin: EdgeInsets.fromLTRB(10.w*3, 20.w*3, 0, 0),
+            child: Text("二维三维切换",style: TextStyle(color: HhColors.titleColor_33,fontSize: 14.sp*3),),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: (){
+                    Navigator.pop(logic.context);
+                    logic.mapChangeTag.value = 2;
+                    logic.mapLoading();
+                    Future.delayed(const Duration(milliseconds: 2300),(){
+                      logic.myMapController.updateMapOptions(logic.mapOptions());
+                    });
+                  },
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(10.w*3, 16.w*3, 5.w*3, 0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(logic.mapChangeTag.value==2?"assets/images/common/ic_2d_select.png":"assets/images/common/ic_2d.png",height: 0.16.sw,fit: BoxFit.fill,),
+                        SizedBox(height: 16.w*3,),
+                        Text("二维地图",style: TextStyle(color: logic.mapChangeTag.value==2?HhColors.themeColor:HhColors.titleColor_33,fontSize: 12.sp*3),)
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: (){
+                    Navigator.pop(logic.context);
+                    logic.mapChangeTag.value = 3;
+                    logic.mapLoading();
+                    Future.delayed(const Duration(milliseconds: 2300),(){
+                      logic.myMapController.updateMapOptions(logic.mapOptions());
+                    });
+                  },
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(5.w*3, 16.w*3, 10.w*3, 0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(logic.mapChangeTag.value==3?"assets/images/common/ic_3d_select.png":"assets/images/common/ic_3d.png",height: 0.16.sw,fit: BoxFit.fill,),
+                        SizedBox(height: 16.w*3,),
+                        Text("三维地图",style: TextStyle(color: logic.mapChangeTag.value==3?HhColors.themeColor:HhColors.titleColor_33,fontSize: 12.sp*3),)
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

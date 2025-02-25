@@ -1,9 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
-import 'package:insightsatellite/pages/common/common_data.dart';
-import 'package:insightsatellite/pages/common/login/personal/forget/code/personal_code_binding.dart';
-import 'package:insightsatellite/pages/common/login/personal/forget/code/personal_code_view.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhHttp.dart';

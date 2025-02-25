@@ -82,8 +82,6 @@ class CodeController extends GetxController {
       await prefs.setString(SPKeys().sex, '${result["data"]["sex"]}');
       await prefs.setString(SPKeys().avatar, '${result["data"]["avatar"]}');
       await prefs.setString(SPKeys().roles, '${result["data"]["roles"]}');
-      await prefs.setString(SPKeys().socialUsers, '${result["data"]["socialUsers"]}');
-      await prefs.setString(SPKeys().posts, '${result["data"]["posts"]}');
 
       //验证码登录成功后清除账号密码
       prefs.remove(SPKeys().account);

@@ -7,6 +7,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
+import 'package:flutter_baidu_mapapi_map/src/map/bmf_map_controller.dart';
 import 'package:flutter_bmflocation/flutter_bmflocation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
@@ -26,7 +28,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
-// import 'package:rxdart/rxdart.dart';
+import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 
 import '../../bus/event_class.dart';
 import '../../utils/EventBusUtils.dart';
@@ -35,6 +37,8 @@ class HomeController extends GetxController {
   final index = 0.obs;
   late BuildContext context;
   final unreadMsgCount = 0.obs;
+  final Rx<bool> viewStatus = true.obs;
+  final Rx<bool> loading = false.obs;
   final Rx<int> versionStatus = 0.obs;
   final Rx<int> downloadStep = 0.obs;
   final unhandledFriendApplicationCount = 0.obs;
@@ -48,7 +52,6 @@ class HomeController extends GetxController {
   StreamSubscription? progressSubscription;
   StreamSubscription? downloadProgressSubscription;
   late StreamSubscription showLoadingSubscription;
-  late StreamSubscription showShareReceiveSubscription;
   final Rx<String> version = ''.obs;
   final Rx<String> buildNumber = ''.obs;
 
@@ -59,35 +62,11 @@ class HomeController extends GetxController {
       'http://192.168.1.88:9000/resource/fireRebuild-2.1.1.apk';
   late String savePath = '';
 
-  switchTab(index) {
-    this.index.value = index;
-    // IMViews.showToast(index.toString());
-    var brightness = Platform.isAndroid ? Brightness.dark : Brightness.dark;
-    // switch(index){
-    //   case 0:
-    //   // 状态栏透明（Android）
-    //     brightness = Platform.isAndroid ? Brightness.dark : Brightness.light;
-    //     break;
-    //   case 1:
-    //     break;
-    //   case 2:
-    //     break;
-    //   case 3:
-    //     break;
-    //     default:
-    //       break;
-    //
-    // }
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarBrightness: brightness,
-      statusBarIconBrightness: brightness,
-    ));
-  }
-
-  scrollToUnreadMessage(index) {
-    onScrollToUnreadMessage?.call();
-  }
+  late BMFMapController myMapController;
+  ///图层类型 1谷歌影像 2谷歌高程 3天地图矢量 4天地图影像
+  final Rx<int> mapTypeTag = 4.obs;
+  ///二维三维切换 2二维 3三维
+  final Rx<int> mapChangeTag = 2.obs;
 
   Future<void> requestNotificationPermission() async {
     // 检查是否已经获得通知权限
@@ -116,7 +95,6 @@ class HomeController extends GetxController {
       progressSubscription!.cancel();
       downloadProgressSubscription!.cancel();
       showLoadingSubscription.cancel();
-      showShareReceiveSubscription.cancel();
     } catch (e) {
       //
     }
@@ -124,6 +102,7 @@ class HomeController extends GetxController {
 
   @override
   void onInit() {
+    mapLoading();
     localVersion();
     Future.delayed(const Duration(seconds: 1), () {
       showToastSubscription =
@@ -207,196 +186,12 @@ class HomeController extends GetxController {
         context.loaderOverlay.hide();
       }
     });
-    showShareReceiveSubscription =
-        EventBusUtil.getInstance().on<Share>().listen((event) {
-      dynamic model = event.model;
-
-      showCupertinoDialog(
-          context: context,
-          builder: (context) => Center(
-                child: Container(
-                  width: 1.sw,
-                  height: 300.w * 3,
-                  margin: EdgeInsets.fromLTRB(30.w * 3, 0, 30.w * 3, 0),
-                  padding: EdgeInsets.fromLTRB(
-                      20.w * 3, 17.w * 3, 20.w * 3, 12.w * 3),
-                  decoration: BoxDecoration(
-                      color: HhColors.whiteColor,
-                      borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: BouncingWidget(
-                          duration: const Duration(milliseconds: 100),
-                          scaleFactor: 1.2,
-                          onPressed: () {
-                            Get.back();
-                          },
-                          child: Image.asset(
-                            "assets/images/common/ic_x.png",
-                            width: 12.w * 3,
-                            height: 12.w * 3,
-                            fit: BoxFit.fill,
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                          margin: EdgeInsets.only(top: 9.w * 3),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                CommonUtils().parseNull(
-                                    "${model['shareUrerName'] ?? ''}", ""),
-                                style: TextStyle(
-                                    color: HhColors.blackTextColor,
-                                    fontSize: 18.sp * 3,
-                                    decoration: TextDecoration.none,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                height: 4.w * 3,
-                              ),
-                              Text(
-                                "共享给您",
-                                style: TextStyle(
-                                    color: HhColors.blackTextColor,
-                                    fontSize: 18.sp * 3,
-                                    decoration: TextDecoration.none,
-                                    fontWeight: FontWeight.w200),
-                              ),
-                              SizedBox(
-                                height: 12.w * 3,
-                              ),
-                              Image.asset(
-                                "assets/images/common/icon_share_camera.png",
-                                width: 110.w * 3,
-                                height: 110.w * 3,
-                                fit: BoxFit.fill,
-                              ),
-                              SizedBox(
-                                height: 10.w * 3,
-                              ),
-                              Text(
-                                CommonUtils().parseNull(
-                                    "${model['deviceName'] ?? ''}", ""),
-                                style: TextStyle(
-                                    color: HhColors.gray6TextColor,
-                                    fontSize: 16.sp * 3,
-                                    decoration: TextDecoration.none,
-                                    fontWeight: FontWeight.w200),
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: BouncingWidget(
-                                      duration:
-                                          const Duration(milliseconds: 100),
-                                      scaleFactor: 1.2,
-                                      onPressed: () {
-                                        handleShare("${model['id'] ?? ''}", 2,
-                                            "${model['deviceName'] ?? ''}");
-                                      },
-                                      child: Container(
-                                        height: 44.w * 3,
-                                        margin: EdgeInsets.fromLTRB(
-                                            0, 30.w, 20.w, 0),
-                                        decoration: BoxDecoration(
-                                            color: HhColors.whiteColor,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(8.w * 3)),
-                                            border: Border.all(
-                                                color: HhColors.grayE6BackColor,
-                                                width: 2.w)),
-                                        child: Center(
-                                          child: Text(
-                                            "拒绝",
-                                            style: TextStyle(
-                                              color: HhColors.blackTextColor,
-                                              decoration: TextDecoration.none,
-                                              fontWeight: FontWeight.w300,
-                                              fontSize: 16.sp * 3,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: BouncingWidget(
-                                      duration:
-                                          const Duration(milliseconds: 100),
-                                      scaleFactor: 1.2,
-                                      onPressed: () {
-                                        handleShare("${model['id'] ?? ''}", 1,
-                                            "${model['deviceName'] ?? ''}");
-                                      },
-                                      child: Container(
-                                        height: 44.w * 3,
-                                        margin: EdgeInsets.fromLTRB(
-                                            13.w * 3, 30.w, 0, 0),
-                                        decoration: BoxDecoration(
-                                            color: HhColors.mainBlueColor,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(8.w * 3))),
-                                        child: Center(
-                                          child: Text(
-                                            "同意共享",
-                                            style: TextStyle(
-                                              color: HhColors.whiteColor,
-                                              decoration: TextDecoration.none,
-                                              fontWeight: FontWeight.w300,
-                                              fontSize: 16.sp * 3,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ));
-    });
     getLocation();
     //获取通知权限
     Future.delayed(const Duration(milliseconds: 2000), () {
       requestNotificationPermission();
     });
     super.onInit();
-  }
-
-  Future<void> handleShare(String id, int status, String name) async {
-    EventBusUtil.getInstance().fire(HhLoading(show: true));
-    dynamic data = {
-      "id": id,
-      "status": status,
-    };
-    var result = await HhHttp()
-        .request(RequestUtils.shareHandle, method: DioMethod.post, data: data);
-    EventBusUtil.getInstance().fire(HhLoading(show: false));
-    HhLog.d("handleShare -- $result");
-    if (result["code"] == 0 && result["data"] != null) {
-      EventBusUtil.getInstance().fire(HhToast(
-          title: status == 2 ? '操作成功' : '“$name”\n已共享至“默认空间”',
-          type: 0,
-          color: 0));
-      Get.back();
-      EventBusUtil.getInstance().fire(SpaceList());
-      EventBusUtil.getInstance().fire(DeviceList());
-    } else {
-      EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString(result["msg"])));
-    }
   }
 
   Future<void> getLocation() async {
@@ -412,7 +207,7 @@ class HomeController extends GetxController {
       //接受定位回调
       _myLocPlugin.seriesLocationCallback(callback: (BaiduLocation result) {
         //result为定位结果
-        HhLog.e("location isAndroid ${result.latitude},${result.longitude}");
+        HhLog.d("location isAndroid ${result.latitude},${result.longitude}");
         CommonData.latitude = result.latitude;
         CommonData.longitude = result.longitude;
         EventBusUtil.getInstance().fire(Location());
@@ -493,13 +288,6 @@ class HomeController extends GetxController {
     map['type'] = CommonData.test ? (CommonData.personal ? 'testPersonal' : 'testCompany') : (CommonData.personal ? 'personal' : 'company');
     var result = await HhHttp()
         .request(RequestUtils.versionNew, method: DioMethod.get, params: map);
-    /*
-    Map<String, dynamic> map = {};
-    map['pageNo'] = '1';
-    map['pageSize'] = '100';
-    map['flag'] = CommonData.personal ? 'user' : 'company';
-    var result = await HhHttp()
-        .request(RequestUtils.version, method: DioMethod.get, params: map);*/
     HhLog.d("getVersion -- request ${RequestUtils.versionNew}");
     HhLog.d("getVersion -- map $map");
     HhLog.d("getVersion -- $result");
@@ -735,16 +523,6 @@ class HomeController extends GetxController {
                                       Future.delayed(
                                           const Duration(milliseconds: 1600),
                                           () async {
-                                        /*var installStatus = await Permission.requestInstallPackages.request();*/
-                                        /*if (installStatus.isGranted) {
-                                        versionStatus.value = 1;
-                                        downloadStep.value = 0;
-                                        downloadDir();
-                                      } else {
-                                        //未开启权限
-                                      }*/
-
-                                        // Get.offAll(() => HomePage(), binding: HomeBinding());
                                         try {
                                           await Permission
                                               .requestInstallPackages
@@ -837,5 +615,79 @@ class HomeController extends GetxController {
   uploadAPK() async {
     await OpenFile.open(savePath,
         type: "application/vnd.android.package-archive");
+  }
+
+  /// 创建完成回调
+  void onBMFMapCreated(BMFMapController controller) {
+    myMapController = controller;
+
+    /// 地图marker点击回调 (Android端SDK存在bug,现区分两端分别设置)
+    myMapController.setMapClickedMarkerCallback(
+        callback: (BMFMarker marker) async {
+          int currentZoom = await myMapController.getZoomLevel()??13;
+          if(Platform.isAndroid){
+            // for(int i = 0; i < fireMarkerList.length;i++){
+            //   if(fireMarkerList[i].Id == marker.Id){
+            //     //点击Marker详情
+            //     showMarkerDetail(fireAllList[i]);
+            //     myMapController?.setCenterCoordinate(
+            //       BMFCoordinate(fireAllList[i]["Latitude"],fireAllList[i]["Longitude"]), false,
+            //     );
+            //     myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+            //     return;
+            //   }
+            // }
+          }
+          if(Platform.isIOS){
+            // myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+            // dynamic selectedX = {};
+            // if(marker.identifier!=null && marker.identifier.contains("fire")){
+            //   for(dynamic modelX in fireAllList){
+            //     if(marker.identifier.contains(modelX["Id"])){
+            //       selectedX = modelX;
+            //       //点击Marker详情
+            //       showMarkerDetail(selectedX);
+            //       break;
+            //     }
+            //   }
+            // }
+          }
+        });
+
+    ///地图边界
+    // if(areaPointsList!=null && areaPointsList.length!=0){
+    //   drawAreaLines();
+    // }
+  }
+
+  void postFire() {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+
+    Future.delayed(const Duration(milliseconds: 1000),(){
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+    });
+  }
+
+  void mapLoading(){
+    loading.value = true;
+    Future.delayed(const Duration(milliseconds: 2000),(){
+      loading.value = false;
+      viewStatus.value = false;
+      viewStatus.value = true;
+    });
+  }
+
+  mapOptions() {
+    return BMFMapOptions(
+        center: BMFCoordinate(CommonData.latitude ?? 36.30865,
+            CommonData.longitude ?? 120.314037),
+        zoomLevel: 6,
+        showDEMLayer:true,//地图是否展示地形图层默认false，since 3.6.0
+        overlookEnabled:mapChangeTag.value==3?true:false,// 设定地图View能否支持俯仰角
+        buildingsEnabled:mapChangeTag.value==3?true:false,// 设定地图是否现显示3D楼块效果
+        overlooking:mapChangeTag.value==3?-45:0,// 地图俯视角度，在手机上当前可使用的范围为－45～0度 (ios取int值)
+        mapType: mapTypeTag.value==3?BMFMapType.Standard:BMFMapType.Satellite,
+        mapPadding:
+        BMFEdgeInsets(left: 30.w, top: 0, right: 30.w, bottom: 0));
   }
 }
