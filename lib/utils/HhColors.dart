@@ -128,6 +128,10 @@ class HhColors {
   //首页搜索栏背景色
   static const backgroundHomeSearch = Color(0xFF79B8FF);
 
+  static const red = Color(0xcccc0000);
+  static const red2 = Color(0xFFF9605F);
+  static const yellow = Color(0xFFF5CD5B);
+
 
 
   //Size

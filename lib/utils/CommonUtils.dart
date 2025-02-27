@@ -514,7 +514,7 @@ class CommonUtils {
                                     "$hint",
                                     style: TextStyle(
                                         color: HhColors.titleColor_33,
-                                        fontSize: 16.sp * 3),
+                                        fontSize: 15.sp * 3),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ))),
@@ -530,11 +530,11 @@ class CommonUtils {
                         children: <Widget>[
                           Expanded(
                             child: CommonButton(
-                              height: 44.w * 3,
-                              fontSize: 16.sp * 3,
+                              height: 39.w * 3,
+                              fontSize: 15.sp * 3,
                               backgroundColor: HhColors.whiteColor,
                               margin:
-                                  EdgeInsets.fromLTRB(20.w * 3, 0, 13.w * 3, 0),
+                                  EdgeInsets.fromLTRB(20.w * 3, 0, 20.w * 3, 0),
                               solid: true,
                               borderRadius: 8.w * 3,
                               solidColor: HhColors.grayEDBackColor,
@@ -545,10 +545,10 @@ class CommonUtils {
                           ),
                           Expanded(
                             child: CommonButton(
-                              height: 44.w * 3,
-                              fontSize: 16.sp * 3,
-                              backgroundColor: HhColors.mainBlueColor,
-                              margin: EdgeInsets.fromLTRB(0, 0, 20.w * 3, 0),
+                              height: 39.w * 3,
+                              fontSize: 15.sp * 3,
+                              backgroundColor: HhColors.themeColor,
+                              margin: EdgeInsets.fromLTRB(20.w * 3, 0, 20.w * 3, 0),
                               borderRadius: 8.w * 3,
                               textColor: HhColors.whiteColor,
                               text: rightStr ?? "确定",

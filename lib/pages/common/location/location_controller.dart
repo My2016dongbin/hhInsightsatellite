@@ -3,13 +3,10 @@ import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
 import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 import 'package:flutter_baidu_mapapi_search/flutter_baidu_mapapi_search.dart';
 import 'package:get/get.dart';
-import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
-import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
-import 'package:insightsatellite/utils/RequestUtils.dart';
 
 class LocationController extends GetxController {
   late BuildContext context;
@@ -44,29 +41,12 @@ class LocationController extends GetxController {
           enabled: false,
           visible: true,
           identifier: "location",
-          icon: 'assets/images/common/ic_device_online.png');
+          icon: 'assets/images/common/icon_point.png');
 
       /// 添加Marker
       controller?.addMarker(marker);
       locSearch();
     });
-  }
-
-  Future<void> userEdit() async {
-    EventBusUtil.getInstance().fire(HhLoading(show: true, title: '正在保存..'));
-    var tenantResult = await HhHttp().request(
-      RequestUtils.userEdit,
-      method: DioMethod.put,
-      data: {}
-    );
-    HhLog.d("userEdit -- $tenantResult");
-    if (tenantResult["code"] == 0 && tenantResult["data"] != null) {
-
-    } else {
-      EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString(tenantResult["msg"])));
-      EventBusUtil.getInstance().fire(HhLoading(show: false));
-    }
   }
 
   void userMarker() {
@@ -76,7 +56,7 @@ class LocationController extends GetxController {
         enabled: false,
         visible: true,
         identifier: "location",
-        icon: 'assets/images/common/icon_point.png');
+        icon: 'assets/images/common/icon_blue_loc.png');
 
     /// 添加Marker
     controller?.addMarker(point);

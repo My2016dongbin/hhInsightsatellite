@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:bouncing_widget/bouncing_widget.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,10 +14,9 @@ import 'package:flutter_bmflocation/flutter_bmflocation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
-import 'package:insightsatellite/pages/home/home_binding.dart';
-import 'package:insightsatellite/pages/home/home_view.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
 import 'package:insightsatellite/utils/HhHttp.dart';
@@ -55,7 +55,7 @@ class HomeController extends GetxController {
   final Rx<String> version = ''.obs;
   final Rx<String> buildNumber = ''.obs;
 
-  final Rx<int> totalSize = (65*1000*1000).obs;
+  final Rx<int> totalSize = (65 * 1000 * 1000).obs;
   final Rx<int> currentSize = 0.obs;
   late Dio dio = Dio();
   late String downloadUrl =
@@ -63,10 +63,124 @@ class HomeController extends GetxController {
   late String savePath = '';
 
   late BMFMapController myMapController;
+
   ///图层类型 1谷歌影像 2谷歌高程 3天地图矢量 4天地图影像
   final Rx<int> mapTypeTag = 4.obs;
+
   ///二维三维切换 2二维 3三维
   final Rx<int> mapChangeTag = 2.obs;
+
+  final Rx<int> fireCount = 0.obs;
+  final Rx<bool> fireTypeByTime = true.obs;
+  late int pageNum = 1;
+  late int pageSize = 20;
+  late EasyRefreshController easyController = EasyRefreshController();
+  final PagingController<int, dynamic> fireController =
+  PagingController(firstPageKey: 1);
+
+  late dynamic fireInfo = {};
+  final Rx<bool> satelliteStatus = true.obs;
+  final Rx<bool> skyStatus = true.obs;
+  final Rx<bool> landStatus = true.obs;
+  final Rx<bool> landTypeStatus = true.obs;
+  late List<dynamic> satelliteList = [
+    {
+      "title":"全部",
+      "choose":false,
+    },
+    {
+      "title":"NPP",
+      "choose":false,
+    },
+    {
+      "title":"FY-4",
+      "choose":false,
+    },
+    {
+      "title":"FY-3",
+      "choose":false,
+    },
+    {
+      "title":"Himawari-9",
+      "choose":false,
+    },
+    {
+      "title":"NOAA-19",
+      "choose":false,
+    },
+    {
+      "title":"NOAA-20",
+      "choose":false,
+    },
+    {
+      "title":"GK2a",
+      "choose":false,
+    },
+  ];
+  late List<dynamic> skyList = [
+    {
+      "title":"全部",
+      "choose":false,
+    },
+    {
+      "title":"无人机",
+      "choose":false,
+    },
+    {
+      "title":"悬浮器",
+      "choose":false,
+    }
+  ];
+  late List<dynamic> landList = [
+    {
+      "title":"全部",
+      "choose":false,
+    },
+    {
+      "title":"摄像机",
+      "choose":false,
+    },
+    {
+      "title":"护林员",
+      "choose":false,
+    },
+    {
+      "title":"瞭望员",
+      "choose":false,
+    },
+    {
+      "title":"群众",
+      "choose":false,
+    }
+  ];
+  late List<dynamic> landTypeList = [
+    {
+      "title":"全部",
+      "choose":false,
+    },
+    {
+      "title":"林地",
+      "choose":false,
+    },
+    {
+      "title":"草地",
+      "choose":false,
+    },
+    {
+      "title":"农田",
+      "choose":false,
+    },
+    {
+      "title":"其他",
+      "choose":false,
+    }
+  ];
+  final Rx<String> startTime = "请输入开始时间".obs;
+  final Rx<String> endTime = "请输入结束时间".obs;
+  final Rx<String> province = "请选择省".obs;
+  final Rx<String> city = "请选择市".obs;
+  final Rx<bool> otherOut = false.obs;
+  final Rx<bool> otherCache = false.obs;
 
   Future<void> requestNotificationPermission() async {
     // 检查是否已经获得通知权限
@@ -115,7 +229,7 @@ class HomeController extends GetxController {
           Container(
             margin: EdgeInsets.fromLTRB(20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
             padding: EdgeInsets.fromLTRB(30.w * 3,
-                event.type == 0 ? 18.h * 3 : 25.h * 3, 30.w * 3, 18.h * 3),
+                event.type == 0 ? 12.h * 3 : 25.h * 3, 30.w * 3, 12.h * 3),
             decoration: BoxDecoration(
                 color: HhColors.blackColor.withAlpha(200),
                 borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
@@ -148,7 +262,7 @@ class HomeController extends GetxController {
                   event.title,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: HhColors.whiteColor, fontSize: 16.sp * 3),
+                      color: HhColors.whiteColor, fontSize: 14.sp * 3),
                 ),
                 // SizedBox(height: 10.h*3,)
                 // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
@@ -232,26 +346,26 @@ class HomeController extends GetxController {
 
   BaiduLocationAndroidOption initAndroidOptions() {
     BaiduLocationAndroidOption options = BaiduLocationAndroidOption(
-// 定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
+        // 定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
         locationMode: BMFLocationMode.hightAccuracy,
-// 是否需要返回地址信息
+        // 是否需要返回地址信息
         isNeedAddress: true,
-// 是否需要返回海拔高度信息
+        // 是否需要返回海拔高度信息
         isNeedAltitude: true,
-// 是否需要返回周边poi信息
+        // 是否需要返回周边poi信息
         isNeedLocationPoiList: true,
-// 是否需要返回新版本rgc信息
+        // 是否需要返回新版本rgc信息
         isNeedNewVersionRgc: true,
-// 是否需要返回位置描述信息
+        // 是否需要返回位置描述信息
         isNeedLocationDescribe: true,
-// 是否使用gps
+        // 是否使用gps
         openGps: true,
-// 可选，设置场景定位参数，包括签到场景、运动场景、出行场景
+        // 可选，设置场景定位参数，包括签到场景、运动场景、出行场景
         locationPurpose: BMFLocationPurpose.sport,
-// 坐标系
+        // 坐标系
         coordType: BMFLocationCoordType.bd09ll,
-// 设置发起定位请求的间隔，int类型，单位ms
-// 如果设置为0，则代表单次定位，即仅定位一次，默认为0
+        // 设置发起定位请求的间隔，int类型，单位ms
+        // 如果设置为0，则代表单次定位，即仅定位一次，默认为0
         scanspan: 0);
     return options;
   }
@@ -285,7 +399,9 @@ class HomeController extends GetxController {
     Map<String, dynamic> map = {};
     map['operatingSystem'] = "Android";
     map['version'] = buildNumber.value;
-    map['type'] = CommonData.test ? (CommonData.personal ? 'testPersonal' : 'testCompany') : (CommonData.personal ? 'personal' : 'company');
+    map['type'] = CommonData.test
+        ? (CommonData.personal ? 'testPersonal' : 'testCompany')
+        : (CommonData.personal ? 'personal' : 'company');
     var result = await HhHttp()
         .request(RequestUtils.versionNew, method: DioMethod.get, params: map);
     HhLog.d("getVersion -- request ${RequestUtils.versionNew}");
@@ -303,8 +419,9 @@ class HomeController extends GetxController {
     versionStatus.value = 0;
     bool force = false;
     try {
-      int minSupportedVersion =  int.parse(update["minSupportedVersion"]);
-      if(minSupportedVersion > (int.parse(buildNumber.value)) || minSupportedVersion == -1){
+      int minSupportedVersion = int.parse(update["minSupportedVersion"]);
+      if (minSupportedVersion > (int.parse(buildNumber.value)) ||
+          minSupportedVersion == -1) {
         force = true;
       }
       showCupertinoDialog(
@@ -624,35 +741,35 @@ class HomeController extends GetxController {
     /// 地图marker点击回调 (Android端SDK存在bug,现区分两端分别设置)
     myMapController.setMapClickedMarkerCallback(
         callback: (BMFMarker marker) async {
-          int currentZoom = await myMapController.getZoomLevel()??13;
-          if(Platform.isAndroid){
-            // for(int i = 0; i < fireMarkerList.length;i++){
-            //   if(fireMarkerList[i].Id == marker.Id){
-            //     //点击Marker详情
-            //     showMarkerDetail(fireAllList[i]);
-            //     myMapController?.setCenterCoordinate(
-            //       BMFCoordinate(fireAllList[i]["Latitude"],fireAllList[i]["Longitude"]), false,
-            //     );
-            //     myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
-            //     return;
-            //   }
-            // }
-          }
-          if(Platform.isIOS){
-            // myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
-            // dynamic selectedX = {};
-            // if(marker.identifier!=null && marker.identifier.contains("fire")){
-            //   for(dynamic modelX in fireAllList){
-            //     if(marker.identifier.contains(modelX["Id"])){
-            //       selectedX = modelX;
-            //       //点击Marker详情
-            //       showMarkerDetail(selectedX);
-            //       break;
-            //     }
-            //   }
-            // }
-          }
-        });
+      int currentZoom = await myMapController.getZoomLevel() ?? 13;
+      if (Platform.isAndroid) {
+        // for(int i = 0; i < fireMarkerList.length;i++){
+        //   if(fireMarkerList[i].Id == marker.Id){
+        //     //点击Marker详情
+        //     showMarkerDetail(fireAllList[i]);
+        //     myMapController?.setCenterCoordinate(
+        //       BMFCoordinate(fireAllList[i]["Latitude"],fireAllList[i]["Longitude"]), false,
+        //     );
+        //     myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+        //     return;
+        //   }
+        // }
+      }
+      if (Platform.isIOS) {
+        // myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+        // dynamic selectedX = {};
+        // if(marker.identifier!=null && marker.identifier.contains("fire")){
+        //   for(dynamic modelX in fireAllList){
+        //     if(marker.identifier.contains(modelX["Id"])){
+        //       selectedX = modelX;
+        //       //点击Marker详情
+        //       showMarkerDetail(selectedX);
+        //       break;
+        //     }
+        //   }
+        // }
+      }
+    });
 
     ///地图边界
     // if(areaPointsList!=null && areaPointsList.length!=0){
@@ -663,14 +780,58 @@ class HomeController extends GetxController {
   void postFire() {
     EventBusUtil.getInstance().fire(HhLoading(show: true));
 
-    Future.delayed(const Duration(milliseconds: 1000),(){
+    Future.delayed(const Duration(milliseconds: 1000), () {
       EventBusUtil.getInstance().fire(HhLoading(show: false));
+
+      List<dynamic> newItems = [
+        {
+          "id":"1",
+          "time":"2025-02-26 08:20:00",
+          "no":"YN5302687678666001",
+          "address":"云南省 普洱市 景东彝族自治县1",
+          "latitude":36.121,
+          "longitude":121.121,
+        },
+        {
+          "id":"2",
+          "time":"2025-02-26 08:20:00",
+          "no":"YN5302687678666002",
+          "address":"云南省 普洱市 景东彝族自治县2",
+          "latitude":36.221,
+          "longitude":121.121,
+        },
+        {
+          "id":"3",
+          "time":"2025-02-26 18:30:00",
+          "no":"YN5302687678666002",
+          "address":"云南省 普洱市 景东彝族自治县3",
+          "latitude":36.121,
+          "longitude":121.221,
+        },
+        {
+          "id":"4",
+          "time":"2025-02-26 18:30:00",
+          "no":"YN5302687678666001",
+          "address":"云南省 普洱市 景东彝族自治县4",
+          "latitude":36.221,
+          "longitude":121.221,
+        },
+      ];
+      fireCount.value = 666;
+      if (pageNum == 1) {
+        fireController.itemList = [];
+      }else{
+        if(newItems.isEmpty){
+          easyController.finishLoad(IndicatorResult.noMore,true);
+        }
+      }
+      fireController.appendLastPage(newItems);
     });
   }
 
-  void mapLoading(){
+  void mapLoading() {
     loading.value = true;
-    Future.delayed(const Duration(milliseconds: 2000),(){
+    Future.delayed(const Duration(milliseconds: 2000), () {
       loading.value = false;
       viewStatus.value = false;
       viewStatus.value = true;
@@ -682,12 +843,148 @@ class HomeController extends GetxController {
         center: BMFCoordinate(CommonData.latitude ?? 36.30865,
             CommonData.longitude ?? 120.314037),
         zoomLevel: 6,
-        showDEMLayer:true,//地图是否展示地形图层默认false，since 3.6.0
-        overlookEnabled:mapChangeTag.value==3?true:false,// 设定地图View能否支持俯仰角
-        buildingsEnabled:mapChangeTag.value==3?true:false,// 设定地图是否现显示3D楼块效果
-        overlooking:mapChangeTag.value==3?-45:0,// 地图俯视角度，在手机上当前可使用的范围为－45～0度 (ios取int值)
-        mapType: mapTypeTag.value==3?BMFMapType.Standard:BMFMapType.Satellite,
-        mapPadding:
-        BMFEdgeInsets(left: 30.w, top: 0, right: 30.w, bottom: 0));
+        showDEMLayer: true,
+        //地图是否展示地形图层默认false，since 3.6.0
+        overlookEnabled: mapChangeTag.value == 3 ? true : false,
+        // 设定地图View能否支持俯仰角
+        buildingsEnabled: mapChangeTag.value == 3 ? true : false,
+        // 设定地图是否现显示3D楼块效果
+        overlooking: mapChangeTag.value == 3 ? -45 : 0,
+        // 地图俯视角度，在手机上当前可使用的范围为－45～0度 (ios取int值)
+        mapType:
+            mapTypeTag.value == 3 ? BMFMapType.Standard : BMFMapType.Satellite,
+        mapPadding: BMFEdgeInsets(left: 30.w, top: 0, right: 30.w, bottom: 0));
+  }
+
+  void parseSatelliteChoose(int index) {
+    ///全部-选中
+    if(satelliteList[0]['choose'] && index == 0){
+      for(int i = 0; i < satelliteList.length; i++){
+        satelliteList[i]['choose'] = true;
+      }
+    }
+    ///全部-取消
+    if(!satelliteList[0]['choose'] && index == 0){
+      for(int i = 0; i < satelliteList.length; i++){
+        satelliteList[i]['choose'] = false;
+      }
+    }
+    ///其他
+    if(index != 0){
+      int number = 0;
+      for(int i = 1; i < satelliteList.length; i++){
+        if(satelliteList[i]['choose']){
+          number++;
+        }
+      }
+      if(number == satelliteList.length-1){
+        ///（其他）都选中
+        satelliteList[0]['choose'] = true;
+      }else{
+        ///（其他）没有都选中
+        satelliteList[0]['choose'] = false;
+      }
+    }
+    satelliteStatus.value = false;
+    satelliteStatus.value = true;
+  }
+
+  void parseSkyChoose(int index) {
+    ///全部-选中
+    if(skyList[0]['choose'] && index == 0){
+      for(int i = 0; i < skyList.length; i++){
+        skyList[i]['choose'] = true;
+      }
+    }
+    ///全部-取消
+    if(!skyList[0]['choose'] && index == 0){
+      for(int i = 0; i < skyList.length; i++){
+        skyList[i]['choose'] = false;
+      }
+    }
+    ///其他
+    if(index != 0){
+      int number = 0;
+      for(int i = 1; i < skyList.length; i++){
+        if(skyList[i]['choose']){
+          number++;
+        }
+      }
+      if(number == skyList.length-1){
+        ///（其他）都选中
+        skyList[0]['choose'] = true;
+      }else{
+        ///（其他）没有都选中
+        skyList[0]['choose'] = false;
+      }
+    }
+    skyStatus.value = false;
+    skyStatus.value = true;
+  }
+
+  void parseLandChoose(int index) {
+    ///全部-选中
+    if(landList[0]['choose'] && index == 0){
+      for(int i = 0; i < landList.length; i++){
+        landList[i]['choose'] = true;
+      }
+    }
+    ///全部-取消
+    if(!landList[0]['choose'] && index == 0){
+      for(int i = 0; i < landList.length; i++){
+        landList[i]['choose'] = false;
+      }
+    }
+    ///其他
+    if(index != 0){
+      int number = 0;
+      for(int i = 1; i < landList.length; i++){
+        if(landList[i]['choose']){
+          number++;
+        }
+      }
+      if(number == landList.length-1){
+        ///（其他）都选中
+        landList[0]['choose'] = true;
+      }else{
+        ///（其他）没有都选中
+        landList[0]['choose'] = false;
+      }
+    }
+    landStatus.value = false;
+    landStatus.value = true;
+  }
+
+  void parseLandTypeChoose(int index) {
+    ///全部-选中
+    if(landTypeList[0]['choose'] && index == 0){
+      for(int i = 0; i < landTypeList.length; i++){
+        landTypeList[i]['choose'] = true;
+      }
+    }
+    ///全部-取消
+    if(!landTypeList[0]['choose'] && index == 0){
+      for(int i = 0; i < landTypeList.length; i++){
+        landTypeList[i]['choose'] = false;
+      }
+    }
+    ///其他
+    if(index != 0){
+      int number = 0;
+      for(int i = 1; i < landTypeList.length; i++){
+        if(landTypeList[i]['choose']){
+          number++;
+        }
+      }
+      if(number == landTypeList.length-1){
+        ///（其他）都选中
+        landTypeList[0]['choose'] = true;
+      }else{
+        ///（其他）没有都选中
+        landTypeList[0]['choose'] = false;
+      }
+    }
+    landTypeStatus.value = false;
+    landTypeStatus.value = true;
   }
 }

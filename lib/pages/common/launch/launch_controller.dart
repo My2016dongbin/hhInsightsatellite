@@ -138,7 +138,7 @@ class LaunchController extends GetxController {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: HhColors.whiteColor,
-                    fontSize: 16.sp*3),
+                    fontSize: 14.sp*3),
               ),
               // SizedBox(height: 10.h*3,)
               // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),

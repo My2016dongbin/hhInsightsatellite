@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:bouncing_widget/bouncing_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
@@ -13,6 +14,7 @@ import 'package:insightsatellite/utils/HhColors.dart';
 
 class LocationPage extends StatelessWidget {
   final logic = Get.find<LocationController>();
+  late double statusBarHeight = 0;
 
   LocationPage({super.key});
 
@@ -25,6 +27,7 @@ class LocationPage extends StatelessWidget {
       statusBarBrightness: Brightness.dark, // 状态栏字体亮度
       statusBarIconBrightness: Brightness.dark, // 状态栏图标亮度
     ));
+    statusBarHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: HhColors.backColor,
       body: Obx(
@@ -41,67 +44,31 @@ class LocationPage extends StatelessWidget {
   loginView() {
     return Stack(
       children: [
-        // Image.asset('assets/images/common/back_login.png',width:1.sw,height: 1.sh,fit: BoxFit.fill,),
-        Container(color: HhColors.whiteColor,width: 1.sw,height: 1.sh,),
+        Container(color: HhColors.themeColor,width: 1.sw,height: statusBarHeight+50.w*3,),
         ///title
         Align(
-          alignment: Alignment.topCenter,
-          child: Container(
-            margin: EdgeInsets.only(top: 90.w),
-            color: HhColors.trans,
-            child: Text(
-              '选择定位',
-              style: TextStyle(
-                  color: HhColors.blackTextColor,
-                  fontSize: 30.sp,
-                  fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-        InkWell(
-          onTap: () {
-            Get.back();
-          },
-          child: Container(
-            margin: EdgeInsets.fromLTRB(36.w, 90.w, 0, 0),
-            padding: EdgeInsets.all(10.w),
-            color: HhColors.trans,
-            child: Image.asset(
-              "assets/images/common/back.png",
-              height: 17.w*3,
-              width: 10.w*3,
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.topRight,
+          alignment: Alignment.topLeft,
           child: InkWell(
             onTap: (){
-              if(logic.longitude.value == 0.0){
-                EventBusUtil.getInstance().fire(HhToast(title: '请选择定位'));
-                return;
-              }
               Get.back();
             },
             child: Container(
-              margin: EdgeInsets.fromLTRB(0, 90.w, 36.w, 0),
-              padding: EdgeInsets.fromLTRB(23.w, 8.w, 23.w, 10.w),
-              decoration: BoxDecoration(
-                color: HhColors.mainBlueColor,
-                borderRadius: BorderRadius.all(Radius.circular(8.w),),
-              ),
-              child: Text(
-                '确定',
-                style: TextStyle(
-                    color: HhColors.whiteColor,
-                    fontSize: 26.sp,),
-              ),
+                margin: EdgeInsets.fromLTRB(10.w*3, statusBarHeight + 12.w*3, 0, 0),
+                padding: EdgeInsets.all(5.w*3),
+                child: Image.asset('assets/images/common/ic_back.png',width:20.w*3,height: 20.w*3,fit: BoxFit.fill,)
             ),
           ),
         ),
+        Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+              margin: EdgeInsets.fromLTRB(0, statusBarHeight + 12.w*3, 0, 0),
+              padding: EdgeInsets.all(5.w*3),
+              child: Text('地图',style: TextStyle(color: HhColors.whiteColor,fontSize: 14.sp*3),)
+          ),
+        ),
         Container(
-          margin: EdgeInsets.only(top: 160.w),
+          margin: EdgeInsets.only(top: 77.w*3),
           child: BMFMapWidget(
             onBMFMapCreated: (controller) {
               logic.onBMFMapCreated(controller);
@@ -116,12 +83,11 @@ class LocationPage extends StatelessWidget {
           ),
         ),
 
-        logic.longitude.value==0.0?const SizedBox():Align(
+        Align(
           alignment: Alignment.bottomCenter,
           child: Container(
             width: 1.sw,
             padding: EdgeInsets.fromLTRB(40.w, 30.w, 40.w, 30.w),
-            margin: EdgeInsets.fromLTRB(20.w,0,20.w,0),
             decoration: BoxDecoration(
               color: HhColors.whiteColor,
               borderRadius: BorderRadius.all(Radius.circular(10.w))
@@ -131,16 +97,38 @@ class LocationPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  logic.locText.value
+                    logic.longitude.value==0.0?"点击地图以获取经纬度和地图状态":logic.locText.value,style: TextStyle(
+                    color: HhColors.blackColor,
+                    fontSize: 14.sp*3
+                )
                 ),
                 SizedBox(height: 20.w,),
                 Text(
-                  '经度：${logic.longitude.value}'
+                  logic.longitude.value==0.0?"点击地图以获取经纬度和地图状态":'(${logic.longitude.value},${logic.latitude.value})',style: TextStyle(
+                  color: HhColors.gray9TextColor,
+                  fontSize: 10.sp*3
+                ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 20.w,),
-                Text(
-                  '纬度：${logic.latitude.value}'
-                ),
+                ///确认选择
+                BouncingWidget(
+                  duration: const Duration(milliseconds: 100),
+                  scaleFactor: 0.2,
+                  onPressed: () {
+                    Get.back();
+                  },
+                  child: Container(
+                    height: 40.w*3,
+                    width: 1.sw,
+                    decoration: BoxDecoration(
+                        color: HhColors.themeColor,
+                        borderRadius: BorderRadius.circular(20.w*3)
+                    ),
+                    child: Center(child: Text('确认选择',style: TextStyle(color: HhColors.whiteColor,fontSize: 14.sp*3),)),
+                  ),
+                )
               ],
             ),
           ),
