@@ -18,6 +18,7 @@ import 'package:insightsatellite/pages/home/setting/setting_view.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
+import 'package:insightsatellite/utils/HhLog.dart';
 class HomePage extends StatelessWidget {
   final logic = Get.find<HomeController>();
 
@@ -514,8 +515,9 @@ class HomePage extends StatelessWidget {
                     duration: const Duration(milliseconds: 100),
                     scaleFactor: 0.6,
                     onPressed: (){
+                      HhLog.e("Get.to(() => FeedBackPage()");
                       Get.to(() => FeedBackPage(),
-                          binding: FeedBackBinding());
+                          binding: FeedBackBinding(),preventDuplicates: false);
                     },
                     child: Container(
                         padding: EdgeInsets.fromLTRB(8.w*3, 2.w*3, 8.w*3, 2.w*3),

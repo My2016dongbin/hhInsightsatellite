@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:bouncing_widget/bouncing_widget.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,10 @@ import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
 import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/pages/home/feedback/feedback_controller.dart';
+import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
 
 class FeedBackPage extends StatelessWidget {
@@ -228,10 +231,14 @@ class FeedBackPage extends StatelessWidget {
                   ),
                 ),
                 ///添加图片
-                Container(
+                logic.pictureStatus.value?Container(
                   margin: EdgeInsets.only(top: 20.w*3),
-                  child: Image.asset('assets/images/common/ic_add_pic.png',width:80.w*3,height: 80.w*3,fit: BoxFit.fill,),
-                ),
+                  child: SingleChildScrollView(
+                    child: Row(
+                      children: getPictureChildren(),
+                    ),
+                  ),
+                ):const SizedBox(),
               ],
             ),
           ),
@@ -260,6 +267,178 @@ class FeedBackPage extends StatelessWidget {
         )
       ],
     );
+  }
+
+  void showChooseTypeDialog() {
+    showModalBottomSheet(context: logic.context, builder: (a){
+      return Container(
+        width: 1.sw,
+        decoration: BoxDecoration(
+            color: HhColors.trans,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(8.w*3))
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            BouncingWidget(
+              duration: const Duration(milliseconds: 100),
+              scaleFactor: 0,
+              child: Container(
+                width: 1.sw,
+                height: 50.w*3,
+                margin: EdgeInsets.fromLTRB(0, 20.w*3, 0, 0),
+                decoration: BoxDecoration(
+                    color: HhColors.whiteColor,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(8.w*3))
+                ),
+                child: Center(
+                  child: Text(
+                    "拍摄",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: HhColors.blackColor, fontSize: 15.sp*3),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                getImageFromCamera();
+                Get.back();
+              },
+            ),
+            Container(
+              color: HhColors.grayLineColor,
+              height: 2.w,
+              width: 1.sw,
+            ),
+            BouncingWidget(
+              duration: const Duration(milliseconds: 100),
+              scaleFactor: 0,
+              child: Container(
+                width: 1.sw,
+                height: 50.w*3,
+                color: HhColors.whiteColor,
+                child: Center(
+                  child: Text(
+                    "从相册选择",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: HhColors.blackColor, fontSize: 15.sp*3),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                getImageFromGallery();
+                Get.back();
+              },
+            ),
+            Container(
+              color: HhColors.grayLineColor,
+              height: 2.w,
+              width: 1.sw,
+            ),
+            BouncingWidget(
+              duration: const Duration(milliseconds: 100),
+              scaleFactor: 0,
+              child: Container(
+                width: 1.sw,
+                height: 60.w*3,
+                color: HhColors.whiteColor,
+                padding: EdgeInsets.only(bottom: 10.w*3),
+                child: Center(
+                  child: Text(
+                    "取消",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: HhColors.blackColor, fontSize: 15.sp*3),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Get.back();
+              },
+            ),
+          ],
+        ),
+      );
+    },isDismissible: true,enableDrag: false,backgroundColor: HhColors.trans);
+  }
+
+  Future getImageFromGallery() async {
+    final List<XFile> pickedFileList = await ImagePicker().pickMultiImage(
+      maxWidth: 3000,
+      maxHeight: 3000,
+      imageQuality: 1,
+    );
+    if (pickedFileList.isNotEmpty) {
+      logic.pictureList.add(pickedFileList[0]);
+      logic.pictureStatus.value = false;
+      logic.pictureStatus.value = true;
+    }
+  }
+
+  Future<void> getImageFromCamera() async {
+    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (photo != null) {
+      logic.pictureList.add(photo);
+      logic.pictureStatus.value = false;
+      logic.pictureStatus.value = true;
+    }
+  }
+
+  getPictureChildren() {
+    List<Widget> listW = [];
+    if(logic.pictureList.isNotEmpty){
+      for(int i = 0; i < logic.pictureList.length;i++){
+        XFile file = logic.pictureList[i];
+        listW.add(
+          InkWell(
+            onTap: (){
+              CommonUtils().showPictureFileDialog(logic.context, file:File(file.path));
+            },
+            child: Container(
+              margin: EdgeInsets.fromLTRB(0, 20.w*3, 10.w*3, 0),
+                width:80.w*3,height: 80.w*3,
+                child: Stack(
+                  children: [
+                    Image.file(File(file.path),width:80.w*3,height: 80.w*3,fit: BoxFit.cover,),
+                    Align(alignment: Alignment.topRight,child: InkWell(
+                      onTap: (){
+                        logic.pictureList.removeAt(i);
+                        logic.pictureStatus.value = false;
+                        logic.pictureStatus.value = true;
+                      },
+                        child: Image.asset('assets/images/common/ic_delete.png',width:16.w*3,height: 16.w*3,fit: BoxFit.fill,))
+                    ),
+                  ],
+                )
+            ),
+          )
+        );
+      }
+      if(logic.pictureList.length < logic.pictureMaxValue){
+        listW.add(
+          InkWell(
+            onTap: (){
+              showChooseTypeDialog();
+            },
+            child: Container(
+              margin: EdgeInsets.only(top: 20.w*3),
+              child: Image.asset('assets/images/common/ic_add_pic.png',width:80.w*3,height: 80.w*3,fit: BoxFit.fill,),
+            ),
+          ),
+        );
+      }
+    }else{
+      listW.add(
+        InkWell(
+          onTap: (){
+            showChooseTypeDialog();
+          },
+          child: Container(
+            margin: EdgeInsets.only(top: 20.w*3),
+            child: Image.asset('assets/images/common/ic_add_pic.png',width:80.w*3,height: 80.w*3,fit: BoxFit.fill,),
+          ),
+        ),
+      );
+    }
+    return listW;
   }
 
 }
