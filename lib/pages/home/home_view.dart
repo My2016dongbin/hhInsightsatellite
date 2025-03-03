@@ -515,7 +515,6 @@ class HomePage extends StatelessWidget {
                     duration: const Duration(milliseconds: 100),
                     scaleFactor: 0.6,
                     onPressed: (){
-                      HhLog.e("Get.to(() => FeedBackPage()");
                       Get.to(() => FeedBackPage(),
                           binding: FeedBackBinding(),preventDuplicates: false);
                     },
