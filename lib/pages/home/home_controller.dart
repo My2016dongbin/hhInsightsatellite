@@ -179,6 +179,70 @@ class HomeController extends GetxController {
   final Rx<String> endTime = "请输入结束时间".obs;
   final Rx<String> province = "请选择省".obs;
   final Rx<String> city = "请选择市".obs;
+  late List<dynamic> provinceList = [
+    {
+      "name":"山东省",
+    },
+    {
+      "name":"吉林省",
+    },
+    {
+      "name":"山西省",
+    },
+    {
+      "name":"河南省",
+    },
+    {
+      "name":"河北省",
+    },
+    {
+      "name":"辽宁省",
+    },
+  ];
+  late List<dynamic> cityList = [
+    {
+      "name":"青岛",
+    },
+    {
+      "name":"济南",
+    },
+    {
+      "name":"烟台",
+    },
+    {
+      "name":"潍坊",
+    },
+    {
+      "name":"淄博",
+    },
+    {
+      "name":"济宁",
+    },
+  ];
+  late List<dynamic> areaList = [
+    {
+      "name":"高新区",
+    },
+    {
+      "name":"城阳区",
+    },
+    {
+      "name":"市南区",
+    },
+    {
+      "name":"市北区",
+    },
+    {
+      "name":"崂山区",
+    },
+    {
+      "name":"李沧区",
+    },
+  ];
+  late FixedExtentScrollController scrollControllerP;
+  final Rx<int> provinceIndex = 0.obs;
+  late FixedExtentScrollController scrollControllerC;
+  final Rx<int> cityIndex = 0.obs;
   final Rx<bool> otherOut = false.obs;
   final Rx<bool> otherCache = false.obs;
 

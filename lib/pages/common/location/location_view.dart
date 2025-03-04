@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/pages/common/location/location_controller.dart';
+import 'package:insightsatellite/pages/common/model/model_class.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
 
@@ -117,7 +118,13 @@ class LocationPage extends StatelessWidget {
                   duration: const Duration(milliseconds: 100),
                   scaleFactor: 0.2,
                   onPressed: () {
-                    Get.back();
+                    if(logic.locText.value.isEmpty || logic.latitude.value == 0.0 || logic.longitude.value == 0.0){
+                      EventBusUtil.getInstance().fire(HhToast(title: '请先选择地图定位'));
+                    }else{
+                      Get.back();
+                      ///回传定位结果
+                      EventBusUtil.getInstance().fire(LocationSearch(logic.locText.value,logic.latitude.value,logic.longitude.value));
+                    }
                   },
                   child: Container(
                     height: 40.w*3,

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -17,6 +18,7 @@ import 'package:insightsatellite/pages/home/setting/setting_binding.dart';
 import 'package:insightsatellite/pages/home/setting/setting_view.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
+import 'package:insightsatellite/utils/HhBehavior.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
 class HomePage extends StatelessWidget {
@@ -56,7 +58,7 @@ class HomePage extends StatelessWidget {
     int time_ = DateTime.now().millisecondsSinceEpoch;
     if(logic.index.value == 0){
       if (time_ - timeForExit > 2000) {
-        EventBusUtil.getInstance().fire(HhToast(title: '再按一次退出程序'));
+        EventBusUtil.getInstance().fire(HhToast(title: '再按一次退出程序',type: 0));
         timeForExit = time_;
         exit = false;
       } else {
@@ -832,22 +834,55 @@ class HomePage extends StatelessWidget {
                   Text('时间段：    ',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
                   SizedBox(width: 10.w*3,),
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 2.w*3,),
-                      Row(
-                        children: [
-                          Icon(Icons.access_time,color: HhColors.titleColor_88,size: 16.w*3,),
-                          SizedBox(width: 2.w*3,),
-                          Text(logic.startTime.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),)
-                        ],
+                      InkWell(
+                        onTap: (){
+                          DatePicker.showDatePicker(logic.context,
+                              showTitleActions: true,
+                              minTime: DateTime.now().subtract(const Duration(days: 365)),
+                              maxTime:DateTime.now().add(const Duration(days: 365)), onConfirm: (date) {
+                                DatePicker.showTimePicker(logic.context,
+                                    showTitleActions: true, onConfirm: (date) {
+                                      logic.startTime.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
+                                    }, currentTime: DateTime.now(), locale: LocaleType.zh);
+                              }, currentTime: DateTime.now(), locale: LocaleType.zh);
+                        },
+                        child: Container(
+                          color: HhColors.trans,
+                          child: Row(
+                            children: [
+                              Icon(Icons.access_time,color: HhColors.titleColor_88,size: 16.w*3,),
+                              SizedBox(width: 2.w*3,),
+                              Text(logic.startTime.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),)
+                            ],
+                          ),
+                        ),
                       ),
                       SizedBox(height: 10.w*3,),
-                      Row(
-                        children: [
-                          Icon(Icons.access_time,color: HhColors.titleColor_88,size: 16.w*3,),
-                          SizedBox(width: 2.w*3,),
-                          Text(logic.endTime.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),)
-                        ],
+                      InkWell(
+                      onTap: (){
+                        DatePicker.showDatePicker(logic.context,
+                            showTitleActions: true,
+                            minTime: DateTime.now().subtract(const Duration(days: 365)),
+                            maxTime:DateTime.now().add(const Duration(days: 365)), onConfirm: (date) {
+                              DatePicker.showTimePicker(logic.context,
+                                  showTitleActions: true, onConfirm: (date) {
+                                    logic.endTime.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
+                                  }, currentTime: DateTime.now(), locale: LocaleType.zh);
+                            }, currentTime: DateTime.now(), locale: LocaleType.zh);
+                      },
+                        child: Container(
+                          color: HhColors.trans,
+                          child: Row(
+                            children: [
+                              Icon(Icons.access_time,color: HhColors.titleColor_88,size: 16.w*3,),
+                              SizedBox(width: 2.w*3,),
+                              Text(logic.endTime.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),)
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   )
@@ -874,7 +909,7 @@ class HomePage extends StatelessWidget {
                     duration: const Duration(milliseconds: 100),
                     scaleFactor: 0.6,
                     onPressed: (){
-
+                      chooseProvince();
                     },
                     child: Container(
                       margin: EdgeInsets.only(top: 3.w*3),
@@ -888,14 +923,21 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 10.w*3,),
-                  Container(
-                    margin: EdgeInsets.only(top: 3.w*3),
-                    child: Row(
-                      children: [
-                        Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
-                        SizedBox(width: 2.w*3,),
-                        Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
-                      ],
+                  BouncingWidget(
+                    duration: const Duration(milliseconds: 100),
+                    scaleFactor: 0.6,
+                    onPressed: (){
+                      chooseCity();
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 3.w*3),
+                      child: Row(
+                        children: [
+                          Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                          SizedBox(width: 2.w*3,),
+                          Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -1094,5 +1136,175 @@ class HomePage extends StatelessWidget {
       );
     }
     return widgets;
+  }
+
+
+  void chooseProvince() {
+    if(logic.provinceList==null || logic.provinceList.isEmpty){
+      EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
+      return;
+    }
+    showModalBottomSheet(context: logic.context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12.w*3),
+          topRight: Radius.circular(12.w*3),
+        ),
+      ), builder: (BuildContext context) {
+        logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.provinceIndex.value);
+        int index = logic.provinceIndex.value;
+        return Container(
+          color: HhColors.trans,
+          height:200,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text("请选择省",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                  )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: 20.w*3),
+                  child: ScrollConfiguration(
+                    behavior: HhBehavior(),
+                    child: CupertinoPicker(
+                      scrollController: logic.scrollControllerP,
+                      itemExtent: 45,
+                      children: getProvince(),
+                      onSelectedItemChanged: (int value) {
+                        index = value;
+                      },
+
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(15.w*3,10.w*3,0,15.w*3),child: Icon(Icons.clear,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      logic.provinceIndex.value = index;
+                      logic.province.value = logic.provinceList[logic.provinceIndex.value]["name"];
+                      Navigator.pop(context);
+                      ///更新市区数据
+                      // logic.cityList.clear();
+                      logic.cityIndex.value = 0;
+                      logic.city.value = "请选择市";
+                      //getCityList();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },);
+  }
+
+  void chooseCity() {
+    if(logic.cityList==null || logic.cityList.isEmpty){
+      EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
+      return;
+    }
+    showModalBottomSheet(context: logic.context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12.w*3),
+          topRight: Radius.circular(12.w*3),
+        ),
+      ), builder: (BuildContext context) {
+        logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.cityIndex.value);
+        int index = logic.cityIndex.value;
+        return Container(
+          color: HhColors.trans,
+          height:200,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text("请选择省",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                  )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: 20.w*3),
+                  child: ScrollConfiguration(
+                    behavior: HhBehavior(),
+                    child: CupertinoPicker(
+                      scrollController: logic.scrollControllerP,
+                      itemExtent: 45,
+                      children: getCity(),
+                      onSelectedItemChanged: (int value) {
+                        index = value;
+                      },
+
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(15.w*3,10.w*3,0,15.w*3),child: Icon(Icons.clear,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      logic.cityIndex.value = index;
+                      logic.city.value = logic.cityList[logic.cityIndex.value]["name"];
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },);
+  }
+
+  getProvince() {
+    List<Widget> list = [];
+    for(int i = 0;i < logic.provinceList.length;i++){
+      list.add(
+          Container(
+            color: HhColors.trans,
+            child: Center(child: Text(logic.provinceList[i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.provinceList[i]["name"].length>3?14.sp*3:15.sp*3),)),
+          )
+      );
+    }
+    return list;
+  }
+
+  getCity() {
+    List<Widget> list = [];
+    for(int i = 0;i < logic.cityList.length;i++){
+      list.add(
+          Container(
+            color: HhColors.trans,
+            child: Center(child: Text(logic.cityList[i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.cityList[i]["name"].length>3?14.sp*3:15.sp*3),)),
+          )
+      );
+    }
+    return list;
   }
 }

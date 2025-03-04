@@ -45,3 +45,10 @@ class DeviceModel{
 class MessageModel{
 
 }
+class LocationSearch{
+  late String address;
+  late double latitude;
+  late double longitude;
+
+  LocationSearch(this.address, this.latitude, this.longitude);
+}

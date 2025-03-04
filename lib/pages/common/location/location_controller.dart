@@ -4,6 +4,7 @@ import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 import 'package:flutter_baidu_mapapi_search/flutter_baidu_mapapi_search.dart';
 import 'package:get/get.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
+import 'package:insightsatellite/pages/common/model/model_class.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
@@ -81,6 +82,8 @@ class LocationController extends GetxController {
       }else{
         locText.value = CommonUtils().parseNull("${result.address}", "定位中..");
       }
+      ///回传定位结果
+      EventBusUtil.getInstance().fire(LocationSearch(locText.value,latitude.value,longitude.value));
     });
     /// 发起检索
     bool flag = await reverseGeoCodeSearch.reverseGeoCodeSearch(reverseGeoCodeSearchOption);
