@@ -1154,7 +1154,10 @@ class HomePage extends StatelessWidget {
         logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.provinceIndex.value);
         int index = logic.provinceIndex.value;
         return Container(
-          color: HhColors.whiteColor,
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.circular(16.w*3)
+          ),
           height:200,
           child: Stack(
             children: <Widget>[
@@ -1228,7 +1231,10 @@ class HomePage extends StatelessWidget {
         logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.cityIndex.value);
         int index = logic.cityIndex.value;
         return Container(
-          color: HhColors.whiteColor,
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.circular(16.w*3)
+          ),
           height:200,
           child: Stack(
             children: <Widget>[
@@ -1236,7 +1242,7 @@ class HomePage extends StatelessWidget {
                   alignment: Alignment.topCenter,
                   child: Container(
                       margin: EdgeInsets.only(top: 10.w*3),
-                      child: Text("请选择省",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                      child: Text("请选择市",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
                   )
               ),
               Align(
