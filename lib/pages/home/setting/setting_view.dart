@@ -216,7 +216,7 @@ class SettingPage extends StatelessWidget {
     showModalBottomSheet(context: logic.context, builder: (a){
       return Obx(() =>Container(
         width: 1.sw,
-        height: 0.8.sh,
+        height: 0.6.sh,
         padding: EdgeInsets.fromLTRB(15.w*3, 10.w*3, 15.w*3, 10.w*3),
         decoration: BoxDecoration(
             color: HhColors.whiteColor,
@@ -238,7 +238,7 @@ class SettingPage extends StatelessWidget {
               ),
               SizedBox(height: 10.w*3,),
               ///天空监测
-              Row(
+              /*Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('天空监测：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
@@ -246,9 +246,9 @@ class SettingPage extends StatelessWidget {
                   logic.skyStatus.value?Expanded(child: Wrap(children: buildSkyItems(),)):const SizedBox()
                 ],
               ),
-              SizedBox(height: 10.w*3,),
+              SizedBox(height: 10.w*3,),*/
               ///地面监测
-              Row(
+              /*Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('地面监测：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
@@ -256,7 +256,7 @@ class SettingPage extends StatelessWidget {
                   logic.landStatus.value?Expanded(child: Wrap(children: buildLandItems(),)):const SizedBox()
                 ],
               ),
-              SizedBox(height: 15.w*3,),
+              SizedBox(height: 15.w*3,),*/
               ///地貌类型
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

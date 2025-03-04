@@ -52,10 +52,12 @@ class HhHttp {
     //   options.queryParameters["userId"] = "xxx";
     // }
     // 头部添加token
-    // options.headers["token"] = "xxx";
-    // options.headers["Tenant-Id"] = "${CommonData.tenant}";
-    // options.headers["tenant-user-type"] = "${CommonData.tenantUserType}";
-    options.headers["Authorization"] = "Bearer ${CommonData.token}";
+    options.headers["Encrypt-Key"] = CommonData.encryptKey;
+    options.headers["Clientid"] = CommonData.clientId;
+    options.headers["Content-Language"] = "zh_CN";
+    options.headers["isEncrypt"] = "true";
+    // options.headers["Authorization"] = "Bearer ${CommonData.token}";
+    HhLog.d("headers ${options.headers}");
     // 更多业务需求
     handler.next(options);
     // super.onRequest(options, handler);
@@ -85,9 +87,9 @@ class HhHttp {
   /// 请求类：支持异步请求操作
   Future<T> request<T>(
       String path, {
-        DioMethod method = DioMethod.get,
+        DioMethod method = DioMethod.post,
         Map<String, dynamic>? params,
-        dynamic data,
+        Object? data,
         CancelToken? cancelToken,
         Options? options,
         ProgressCallback? onSendProgress,

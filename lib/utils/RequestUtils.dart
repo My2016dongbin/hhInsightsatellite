@@ -1,9 +1,9 @@
 
 class RequestUtils{
-  static const base = 'http://web.ehaohai.com:2019/api';//debug 外网
+  static const base = 'http://192.168.1.10:9900';//debug 外网
   // static const base = 'http://192.168.1.165:10003/insightsatellite-api';//debug 内网
 
-  static const login = '$base/Account/Login';//密码登录
+  static const login = '$base/auth/login';//密码登录-
   static const logout = '$base/admin-api/system/auth/logout';//登出
   static const userInfo = '$base/Account/GetUserMsg';//个人信息查询
   static const versionNew = '$base/admin-api/system/android-upgrade/getAndroidUpgradeVersionNew';//查询版本新版

@@ -1,4 +1,4 @@
-import 'dart:ffi';
+import 'dart:convert';
 import 'dart:io';
 
 import 'dart:math';
@@ -13,13 +13,14 @@ import 'package:insightsatellite/pages/common/login/personal/personal_login_bind
 import 'package:insightsatellite/pages/common/login/personal/personal_login_view.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
-import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
-import 'package:insightsatellite/utils/RequestUtils.dart';
 import 'package:insightsatellite/utils/SPKeys.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tpns_flutter_plugin/tpns_flutter_plugin.dart';
+import 'package:encrypt/encrypt.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:pointycastle/asymmetric/api.dart';
 
 class CommonUtils {
   List<Color> gradientColors() {
@@ -107,6 +108,38 @@ class CommonUtils {
       type = "空间报警";
     }
     return type;
+  }
+
+  /// 生成 32 位随机字符串（AES 密钥）
+  String generateRandomString(int length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random.secure();
+    return List.generate(length, (index) => characters[random.nextInt(characters.length)]).join();
+  }
+
+  /// 生成 AES 密钥
+  encrypt.Key generateAesKey() {
+    String randomString = generateRandomString(32); // 生成 32 位随机字符串
+    return encrypt.Key.fromUtf8(randomString); // 转换成 AES Key
+  }
+
+  /// AES 加密函数
+  String encryptWithAes(String plainText, encrypt.Key key) {
+    final iv = encrypt.IV.fromLength(16); // 偏移量 IV (可以固定或随机)
+    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.ecb));
+    final encrypted = encrypter.encrypt(plainText, iv: iv);
+    return base64Encode(encrypted.bytes); // 返回 Base64 编码的加密数据
+  }
+
+  String encryptRSA(String value){
+    //解析 **RSA 公钥**
+    final publicKey = RSAKeyParser().parse(CommonData.pub) as RSAPublicKey;
+
+    //创建 RSA 加密实例
+    final encryptor = Encrypter(RSA(publicKey: publicKey));
+    //进行 **RSA 加密**
+    final encryptedText = encryptor.encrypt(value);
+    return encryptedText.base64;
   }
 
   String parseZero(int s) {

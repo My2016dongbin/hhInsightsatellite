@@ -82,7 +82,7 @@ dependencies:
     git:
       url: https://github.com/TencentCloud/TPNS-Flutter-Plugin
       ref: V1.3.0
-
+  encrypt: ^5.0.3
 
 dev_dependencies:
   flutter_test:

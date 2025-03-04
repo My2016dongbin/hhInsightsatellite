@@ -1,11 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
-import 'package:insightsatellite/pages/common/login/code/code_binding.dart';
-import 'package:insightsatellite/pages/common/login/code/code_view.dart';
 import 'package:insightsatellite/pages/home/home_binding.dart';
 import 'package:insightsatellite/pages/home/home_view.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
@@ -37,41 +36,50 @@ class PersonalLoginController extends GetxController {
 
   @override
   Future<void> onInit() async {
-
     showToastSubscription =
         EventBusUtil.getInstance().on<HhToast>().listen((event) {
-          if(event.title.isEmpty || event.title == "null"){
+          if (event.title.isEmpty || event.title == "null") {
             return;
           }
 
           showToastWidget(
             Container(
-              margin: EdgeInsets.fromLTRB(20.w*3, 15.w*3, 20.w*3, 25.w*3),
-              padding: EdgeInsets.fromLTRB(30.w*3, event.type==0?13.h*3:25.h*3, 30.w*3, 13.h*3),
+              margin: EdgeInsets.fromLTRB(
+                  20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
+              padding: EdgeInsets.fromLTRB(
+                  30.w * 3, event.type == 0 ? 13.h * 3 : 25.h * 3, 30.w * 3,
+                  13.h * 3),
               decoration: BoxDecoration(
                   color: HhColors.blackColor.withAlpha(200),
-                  borderRadius: BorderRadius.all(Radius.circular(8.w*3))),
+                  borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
               constraints: BoxConstraints(
-                  minWidth: 117.w*3
+                  minWidth: 117.w * 3
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
-                  event.type==0?const SizedBox():Image.asset(
-                    event.type==1?'assets/images/common/icon_success.png':event.type==2?'assets/images/common/icon_error.png':event.type==3?'assets/images/common/icon_lock.png':'assets/images/common/icon_warn.png',
-                    height: 20.w*3,
-                    width: 20.w*3,
+                  event.type == 0 ? const SizedBox() : Image.asset(
+                    event.type == 1
+                        ? 'assets/images/common/icon_success.png'
+                        : event.type == 2
+                        ? 'assets/images/common/icon_error.png'
+                        : event.type == 3
+                        ? 'assets/images/common/icon_lock.png'
+                        : 'assets/images/common/icon_warn.png',
+                    height: 20.w * 3,
+                    width: 20.w * 3,
                     fit: BoxFit.fill,
                   ),
-                  event.type==0?const SizedBox():SizedBox(height: 16.h*3,),
+                  event.type == 0 ? const SizedBox() : SizedBox(
+                    height: 16.h * 3,),
                   // SizedBox(height: 16.h*3,),
                   Text(
                     event.title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: HhColors.whiteColor,
-                        fontSize: 14.sp*3),
+                        fontSize: 14.sp * 3),
                   ),
                   // SizedBox(height: 10.h*3,)
                   // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
@@ -87,7 +95,7 @@ class PersonalLoginController extends GetxController {
             curve: Curves.elasticOut,
             reverseCurve: Curves.linear,
           );
-    });
+        });
     showLoadingSubscription =
         EventBusUtil.getInstance().on<HhLoading>().listen((event) {
           if (event.show) {
@@ -95,7 +103,7 @@ class PersonalLoginController extends GetxController {
           } else {
             context.loaderOverlay.hide();
           }
-    });
+        });
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString(SPKeys().token);
@@ -110,13 +118,32 @@ class PersonalLoginController extends GetxController {
   }
 
   Future<void> login() async {
+    dynamic data = {
+      "clientId": CommonData.clientId,
+      "code": "",
+      "grantType": "password",
+      "password": "admin123",
+      "rememberMe": false,
+      "username": "admin",
+      "uuid": "",
+    };
+    final aesKey = CommonUtils().generateAesKey();
+    HhLog.d("key ${aesKey.base64}");
+    String encodedKey = CommonUtils().encryptRSA(base64Encode(aesKey.bytes)); // Base64 编码密钥
+    CommonData.encryptKey = encodedKey;
+    HhLog.d("key encode $encodedKey");
+
+    final jsonString = jsonEncode(data);
+    String afterEncode = CommonUtils().encryptWithAes(jsonString, aesKey);
+    HhLog.d("data $afterEncode");
+
     Map<String, dynamic> map = {};
     map['username'] = accountController?.text;
     map['password'] = passwordController?.text;
     var result = await HhHttp().request(
-      RequestUtils.login,
-      method: DioMethod.get,
-      params: map
+        RequestUtils.login,
+        method: DioMethod.post,
+        data: afterEncode,
     );
     HhLog.d("login -- $result");
     if (result["type"] == 1 && result["message"] != null) {
@@ -124,13 +151,13 @@ class PersonalLoginController extends GetxController {
       await prefs.setString(SPKeys().token, result["message"]);
       await prefs.setString(SPKeys().account, accountController!.text);
       await prefs.setString(SPKeys().password, passwordController!.text);
-      CommonData.token = result["message"];
+      CommonData.token = result["msg"];
 
       info();
-
     } else {
       EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString(result["message"]),type: 2));
+          .fire(
+          HhToast(title: CommonUtils().msgString(result["msg"]), type: 2));
       EventBusUtil.getInstance().fire(HhLoading(show: false));
     }
   }
@@ -161,13 +188,15 @@ class PersonalLoginController extends GetxController {
       await prefs.setString(SPKeys().endTime, '${result["EndTime"]}');
 
 
-      XgFlutterPlugin().deleteAccount('${result["id"]}',AccountType.UNKNOWN);
-      XgFlutterPlugin().deleteAccount("${CommonData.token}", AccountType.UNKNOWN);
-      XgFlutterPlugin().deleteTags(["${CommonData.token}","test"]);
-      EventBusUtil.getInstance().fire(HhToast(title: '登录成功',type: 1));
+      XgFlutterPlugin().deleteAccount('${result["id"]}', AccountType.UNKNOWN);
+      XgFlutterPlugin().deleteAccount(
+          "${CommonData.token}", AccountType.UNKNOWN);
+      XgFlutterPlugin().deleteTags(["${CommonData.token}", "test"]);
+      EventBusUtil.getInstance().fire(HhToast(title: '登录成功', type: 1));
 
       Future.delayed(const Duration(seconds: 1), () {
-        XgFlutterPlugin().setAccount("${CommonData.token}",AccountType.UNKNOWN);
+        XgFlutterPlugin().setAccount(
+            "${CommonData.token}", AccountType.UNKNOWN);
         XgFlutterPlugin().setTags(["${CommonData.token}"]);
         Get.offAll(() => HomePage(), binding: HomeBinding(),
             transition: Transition.fadeIn,
@@ -178,4 +207,5 @@ class PersonalLoginController extends GetxController {
           .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
     }
   }
+
 }
