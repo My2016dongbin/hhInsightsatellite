@@ -652,7 +652,7 @@ class UploadPage extends StatelessWidget {
         logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.provinceIndex.value);
         int index = logic.provinceIndex.value;
         return Container(
-          color: HhColors.trans,
+          color: HhColors.whiteColor,
           height:200,
           child: Stack(
             children: <Widget>[
@@ -729,7 +729,7 @@ class UploadPage extends StatelessWidget {
         logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.cityIndex.value);
         int index = logic.cityIndex.value;
         return Container(
-          color: HhColors.trans,
+          color: HhColors.whiteColor,
           height:200,
           child: Stack(
             children: <Widget>[
@@ -803,7 +803,7 @@ class UploadPage extends StatelessWidget {
         logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.areaIndex.value);
         int index = logic.areaIndex.value;
         return Container(
-          color: HhColors.trans,
+          color: HhColors.whiteColor,
           height:200,
           child: Stack(
             children: <Widget>[
