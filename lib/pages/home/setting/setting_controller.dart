@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:insightsatellite/bus/bus_bean.dart';
+import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
+import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
+import 'package:insightsatellite/utils/RequestUtils.dart';
 
 class SettingController extends GetxController {
   final Rx<bool> testStatus = true.obs;
@@ -12,40 +16,7 @@ class SettingController extends GetxController {
   final Rx<bool> landStatus = true.obs;
   final Rx<bool> landTypeStatus = true.obs;
   final Rx<bool> fireCountStatus = true.obs;
-  late List<dynamic> satelliteList = [
-    {
-      "title":"全部",
-      "choose":false,
-    },
-    {
-      "title":"NPP",
-      "choose":false,
-    },
-    {
-      "title":"FY-4",
-      "choose":false,
-    },
-    {
-      "title":"FY-3",
-      "choose":false,
-    },
-    {
-      "title":"Himawari-9",
-      "choose":false,
-    },
-    {
-      "title":"NOAA-19",
-      "choose":false,
-    },
-    {
-      "title":"NOAA-20",
-      "choose":false,
-    },
-    {
-      "title":"GK2a",
-      "choose":false,
-    },
-  ];
+  late List<dynamic> satelliteList = [];
   late List<dynamic> skyList = [
     {
       "title":"全部",
@@ -82,28 +53,7 @@ class SettingController extends GetxController {
       "choose":false,
     }
   ];
-  late List<dynamic> landTypeList = [
-    {
-      "title":"全部",
-      "choose":false,
-    },
-    {
-      "title":"林地",
-      "choose":false,
-    },
-    {
-      "title":"草地",
-      "choose":false,
-    },
-    {
-      "title":"农田",
-      "choose":false,
-    },
-    {
-      "title":"其他",
-      "choose":false,
-    }
-  ];
+  late List<dynamic> landTypeList = [];
   late List<dynamic> fireCountList = [
     {
       "title":"100",
@@ -132,6 +82,7 @@ class SettingController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
+    postType();
   }
 
 
@@ -277,6 +228,85 @@ class SettingController extends GetxController {
     }
     fireCountStatus.value = false;
     fireCountStatus.value = true;
+  }
+
+  Future<void> postType() async {
+    ///1。获取卫星类型列表
+    Map<String, dynamic> map = {};
+    var result = await HhHttp().request(RequestUtils.satelliteType,method: DioMethod.get,params:map);
+    // HhLog.d("satelliteType -- ${RequestUtils.satelliteType} -- $map ");
+    // HhLog.d("satelliteType -- $result");
+    if(result["code"]==200){
+      List<dynamic> list = result["data"];
+      for(dynamic model in list){
+        model["choose"] = true;
+      }
+      satelliteList = list;
+
+      ///2。获取地类列表
+      Map<String, dynamic> map2 = {};
+      var result2 = await HhHttp().request(RequestUtils.landType,method: DioMethod.get,params:map2);
+      // HhLog.d("landType -- ${RequestUtils.landType} -- $map ");
+      // HhLog.d("landType -- $result2");
+      if(result2["code"]==200){
+        List<dynamic> list = result2["data"];
+        for(dynamic model in list){
+          model["choose"] = true;
+        }
+        landTypeList = list;
+
+        ///3。获取用户权限映射
+        dynamic dataS = {
+          "tenantId":"000000",
+          "userId":"1"
+        };
+        // HhLog.d("typePermission -- ${RequestUtils.typePermission} -- $dataS ");
+        var resultS = await HhHttp().request(RequestUtils.typePermission,method: DioMethod.post,data: dataS);
+        // HhLog.d("typePermission -- $resultS");
+        if(resultS["code"]==200 && resultS["data"] != null){
+          String satelliteCodes = resultS["data"]["satelliteCodes"];
+          List<String> satelliteCodeList = satelliteCodes.split(',');
+          List<dynamic> array = [];
+          for(int i = 0;i < satelliteList.length;i++){
+            dynamic model = satelliteList[i];
+            if(satelliteCodeList.contains("${model["code"]}")){
+              array.add(model);
+            }
+          }
+          satelliteList = [];
+          satelliteList.add({
+            "name":"全部",
+            "code":8888,
+            "choose":true,
+          });
+          satelliteList.addAll(array);
+          String landType = resultS["data"]["landType"];
+          List<String> landTypeCodeList = landType.split(',');
+          List<dynamic> rows = [];
+          for(int i = 0;i < landTypeList.length;i++){
+            dynamic model = landTypeList[i];
+            if(landTypeCodeList.contains("${model["code"]}")){
+              rows.add(model);
+            }
+          }
+          landTypeList = [];
+          landTypeList.add({
+            "name":"全部",
+            "code":8888,
+            "choose":true,
+          });
+          landTypeList.addAll(rows);
+
+        }else{
+          EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
+        }
+      }else{
+        EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result2["msg"])));
+      }
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+
   }
 
 }

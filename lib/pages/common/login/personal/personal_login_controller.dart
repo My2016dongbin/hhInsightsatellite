@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
@@ -122,9 +123,9 @@ class PersonalLoginController extends GetxController {
       "clientId": CommonData.clientId,
       "code": "",
       "grantType": "password",
-      "password": "admin123",
+      "password": passwordController!.text,
       "rememberMe": false,
-      "username": "admin",
+      "username": accountController!.text,
       "uuid": "",
     };
     final aesKey = CommonUtils().generateAesKey();
@@ -140,20 +141,38 @@ class PersonalLoginController extends GetxController {
     Map<String, dynamic> map = {};
     map['username'] = accountController?.text;
     map['password'] = passwordController?.text;
+    dynamic headers = {
+      "Encrypt-Key": CommonData.encryptKey,
+      "Clientid": CommonData.clientId,
+      "Content-Language": "zh_CN",
+      "isEncrypt": "true",
+      "Authorization": "Bearer ${CommonData.token}",
+    };
     var result = await HhHttp().request(
         RequestUtils.login,
-        method: DioMethod.post,
         data: afterEncode,
+      options: Options(
+        headers: headers,
+        method: "post"
+      )
     );
     HhLog.d("login -- $result");
-    if (result["type"] == 1 && result["message"] != null) {
+    if (result["code"] == 200 && result["data"] != null) {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SPKeys().token, result["message"]);
+      await prefs.setString(SPKeys().token, result["data"]["access_token"]);
       await prefs.setString(SPKeys().account, accountController!.text);
       await prefs.setString(SPKeys().password, passwordController!.text);
-      CommonData.token = result["msg"];
+      CommonData.token = result["data"]["access_token"];
 
-      info();
+
+      EventBusUtil.getInstance().fire(HhToast(title: '登录成功', type: 1));
+      Future.delayed(const Duration(seconds: 1), () {
+        Get.offAll(() => HomePage(), binding: HomeBinding(),
+            transition: Transition.fadeIn,
+            duration: const Duration(milliseconds: 1000));
+      });
+
+      // info();
     } else {
       EventBusUtil.getInstance()
           .fire(

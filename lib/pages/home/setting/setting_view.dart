@@ -182,11 +182,11 @@ class SettingPage extends StatelessWidget {
                     }, () async {
                       final SharedPreferences prefs =
                           await SharedPreferences.getInstance();
-                      String? id = prefs.getString(SPKeys().id);
-                      String? token = prefs.getString(SPKeys().token);
-                      XgFlutterPlugin().deleteAccount(id!, AccountType.UNKNOWN);
-                      XgFlutterPlugin().deleteAccount(token!, AccountType.UNKNOWN);
-                      XgFlutterPlugin().deleteTags([id,"test"]);
+                      // String? id = prefs.getString(SPKeys().id);
+                      // String? token = prefs.getString(SPKeys().token);
+                      // XgFlutterPlugin().deleteAccount(id!, AccountType.UNKNOWN);
+                      // XgFlutterPlugin().deleteAccount(token!, AccountType.UNKNOWN);
+                      // XgFlutterPlugin().deleteTags([id,"test"]);
                       prefs.remove(SPKeys().token);
                       CommonData.token = null;
                       Get.off(() => PersonalLoginPage(), binding: PersonalLoginBinding());
@@ -388,7 +388,7 @@ class SettingPage extends StatelessWidget {
                   color: model["choose"]?HhColors.themeColor:HhColors.blueEAColor,
                   borderRadius: BorderRadius.circular(12.w*3)
               ),
-              child: Text("${model['title']}",style: TextStyle(color: model["choose"]?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
+              child: Text("${model['name']}",style: TextStyle(color: model["choose"]?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
             ),
           )
       );
@@ -466,7 +466,7 @@ class SettingPage extends StatelessWidget {
                   color: model["choose"]?HhColors.themeColor:HhColors.blueEAColor,
                   borderRadius: BorderRadius.circular(12.w*3)
               ),
-              child: Text("${model['title']}",style: TextStyle(color: model["choose"]?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
+              child: Text("${model['name']}",style: TextStyle(color: model["choose"]?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
             ),
           )
       );

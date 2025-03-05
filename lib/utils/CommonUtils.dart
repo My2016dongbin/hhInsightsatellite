@@ -233,6 +233,13 @@ class CommonUtils {
     return rt;
   }
 
+  String parseLongTimeLong(int s) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(s);
+    String time = date.toIso8601String();
+    time = time.substring(0, 19);
+    time = time.replaceAll("T", " ");
+    return time;
+  }
   String parseLongTime(String s) {
     DateTime date = DateTime.fromMillisecondsSinceEpoch(int.parse(s));
     String time = date.toIso8601String();
@@ -275,6 +282,11 @@ class CommonUtils {
 
   String msgString(String s) {
     s = s.substring(s.indexOf(':') + 1, s.length);
+    try{
+      s = s.substring(0, 20);
+    }catch(e){
+      //
+    }
     return s;
   }
 
@@ -444,7 +456,7 @@ class CommonUtils {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(4.w * 3)),
                           child: Image.asset(
-                            "assets/images/common/test_video.jpg",
+                            "assets/images/common/ic_no_pic.png",
                             fit: BoxFit.fill,
                           ),
                         );
@@ -528,7 +540,7 @@ class CommonUtils {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(4.w * 3)),
                           child: Image.asset(
-                            "assets/images/common/test_video.jpg",
+                            "assets/images/common/ic_no_pic.png",
                             fit: BoxFit.fill,
                           ),
                         );

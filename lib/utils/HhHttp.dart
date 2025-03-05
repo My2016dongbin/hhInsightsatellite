@@ -52,11 +52,11 @@ class HhHttp {
     //   options.queryParameters["userId"] = "xxx";
     // }
     // 头部添加token
-    options.headers["Encrypt-Key"] = CommonData.encryptKey;
+    // options.headers["Encrypt-Key"] = CommonData.encryptKey;
     options.headers["Clientid"] = CommonData.clientId;
     options.headers["Content-Language"] = "zh_CN";
     options.headers["isEncrypt"] = "true";
-    // options.headers["Authorization"] = "Bearer ${CommonData.token}";
+    options.headers["Authorization"] = "Bearer ${CommonData.token}";
     HhLog.d("headers ${options.headers}");
     // 更多业务需求
     handler.next(options);

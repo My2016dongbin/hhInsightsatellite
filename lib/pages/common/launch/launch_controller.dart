@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -42,30 +44,34 @@ class LaunchController extends GetxController {
       params: map,
     );
     HhLog.d("info -- $result");
-    EventBusUtil.getInstance().fire(HhLoading(show: false));
-    if (result != null) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SPKeys().id, '${result["UserId"]}');
-      await prefs.setString(SPKeys().username, '${result["UserName"]}');
-      await prefs.setString(SPKeys().companyName, '${result["CompanyName"]}');
-      await prefs.setString(SPKeys().provinceNo, '${result["ProvinceNo"]}');
-      await prefs.setString(SPKeys().provinceName, '${result["ProvinceName"]}');
-      await prefs.setString(SPKeys().cityNo, '${result["CityNo"]}');
-      await prefs.setString(SPKeys().cityName, '${result["CityName"]}');
-      await prefs.setString(SPKeys().countyNo, '${result["CountyNo"]}');
-      await prefs.setString(SPKeys().countyName, '${result["CountyName"]}');
-      await prefs.setString(SPKeys().endTime, '${result["EndTime"]}');
 
-      Future.delayed(const Duration(seconds: 2), () {
-        Get.off(() => HomePage(), binding: HomeBinding(),
-            transition: Transition.fadeIn,
-            duration: const Duration(milliseconds: 1000));
-      });
-    } else {
-      EventBusUtil.getInstance()
-          .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
-      CommonUtils().tokenDown();
-    }
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    EventBusUtil.getInstance()
+        .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
+    CommonUtils().tokenDown();
+    // if (result != null && result["code"] == 200) {
+    //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   await prefs.setString(SPKeys().id, '${result["UserId"]}');
+    //   await prefs.setString(SPKeys().username, '${result["UserName"]}');
+    //   await prefs.setString(SPKeys().companyName, '${result["CompanyName"]}');
+    //   await prefs.setString(SPKeys().provinceNo, '${result["ProvinceNo"]}');
+    //   await prefs.setString(SPKeys().provinceName, '${result["ProvinceName"]}');
+    //   await prefs.setString(SPKeys().cityNo, '${result["CityNo"]}');
+    //   await prefs.setString(SPKeys().cityName, '${result["CityName"]}');
+    //   await prefs.setString(SPKeys().countyNo, '${result["CountyNo"]}');
+    //   await prefs.setString(SPKeys().countyName, '${result["CountyName"]}');
+    //   await prefs.setString(SPKeys().endTime, '${result["EndTime"]}');
+    //
+    //   Future.delayed(const Duration(seconds: 2), () {
+    //     Get.off(() => HomePage(), binding: HomeBinding(),
+    //         transition: Transition.fadeIn,
+    //         duration: const Duration(milliseconds: 1000));
+    //   });
+    // } else {
+    //   EventBusUtil.getInstance()
+    //       .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
+    //   CommonUtils().tokenDown();
+    // }
   }
 
   Future<void> next() async {

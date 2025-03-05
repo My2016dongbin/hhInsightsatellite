@@ -23,6 +23,7 @@ class CommonData{
   static String info = "";
   static int versionTime = 0;
   static BuildContext? context;
+  static String fileStart = "http://web.ehaohai.com:2019";
 
   static String clientId = "428a8310cd442757ae699df5d894f051";
   static String encryptKey = "";
