@@ -56,8 +56,8 @@ android {
             abiFilters  "armeabi-v7a","arm64-v8a", "x86"
         }
         manifestPlaceholders = [
-                XG_ACCESS_ID : "1500017161",
-                XG_ACCESS_KEY: "AIHFKDXTCVPN",
+                XG_ACCESS_ID : "1500042052",
+                XG_ACCESS_KEY: "AU47N360I2FK",
                 HW_APPID: "103066123"
         ]
 

@@ -142,7 +142,6 @@ class HomePage extends StatelessWidget {
                     duration: const Duration(milliseconds: 100),
                     scaleFactor: 0.6,
                     onPressed: (){
-                      logic.postFire(false);
                       logic.postType();
                     },
                     child: Image.asset('assets/images/common/ic_refresh.png',width:55.w*3,height: 55.w*3,fit: BoxFit.fill,)
@@ -430,7 +429,7 @@ class HomePage extends StatelessWidget {
     showModalBottomSheet(context: logic.context, builder: (a){
       return Obx(() =>Container(
         width: 1.sw,
-        height: 0.6.sh,
+        height: 0.7.sh,
         padding: EdgeInsets.fromLTRB(15.w*3, 10.w*3, 15.w*3, 10.w*3),
         decoration: BoxDecoration(
             color: HhColors.whiteColor,
@@ -588,9 +587,9 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 15.w*3,),
+              ((!logic.otherOutShow.value) && (!logic.otherCacheShow.value))?const SizedBox():SizedBox(height: 15.w*3,),
               ///其他选项
-              Row(
+              ((!logic.otherOutShow.value) && (!logic.otherCacheShow.value))?const SizedBox():Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('其他选项：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
@@ -598,7 +597,7 @@ class HomePage extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BouncingWidget(
+                      logic.otherOutShow.value?BouncingWidget(
                         duration: const Duration(milliseconds: 100),
                         scaleFactor: 0.6,
                         onPressed: (){
@@ -613,8 +612,8 @@ class HomePage extends StatelessWidget {
                           ),
                           child: Text("查询境外热源",style: TextStyle(color: logic.otherOut.value?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
                         ),
-                      ),
-                      BouncingWidget(
+                      ):const SizedBox(),
+                      logic.otherCacheShow.value?BouncingWidget(
                         duration: const Duration(milliseconds: 100),
                         scaleFactor: 0.6,
                         onPressed: (){
@@ -629,8 +628,8 @@ class HomePage extends StatelessWidget {
                           ),
                           child: Text("包含缓冲区",style: TextStyle(color: logic.otherCache.value?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
                         ),
-                      ),
-                      Text("（含权限外10公里范围数据，会延长查询时间）",style: TextStyle(color: HhColors.gray9TextColor,fontSize: 8.sp*3),)
+                      ):const SizedBox(),
+                      logic.otherCacheShow.value?Text("（含权限外10公里范围数据，会延长查询时间）",style: TextStyle(color: HhColors.gray9TextColor,fontSize: 8.sp*3),):const SizedBox()
                     ],
                   ),
                 ],

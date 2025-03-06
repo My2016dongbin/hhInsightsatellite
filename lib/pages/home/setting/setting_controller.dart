@@ -6,6 +6,8 @@ import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
 import 'package:insightsatellite/utils/RequestUtils.dart';
+import 'package:insightsatellite/utils/SPKeys.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingController extends GetxController {
   final Rx<bool> testStatus = true.obs;
@@ -83,6 +85,9 @@ class SettingController extends GetxController {
   Future<void> onInit() async {
     super.onInit();
     postType();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    voiceStatus.value = prefs.getBool(SPKeys().voice)??false;
   }
 
 
@@ -256,46 +261,55 @@ class SettingController extends GetxController {
         landTypeList = list;
 
         ///3。获取用户权限映射
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        String tenantId = prefs.getString(SPKeys().tenantId)??"000000";
+        String userId = prefs.getString(SPKeys().id)??"1";
         dynamic dataS = {
-          "tenantId":"000000",
-          "userId":"1"
+          "tenantId":tenantId,
+          "userId":userId
         };
-        // HhLog.d("typePermission -- ${RequestUtils.typePermission} -- $dataS ");
+        HhLog.d("typePermission -- ${RequestUtils.typePermission} -- $dataS ");
         var resultS = await HhHttp().request(RequestUtils.typePermission,method: DioMethod.post,data: dataS);
-        // HhLog.d("typePermission -- $resultS");
+        HhLog.d("typePermission -- $resultS");
         if(resultS["code"]==200 && resultS["data"] != null){
+          otherOut.value = resultS["data"]["overseasHeatSources"] == 1;
+          otherCache.value = resultS["data"]["bufferArea"] == 1;
           String satelliteCodes = resultS["data"]["satelliteCodes"];
           List<String> satelliteCodeList = satelliteCodes.split(',');
           List<dynamic> array = [];
           for(int i = 0;i < satelliteList.length;i++){
             dynamic model = satelliteList[i];
             if(satelliteCodeList.contains("${model["code"]}")){
-              array.add(model);
+              model["choose"] = true;
+            }else{
+              model["choose"] = false;
             }
           }
-          satelliteList = [];
-          satelliteList.add({
+          array.add({
             "name":"全部",
             "code":8888,
-            "choose":true,
+            "choose":false,
           });
-          satelliteList.addAll(array);
+          array.addAll(satelliteList);
+          satelliteList = array;
           String landType = resultS["data"]["landType"];
           List<String> landTypeCodeList = landType.split(',');
           List<dynamic> rows = [];
           for(int i = 0;i < landTypeList.length;i++){
             dynamic model = landTypeList[i];
             if(landTypeCodeList.contains("${model["code"]}")){
-              rows.add(model);
+              model["choose"] = true;
+            }else{
+              model["choose"] = false;
             }
           }
-          landTypeList = [];
-          landTypeList.add({
+          rows.add({
             "name":"全部",
             "code":8888,
-            "choose":true,
+            "choose":false,
           });
-          landTypeList.addAll(rows);
+          rows.addAll(landTypeList);
+          landTypeList = rows;
 
         }else{
           EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
@@ -307,6 +321,53 @@ class SettingController extends GetxController {
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
 
+  }
+
+  Future<void> editPermission() async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String tenantId = prefs.getString(SPKeys().tenantId)??"000000";
+    String userId = prefs.getString(SPKeys().id)??"1";
+    List<String> listSatelliteStr = [];
+    for(dynamic model in satelliteList){
+      if("${model['code']}" != "8888" && model["choose"] == true){
+        listSatelliteStr.add("${model["code"]}");
+      }
+    }
+    List<dynamic> listLandTypeStr = [];
+    for(dynamic model in landTypeList){
+      if("${model['code']}" != "8888" && model["choose"] == true){
+        listLandTypeStr.add("${model["code"]}");
+      }
+    }
+    if(listSatelliteStr.isEmpty){
+      EventBusUtil.getInstance().fire(HhToast(title: "请至少选择一个卫星监测"));
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+      return;
+    }
+    if(listLandTypeStr.isEmpty){
+      EventBusUtil.getInstance().fire(HhToast(title: "请至少选择一个地貌类型"));
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+      return;
+    }
+    dynamic data = {
+      "tenantId": tenantId,
+      "userId":userId,
+      "satelliteCodeList":listSatelliteStr,
+      "landTypeList":listLandTypeStr,
+      "overseasHeatSources": otherOut.value?"1":"0",
+      "bufferArea": otherCache.value?"1":"0"
+    };
+    var result = await HhHttp().request(RequestUtils.typePermissionEdit,method: DioMethod.post,data: data);
+    HhLog.d("typePermissionEdit -- $data");
+    HhLog.d("typePermissionEdit -- $result");
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    if(result["code"]==200){
+      EventBusUtil.getInstance().fire(HhToast(title: '已保存',type: 0));
+      EventBusUtil.getInstance().fire(SatelliteConfig());
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
   }
 
 }

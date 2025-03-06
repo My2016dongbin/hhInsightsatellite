@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:bouncing_widget/bouncing_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -405,7 +406,7 @@ class UploadPage extends StatelessWidget {
             duration: const Duration(milliseconds: 100),
             scaleFactor: 0.6,
             onPressed: () {
-
+              logic.uploadImage(logic.picture.path);
             },
             child: Container(
               height: 40.w*3,
@@ -626,13 +627,27 @@ class UploadPage extends StatelessWidget {
   Future getVideoFromGallery() async {
     final XFile ?video = await ImagePicker().pickVideo(source: ImageSource.gallery);
     if (video != null) {
+      File videoFile = File(video.path);
+      int fileSize = videoFile.lengthSync(); // 获取文件大小（字节）
+      double fileSizeMB = fileSize / (1024 * 1024); // 转换成 MB
+      if(fileSizeMB > 50){
+        EventBusUtil.getInstance().fire(HhToast(title: '上传视频不能超过50M'));
+        return;
+      }
       logic.video = video;
     }
   }
 
   Future<void> getVideoFromCamera() async {
-    final XFile ?video = await ImagePicker().pickVideo(source: ImageSource.camera,maxDuration: Duration(milliseconds: logic.maxVideoTimes));
+    final XFile ?video = await ImagePicker().pickVideo(source: ImageSource.camera,maxDuration: Duration(milliseconds: logic.maxVideoTimes),);
     if (video != null) {
+      File videoFile = File(video.path);
+      int fileSize = videoFile.lengthSync(); // 获取文件大小（字节）
+      double fileSizeMB = fileSize / (1024 * 1024); // 转换成 MB
+      if(fileSizeMB > 50){
+        EventBusUtil.getInstance().fire(HhToast(title: '上传视频不能超过50M'));
+        return;
+      }
       logic.video = video;
     }
   }

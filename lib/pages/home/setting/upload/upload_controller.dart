@@ -1,10 +1,14 @@
+import 'package:dio/dio.dart' as dios;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/pages/common/model/model_class.dart';
+import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
+import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
+import 'package:insightsatellite/utils/RequestUtils.dart';
 
 class UploadController extends GetxController {
   final Rx<bool> testStatus = true.obs;
@@ -20,6 +24,8 @@ class UploadController extends GetxController {
   late TextEditingController areaController = TextEditingController();
   late XFile picture;
   late XFile video;
+  late String pictureUrl;
+  late String videoUrl;
   late int maxVideoTimes = 10000;
   StreamSubscription? versionSubscription;
   late List<dynamic> provinceList = [
@@ -99,5 +105,58 @@ class UploadController extends GetxController {
           longitudeController.text = "${event.longitude}";
         });
   }
+
+  void uploadImage(String filePath) async {
+    var dio = dios.Dio();
+    dios.FormData formData = dios.FormData.fromMap({
+      "file": await dios.MultipartFile.fromFile(filePath,
+          filename: "fire.png"),
+    });
+
+    try {
+      var response = await dio.post(
+        RequestUtils.fileUpload,
+        data: formData,
+        options: dios.Options(
+          headers: HhHttp().getHeaders(),
+        ),
+      );
+      if(response.data.toString().contains("401")){
+        CommonUtils().tokenDown();
+      }
+      HhLog.d("上传成功: ${response.data}");
+      pictureUrl = response.data["data"]["url"];
+      uploadVideo(video.path);
+    } catch (e) {
+      HhLog.d("上传失败: $e");
+    }
+  }
+  void uploadVideo(String filePath) async {
+    var dio = dios.Dio();
+    dios.FormData formData = dios.FormData.fromMap({
+      "file": await dios.MultipartFile.fromFile(filePath,
+          filename: "fire.mp4"),
+    });
+
+    try {
+      var response = await dio.post(
+        RequestUtils.fileUpload,
+        data: formData,
+        options: dios.Options(
+          headers: HhHttp().getHeaders(),
+        ),
+      );
+      if(response.data.toString().contains("401")){
+        CommonUtils().tokenDown();
+      }
+      HhLog.d("上传成功: ${response.data}");
+      videoUrl = response.data["data"]["url"];
+    } catch (e) {
+      HhLog.d("上传失败: $e");
+    }
+  }
+
+
+
 
 }

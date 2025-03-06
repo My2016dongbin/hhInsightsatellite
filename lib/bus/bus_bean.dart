@@ -38,6 +38,9 @@ class UserInfo{
 class Message{
   Message();
 }
+class MessageClick{
+  MessageClick();
+}
 class Move{
   int action;
   String code;
@@ -54,6 +57,9 @@ class DeviceInfo{
 }
 class Record{
   Record();
+}
+class SatelliteConfig{
+  SatelliteConfig();
 }
 class Share{
   dynamic model;

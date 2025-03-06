@@ -103,8 +103,10 @@ class SettingPage extends StatelessWidget {
                               value: logic.voiceStatus.value,
                               borderRadius: 36.w,
                               padding: 8.w,
-                              onToggle: (val) {
+                              onToggle: (val) async {
                                 logic.voiceStatus.value = val;
+                                final SharedPreferences prefs = await SharedPreferences.getInstance();
+                                prefs.setBool(SPKeys().voice, val);
                               },
                             ),
                           ],
@@ -182,11 +184,8 @@ class SettingPage extends StatelessWidget {
                     }, () async {
                       final SharedPreferences prefs =
                           await SharedPreferences.getInstance();
-                      // String? id = prefs.getString(SPKeys().id);
-                      // String? token = prefs.getString(SPKeys().token);
-                      // XgFlutterPlugin().deleteAccount(id!, AccountType.UNKNOWN);
-                      // XgFlutterPlugin().deleteAccount(token!, AccountType.UNKNOWN);
-                      // XgFlutterPlugin().deleteTags([id,"test"]);
+                      String id = prefs.getString(SPKeys().id)??"";
+                      XgFlutterPlugin().deleteTags([id,"test"]);
                       prefs.remove(SPKeys().token);
                       CommonData.token = null;
                       Get.off(() => PersonalLoginPage(), binding: PersonalLoginBinding());
@@ -266,7 +265,7 @@ class SettingPage extends StatelessWidget {
                   logic.landTypeStatus.value?Expanded(child: Wrap(children: buildLandTypeItems(),)):const SizedBox()
                 ],
               ),
-              SizedBox(height: 15.w*3,),
+              /*SizedBox(height: 15.w*3,),
               ///火警数量
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +274,7 @@ class SettingPage extends StatelessWidget {
                   SizedBox(width: 5.w*3,),
                   logic.fireCountStatus.value?Expanded(child: Wrap(children: buildFireCountItems(),)):const SizedBox()
                 ],
-              ),
+              ),*/
               SizedBox(height: 15.w*3,),
               ///其他选项
               Row(
@@ -333,6 +332,7 @@ class SettingPage extends StatelessWidget {
                     scaleFactor: 0.6,
                     onPressed: (){
                       Get.back();
+                      logic.postType();
                       EventBusUtil.getInstance().fire(HhToast(title: '已重置',type: 0));
                     },
                     child: Container(
@@ -348,7 +348,7 @@ class SettingPage extends StatelessWidget {
                     scaleFactor: 0.6,
                     onPressed: (){
                       Get.back();
-                      EventBusUtil.getInstance().fire(HhToast(title: '已保存',type: 0));
+                      logic.editPermission();
                     },
                     child: Container(
                       width: 100.w*3,

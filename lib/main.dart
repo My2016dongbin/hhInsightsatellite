@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,8 +23,10 @@ import 'package:insightsatellite/utils/CustomNavigatorObserver.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
+import 'package:insightsatellite/utils/SPKeys.dart';
 import 'package:insightsatellite/widgets/app_view.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tpns_flutter_plugin/tpns_flutter_plugin.dart';
 import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 
@@ -98,9 +101,9 @@ class MyAppState extends State<HhApp> {
 
     ///推送注册
     if (Platform.isIOS) {//com.haohai.insightsatellites
-      XgFlutterPlugin().startXg("1600041946", "IZNSFXHR3VQ6");
+      XgFlutterPlugin().startXg("1600042053", "IX7J7A5CK0HA");
     } else {//com.ehaohai.insightsatellite
-      XgFlutterPlugin().startXg("1500041948", "AYYUQ4ZPVGKX");
+      XgFlutterPlugin().startXg("1500042052", "AU47N360I2FK");
     }
     XgFlutterPlugin().setEnableDebug(true);
     //注册回调
@@ -112,36 +115,34 @@ class MyAppState extends State<HhApp> {
     //通知类消息事件
     XgFlutterPlugin().addEventHandler(
       xgPushClickAction: (Map<String, dynamic> msg) async {
+        ///消息点击刷新
+        EventBusUtil.getInstance().fire(Message());
         HhLog.d("HomePage -> xgPushClickAction -> $msg");
-        dynamic custom = jsonDecode(msg['customMessage']);
+        try{
+          dynamic custom = jsonDecode(msg['customMessage']);
+        }catch(e){
+          //
+        }
 
       },
       onReceiveNotificationResponse: (Map<String, dynamic> msg) async {
-        HhLog.d("HomePage -> onReceiveNotificationResponse -> $msg");
+        ///消息刷新
         EventBusUtil.getInstance().fire(Message());
+        HhLog.d("HomePage -> onReceiveNotificationResponse -> $msg");
+        ///播放提示音
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool voice = prefs.getBool(SPKeys().voice)??false;
+        if(voice){
+          final AudioPlayer audioPlayer = AudioPlayer();
+          audioPlayer.play(AssetSource('audio/common/find_fire.mp3'));
+        }
         try{
           dynamic custom = jsonDecode(msg['customMessage']);
           HhLog.d("HomePage -> $custom ");
 
-/*          //设备呼叫
-          if(custom!=null && custom['devCode']!=null ){
-            HhLog.d("HomePage  deviceNo ${custom['deviceNo']}");
-
-            Get.to(()=>CallPage('${custom['deviceNo']}','id',0),binding: CallBinding());
-          }*/
-          //分享
-          if(custom!=null && custom['otherInfomation']['messageType']== "deviceShare" && CommonData.personal){
-            EventBusUtil.getInstance().fire(Share(model:custom['otherInfomation']));
-          }
-          //其他设备登录
-          if(custom!=null && custom['otherInfomation']['messageType']== "logoutdelete"){
-            CommonUtils().tokenOut();
-          }
         }catch(e){
           //
         }
-        ///消息刷新
-        EventBusUtil.getInstance().fire(Message());
       },
       onReceiveMessage: (Map<String, dynamic> msg) async {
         HhLog.d("HomePage -> onReceiveMessage -> $msg");

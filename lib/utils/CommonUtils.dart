@@ -280,7 +280,8 @@ class CommonUtils {
     return time;
   }
 
-  String msgString(String s) {
+  String msgString(dynamic s) {
+    s = "$s";
     s = s.substring(s.indexOf(':') + 1, s.length);
     try{
       s = s.substring(0, 20);

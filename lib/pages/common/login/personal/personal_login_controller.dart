@@ -43,66 +43,70 @@ class PersonalLoginController extends GetxController {
             return;
           }
 
-          showToastWidget(
-            Container(
-              margin: EdgeInsets.fromLTRB(
-                  20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
-              padding: EdgeInsets.fromLTRB(
-                  30.w * 3, event.type == 0 ? 13.h * 3 : 25.h * 3, 30.w * 3,
-                  13.h * 3),
-              decoration: BoxDecoration(
-                  color: HhColors.blackColor.withAlpha(200),
-                  borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
-              constraints: BoxConstraints(
-                  minWidth: 117.w * 3
+          if (Get.isRegistered<PersonalLoginController>()) {
+            showToastWidget(
+              Container(
+                margin: EdgeInsets.fromLTRB(
+                    20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
+                padding: EdgeInsets.fromLTRB(
+                    30.w * 3, event.type == 0 ? 13.h * 3 : 25.h * 3, 30.w * 3,
+                    13.h * 3),
+                decoration: BoxDecoration(
+                    color: HhColors.blackColor.withAlpha(200),
+                    borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
+                constraints: BoxConstraints(
+                    minWidth: 117.w * 3
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
+                    event.type == 0 ? const SizedBox() : Image.asset(
+                      event.type == 1
+                          ? 'assets/images/common/icon_success.png'
+                          : event.type == 2
+                          ? 'assets/images/common/icon_error.png'
+                          : event.type == 3
+                          ? 'assets/images/common/icon_lock.png'
+                          : 'assets/images/common/icon_warn.png',
+                      height: 20.w * 3,
+                      width: 20.w * 3,
+                      fit: BoxFit.fill,
+                    ),
+                    event.type == 0 ? const SizedBox() : SizedBox(
+                      height: 16.h * 3,),
+                    // SizedBox(height: 16.h*3,),
+                    Text(
+                      event.title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: HhColors.whiteColor,
+                          fontSize: 14.sp * 3),
+                    ),
+                    // SizedBox(height: 10.h*3,)
+                    // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
+                  ],
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
-                  event.type == 0 ? const SizedBox() : Image.asset(
-                    event.type == 1
-                        ? 'assets/images/common/icon_success.png'
-                        : event.type == 2
-                        ? 'assets/images/common/icon_error.png'
-                        : event.type == 3
-                        ? 'assets/images/common/icon_lock.png'
-                        : 'assets/images/common/icon_warn.png',
-                    height: 20.w * 3,
-                    width: 20.w * 3,
-                    fit: BoxFit.fill,
-                  ),
-                  event.type == 0 ? const SizedBox() : SizedBox(
-                    height: 16.h * 3,),
-                  // SizedBox(height: 16.h*3,),
-                  Text(
-                    event.title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: HhColors.whiteColor,
-                        fontSize: 14.sp * 3),
-                  ),
-                  // SizedBox(height: 10.h*3,)
-                  // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
-                ],
-              ),
-            ),
-            context: context,
-            animation: StyledToastAnimation.slideFromBottomFade,
-            reverseAnimation: StyledToastAnimation.fade,
-            position: StyledToastPosition.center,
-            animDuration: const Duration(seconds: 1),
-            duration: const Duration(seconds: 2),
-            curve: Curves.elasticOut,
-            reverseCurve: Curves.linear,
-          );
+              context: context,
+              animation: StyledToastAnimation.slideFromBottomFade,
+              reverseAnimation: StyledToastAnimation.fade,
+              position: StyledToastPosition.center,
+              animDuration: const Duration(seconds: 1),
+              duration: const Duration(seconds: 2),
+              curve: Curves.elasticOut,
+              reverseCurve: Curves.linear,
+            );
+          }
         });
     showLoadingSubscription =
         EventBusUtil.getInstance().on<HhLoading>().listen((event) {
-          if (event.show) {
-            context.loaderOverlay.show();
-          } else {
-            context.loaderOverlay.hide();
+          if (Get.isRegistered<PersonalLoginController>()) {
+            if (event.show) {
+              context.loaderOverlay.show();
+            } else {
+              context.loaderOverlay.hide();
+            }
           }
         });
 
@@ -119,6 +123,7 @@ class PersonalLoginController extends GetxController {
   }
 
   Future<void> login() async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
     dynamic data = {
       "clientId": CommonData.clientId,
       "code": "",
@@ -141,13 +146,7 @@ class PersonalLoginController extends GetxController {
     Map<String, dynamic> map = {};
     map['username'] = accountController?.text;
     map['password'] = passwordController?.text;
-    dynamic headers = {
-      "Encrypt-Key": CommonData.encryptKey,
-      "Clientid": CommonData.clientId,
-      "Content-Language": "zh_CN",
-      "isEncrypt": "true",
-      "Authorization": "Bearer ${CommonData.token}",
-    };
+    dynamic headers = HhHttp().getLoginHeaders();
     var result = await HhHttp().request(
         RequestUtils.login,
         data: afterEncode,
@@ -164,15 +163,7 @@ class PersonalLoginController extends GetxController {
       await prefs.setString(SPKeys().password, passwordController!.text);
       CommonData.token = result["data"]["access_token"];
 
-
-      EventBusUtil.getInstance().fire(HhToast(title: '登录成功', type: 1));
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.offAll(() => HomePage(), binding: HomeBinding(),
-            transition: Transition.fadeIn,
-            duration: const Duration(milliseconds: 1000));
-      });
-
-      // info();
+      info();
     } else {
       EventBusUtil.getInstance()
           .fire(
@@ -182,48 +173,42 @@ class PersonalLoginController extends GetxController {
   }
 
   Future<void> info() async {
-    String? xgToken = await XgFlutterPlugin.xgToken;
     Map<String, dynamic> map = {};
-    map['Token'] = CommonData.token;
-    map['xgToken'] = xgToken;
     var result = await HhHttp().request(
       RequestUtils.userInfo,
       method: DioMethod.get,
       params: map,
     );
-    HhLog.d("info -- $result");
+    HhLog.d("userInfo -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     if (result != null) {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(SPKeys().id, '${result["UserId"]}');
-      await prefs.setString(SPKeys().username, '${result["UserName"]}');
-      await prefs.setString(SPKeys().companyName, '${result["CompanyName"]}');
-      await prefs.setString(SPKeys().provinceNo, '${result["ProvinceNo"]}');
-      await prefs.setString(SPKeys().provinceName, '${result["ProvinceName"]}');
-      await prefs.setString(SPKeys().cityNo, '${result["CityNo"]}');
-      await prefs.setString(SPKeys().cityName, '${result["CityName"]}');
-      await prefs.setString(SPKeys().countyNo, '${result["CountyNo"]}');
-      await prefs.setString(SPKeys().countyName, '${result["CountyName"]}');
-      await prefs.setString(SPKeys().endTime, '${result["EndTime"]}');
+      prefs.setString(SPKeys().id, '${result["data"]["user"]["userId"]}');
+      prefs.setString(SPKeys().tenantId, '${result["data"]["user"]["tenantId"]}');
+      prefs.setString(SPKeys().username, '${result["data"]["user"]["userName"]}');
+      prefs.setString(SPKeys().nickname, '${result["data"]["user"]["nickName"]}');
+      prefs.setString(SPKeys().email, '${result["data"]["user"]["email"]}');
+      prefs.setString(SPKeys().sex, '${result["data"]["user"]["sex"]}');
+      prefs.setString(SPKeys().avatar, '${result["data"]["user"]["avatar"]}');
+      prefs.setString(SPKeys().remark, '${result["data"]["user"]["remark"]}');
+      prefs.setString(SPKeys().userType, '${result["data"]["user"]["userType"]}');
+      prefs.setString(SPKeys().deptName, '${result["data"]["user"]["deptName"]}');
+      prefs.setString(SPKeys().mobile, '${result["data"]["user"]["phonenumber"]}');
+      prefs.setBool(SPKeys().voice, true);
 
-
-      XgFlutterPlugin().deleteAccount('${result["id"]}', AccountType.UNKNOWN);
-      XgFlutterPlugin().deleteAccount(
-          "${CommonData.token}", AccountType.UNKNOWN);
-      XgFlutterPlugin().deleteTags(["${CommonData.token}", "test"]);
+      XgFlutterPlugin().deleteTags(['${result["data"]["user"]["userId"]}']);
+      XgFlutterPlugin().setTags(['${result["data"]["user"]["userId"]}']);
       EventBusUtil.getInstance().fire(HhToast(title: '登录成功', type: 1));
-
       Future.delayed(const Duration(seconds: 1), () {
-        XgFlutterPlugin().setAccount(
-            "${CommonData.token}", AccountType.UNKNOWN);
-        XgFlutterPlugin().setTags(["${CommonData.token}"]);
         Get.offAll(() => HomePage(), binding: HomeBinding(),
             transition: Transition.fadeIn,
             duration: const Duration(milliseconds: 1000));
       });
+
     } else {
       EventBusUtil.getInstance()
           .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
     }
   }
 

@@ -25,11 +25,13 @@ import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
 import 'package:insightsatellite/utils/ParseLocation.dart';
 import 'package:insightsatellite/utils/RequestUtils.dart';
+import 'package:insightsatellite/utils/SPKeys.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 
@@ -52,6 +54,9 @@ class HomeController extends GetxController {
   Function()? onScrollToUnreadMessage;
   late StreamSubscription showToastSubscription;
   StreamSubscription? versionSubscription;
+  StreamSubscription? messageSubscription;
+  StreamSubscription? messageClickSubscription;
+  StreamSubscription? satelliteConfigClickSubscription;
   StreamSubscription? progressSubscription;
   StreamSubscription? downloadProgressSubscription;
   late StreamSubscription showLoadingSubscription;
@@ -191,8 +196,10 @@ class HomeController extends GetxController {
   final Rx<int> provinceIndex = 0.obs;
   late FixedExtentScrollController scrollControllerC;
   final Rx<int> cityIndex = 0.obs;
-  final Rx<bool> otherOut = true.obs;
-  final Rx<bool> otherCache = true.obs;
+  final Rx<bool> otherOut = false.obs;
+  final Rx<bool> otherCache = false.obs;
+  final Rx<bool> otherOutShow = true.obs;
+  final Rx<bool> otherCacheShow = true.obs;
   late List<BMFMarker> fireMarkerList = [];
   late List<dynamic> newItems = [];
   late List<dynamic> allFireList = [];
@@ -240,59 +247,62 @@ class HomeController extends GetxController {
           return;
         }
 
-        showToastWidget(
-          Container(
-            margin: EdgeInsets.fromLTRB(20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
-            padding: EdgeInsets.fromLTRB(30.w * 3,
-                event.type == 0 ? 12.h * 3 : 25.h * 3, 30.w * 3, 12.h * 3),
-            decoration: BoxDecoration(
-                color: HhColors.blackColor.withAlpha(200),
-                borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
-            constraints: BoxConstraints(minWidth: 117.w * 3),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
-                event.type == 0
-                    ? const SizedBox()
-                    : Image.asset(
-                        event.type == 1
-                            ? 'assets/images/common/icon_success.png'
-                            : event.type == 2
-                                ? 'assets/images/common/icon_error.png'
-                                : event.type == 3
-                                    ? 'assets/images/common/icon_lock.png'
-                                    : 'assets/images/common/icon_warn.png',
-                        height: 20.w * 3,
-                        width: 20.w * 3,
-                        fit: BoxFit.fill,
-                      ),
-                event.type == 0
-                    ? const SizedBox()
-                    : SizedBox(
-                        height: 16.h * 3,
-                      ),
-                // SizedBox(height: 16.h*3,),
-                Text(
-                  event.title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: HhColors.whiteColor, fontSize: 14.sp * 3),
-                ),
-                // SizedBox(height: 10.h*3,)
-                // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
-              ],
+        if (Get.isRegistered<HomeController>()) {
+          showToastWidget(
+            Container(
+              margin: EdgeInsets.fromLTRB(
+                  20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
+              padding: EdgeInsets.fromLTRB(30.w * 3,
+                  event.type == 0 ? 12.h * 3 : 25.h * 3, 30.w * 3, 12.h * 3),
+              decoration: BoxDecoration(
+                  color: HhColors.blackColor.withAlpha(200),
+                  borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
+              constraints: BoxConstraints(minWidth: 117.w * 3),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
+                  event.type == 0
+                      ? const SizedBox()
+                      : Image.asset(
+                    event.type == 1
+                        ? 'assets/images/common/icon_success.png'
+                        : event.type == 2
+                        ? 'assets/images/common/icon_error.png'
+                        : event.type == 3
+                        ? 'assets/images/common/icon_lock.png'
+                        : 'assets/images/common/icon_warn.png',
+                    height: 20.w * 3,
+                    width: 20.w * 3,
+                    fit: BoxFit.fill,
+                  ),
+                  event.type == 0
+                      ? const SizedBox()
+                      : SizedBox(
+                    height: 16.h * 3,
+                  ),
+                  // SizedBox(height: 16.h*3,),
+                  Text(
+                    event.title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: HhColors.whiteColor, fontSize: 14.sp * 3),
+                  ),
+                  // SizedBox(height: 10.h*3,)
+                  // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
+                ],
+              ),
             ),
-          ),
-          context: context,
-          animation: StyledToastAnimation.slideFromBottomFade,
-          reverseAnimation: StyledToastAnimation.fade,
-          position: StyledToastPosition.center,
-          animDuration: const Duration(seconds: 1),
-          duration: const Duration(seconds: 2),
-          curve: Curves.elasticOut,
-          reverseCurve: Curves.linear,
-        );
+            context: context,
+            animation: StyledToastAnimation.slideFromBottomFade,
+            reverseAnimation: StyledToastAnimation.fade,
+            position: StyledToastPosition.center,
+            animDuration: const Duration(seconds: 1),
+            duration: const Duration(seconds: 2),
+            curve: Curves.elasticOut,
+            reverseCurve: Curves.linear,
+          );
+        }
       });
     });
     versionSubscription =
@@ -303,17 +313,33 @@ class HomeController extends GetxController {
         getVersion();
       }
     });
+    messageSubscription =
+        EventBusUtil.getInstance().on<Message>().listen((event) {
+          pageNum = 1;
+          postFire(false);
+    });
+    messageClickSubscription =
+        EventBusUtil.getInstance().on<MessageClick>().listen((event) {
+          pageNum = 1;
+          postFire(false);
+    });
+    satelliteConfigClickSubscription =
+        EventBusUtil.getInstance().on<SatelliteConfig>().listen((event) {
+          postType();
+    });
     progressSubscription =
         EventBusUtil.getInstance().on<DownProgress>().listen((event) {
       downloadStep.value = event.progress;
     });
     showLoadingSubscription =
         EventBusUtil.getInstance().on<HhLoading>().listen((event) {
-      if (event.show) {
-        context.loaderOverlay.show();
-      } else {
-        context.loaderOverlay.hide();
-      }
+          if (Get.isRegistered<HomeController>()) {
+            if (event.show) {
+              context.loaderOverlay.show();
+            } else {
+              context.loaderOverlay.hide();
+            }
+          }
     });
     getLocation();
     //获取通知权限
@@ -324,6 +350,7 @@ class HomeController extends GetxController {
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
     postType();
+    getVersion();
     super.onInit();
   }
 
@@ -1191,58 +1218,6 @@ class HomeController extends GetxController {
     },isDismissible: true,enableDrag: false,isScrollControlled: true);
   }
 
-  void postFire2() {
-    EventBusUtil.getInstance().fire(HhLoading(show: true));
-
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      EventBusUtil.getInstance().fire(HhLoading(show: false));
-
-      List<dynamic> newItems = [
-        {
-          "id":"1",
-          "time":"2025-02-26 08:20:00",
-          "no":"YN5302687678666001",
-          "address":"云南省 普洱市 景东彝族自治县1",
-          "latitude":36.121,
-          "longitude":121.121,
-        },
-        {
-          "id":"2",
-          "time":"2025-02-26 08:20:00",
-          "no":"YN5302687678666002",
-          "address":"云南省 普洱市 景东彝族自治县2",
-          "latitude":36.221,
-          "longitude":121.121,
-        },
-        {
-          "id":"3",
-          "time":"2025-02-26 18:30:00",
-          "no":"YN5302687678666002",
-          "address":"云南省 普洱市 景东彝族自治县3",
-          "latitude":36.121,
-          "longitude":121.221,
-        },
-        {
-          "id":"4",
-          "time":"2025-02-26 18:30:00",
-          "no":"YN5302687678666001",
-          "address":"云南省 普洱市 景东彝族自治县4",
-          "latitude":36.221,
-          "longitude":121.221,
-        },
-      ];
-      fireCount.value = 666;
-      if (pageNum == 1) {
-        fireController.itemList = [];
-      }else{
-        if(newItems.isEmpty){
-          easyController.finishLoad(IndicatorResult.noMore,true);
-        }
-      }
-      fireController.appendLastPage(newItems);
-    });
-  }
-
   Future<void> postFire(bool showList) async {
     EventBusUtil.getInstance().fire(HhLoading(show: true));
     List<String> satelliteStrList = [];
@@ -1263,8 +1238,8 @@ class HomeController extends GetxController {
     map['provinceCode'] = '37';
     // map['cityCode'] = '04';
     // map['countyCode'] = '27';
-    map['satelliteCodeList'] = satelliteStrList.toString();
-    map['landType'] = landTypeStrList.toString();
+    map['satelliteCodeList'] = satelliteStrList;
+    map['landType'] = landTypeStrList;
     map['startTime'] = startTime.value;
     map['endTime'] = endTime.value;
     map['bufferArea'] = otherCache.value?"1":"0";
@@ -1292,7 +1267,7 @@ class HomeController extends GetxController {
 
       initMarker();
     }else{
-      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
     }
   }
 
@@ -1507,14 +1482,21 @@ class HomeController extends GetxController {
         landTypeList = list;
 
         ///3。获取用户权限映射
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        String tenantId = prefs.getString(SPKeys().tenantId)??"000000";
+        String userId = prefs.getString(SPKeys().id)??"1";
         dynamic dataS = {
-          "tenantId":"000000",
-          "userId":"1"
+          "tenantId":tenantId,
+          "userId":userId
         };
         // HhLog.d("typePermission -- ${RequestUtils.typePermission} -- $dataS ");
         var resultS = await HhHttp().request(RequestUtils.typePermission,method: DioMethod.post,data: dataS);
         // HhLog.d("typePermission -- $resultS");
         if(resultS["code"]==200 && resultS["data"] != null){
+          otherOutShow.value = resultS["data"]["overseasHeatSources"] == 1;
+          otherCacheShow.value = resultS["data"]["bufferArea"] == 1;
+          otherOut.value = resultS["data"]["overseasHeatSources"] == 1;
+          otherCache.value = resultS["data"]["bufferArea"] == 1;
           String satelliteCodes = resultS["data"]["satelliteCodes"];
           List<String> satelliteCodeList = satelliteCodes.split(',');
           List<dynamic> array = [];

@@ -1,13 +1,19 @@
 class SPKeys{
   final String endpoint = 'endpoint';
   final String id = 'id';
+  final String tenantId = 'tenantId';
+  final String deptId = 'deptId';
   final String username = 'username';
   final String nickname = 'nickname';
   final String email = 'email';
+  final String userType = 'userType';
+  final String deptName = 'deptName';
   final String mobile = 'mobile';
   final String sex = 'sex';
   final String avatar = 'avatar';
+  final String remark = 'remark';
   final String roles = 'roles';
+  final String voice = 'voice';
 
   final String companyName = 'CompanyName';
   final String provinceNo = 'ProvinceNo';

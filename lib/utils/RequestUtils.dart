@@ -4,12 +4,14 @@ class RequestUtils{
   // static const base = 'http://192.168.1.165:10003/insightsatellite-api';//debug 内网
 
   static const login = '$base/auth/login';//密码登录-
+  static const userInfo = '$base/system/user/getInfo/app';//个人信息查询-
   static const fireSearch = '$base/haohai-satellite/SatelliteFireAlarm/page';//火警分页查询-
   static const satelliteType = '$base/system/satelliteConfig/satelliteCodeList';//卫星类型查询-
   static const landType = '$base/system/satelliteConfig/landTypeList';//地址类型查询-
   static const typePermission = '$base/system/satelliteConfig/permissionSelect';//用户查询各类型权限-
+  static const typePermissionEdit = '$base/system/satelliteConfig/permissionEdit';//用户修改各类型权限-
+  static const fileUpload = '$base/resource/oss/upload';//文件上传-
   static const logout = '$base/admin-api/system/auth/logout';//登出
-  static const userInfo = '$base/Account/GetUserMsg';//个人信息查询
   static const versionNew = '$base/admin-api/system/android-upgrade/getAndroidUpgradeVersionNew';//查询版本新版
 
 
