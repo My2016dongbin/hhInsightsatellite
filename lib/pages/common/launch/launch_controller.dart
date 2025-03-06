@@ -32,7 +32,7 @@ class LaunchController extends GetxController {
     super.onInit();
   }
 
-  Future<void> info() async {
+  Future<void> info2() async {
     String? xgToken = await XgFlutterPlugin.xgToken;
     Map<String, dynamic> map = {};
     map['Token'] = CommonData.token;
@@ -72,6 +72,44 @@ class LaunchController extends GetxController {
     //       .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
     //   CommonUtils().tokenDown();
     // }
+  }
+
+  Future<void> info() async {
+    Map<String, dynamic> map = {};
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    var result = await HhHttp().request(
+      RequestUtils.userInfo,
+      method: DioMethod.get,
+      params: map,
+    );
+    HhLog.d("userInfo -- $result");
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    if (result != null && result["code"]==200) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString(SPKeys().id, '${result["data"]["user"]["userId"]}');
+      prefs.setString(SPKeys().tenantId, '${result["data"]["user"]["tenantId"]}');
+      prefs.setString(SPKeys().username, '${result["data"]["user"]["userName"]}');
+      prefs.setString(SPKeys().nickname, '${result["data"]["user"]["nickName"]}');
+      prefs.setString(SPKeys().email, '${result["data"]["user"]["email"]}');
+      prefs.setString(SPKeys().sex, '${result["data"]["user"]["sex"]}');
+      prefs.setString(SPKeys().avatar, '${result["data"]["user"]["avatar"]}');
+      prefs.setString(SPKeys().remark, '${result["data"]["user"]["remark"]}');
+      prefs.setString(SPKeys().userType, '${result["data"]["user"]["userType"]}');
+      prefs.setString(SPKeys().deptName, '${result["data"]["user"]["deptName"]}');
+      prefs.setString(SPKeys().mobile, '${result["data"]["user"]["phonenumber"]}');
+      prefs.setBool(SPKeys().voice, true);
+
+      Future.delayed(const Duration(seconds: 1), () {
+        Get.off(() => HomePage(), binding: HomeBinding(),
+            transition: Transition.fadeIn,
+            duration: const Duration(milliseconds: 1000));
+      });
+
+    } else {
+        EventBusUtil.getInstance()
+            .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
+        CommonUtils().tokenDown();
+    }
   }
 
   Future<void> next() async {

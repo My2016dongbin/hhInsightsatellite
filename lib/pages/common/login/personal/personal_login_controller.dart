@@ -208,7 +208,6 @@ class PersonalLoginController extends GetxController {
     } else {
       EventBusUtil.getInstance()
           .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
-      EventBusUtil.getInstance().fire(HhLoading(show: false));
     }
   }
 
