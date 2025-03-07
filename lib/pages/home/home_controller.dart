@@ -40,7 +40,6 @@ import '../../utils/EventBusUtils.dart';
 
 class HomeController extends GetxController {
   final index = 0.obs;
-  late BuildContext context;
   final unreadMsgCount = 0.obs;
   final Rx<bool> viewStatus = true.obs;
   final Rx<bool> loading = false.obs;
@@ -52,7 +51,7 @@ class HomeController extends GetxController {
   final LocationFlutterPlugin _myLocPlugin = LocationFlutterPlugin();
 
   Function()? onScrollToUnreadMessage;
-  late StreamSubscription showToastSubscription;
+  late StreamSubscription? showToastSubscription;
   StreamSubscription? versionSubscription;
   StreamSubscription? messageSubscription;
   StreamSubscription? messageClickSubscription;
@@ -132,66 +131,9 @@ class HomeController extends GetxController {
   final Rx<String> endTime = "请输入结束时间".obs;
   final Rx<String> province = "请选择省".obs;
   final Rx<String> city = "请选择市".obs;
-  late List<dynamic> provinceList = [
-    {
-      "name":"山东省",
-    },
-    {
-      "name":"吉林省",
-    },
-    {
-      "name":"山西省",
-    },
-    {
-      "name":"河南省",
-    },
-    {
-      "name":"河北省",
-    },
-    {
-      "name":"辽宁省",
-    },
-  ];
-  late List<dynamic> cityList = [
-    {
-      "name":"青岛",
-    },
-    {
-      "name":"济南",
-    },
-    {
-      "name":"烟台",
-    },
-    {
-      "name":"潍坊",
-    },
-    {
-      "name":"淄博",
-    },
-    {
-      "name":"济宁",
-    },
-  ];
-  late List<dynamic> areaList = [
-    {
-      "name":"高新区",
-    },
-    {
-      "name":"城阳区",
-    },
-    {
-      "name":"市南区",
-    },
-    {
-      "name":"市北区",
-    },
-    {
-      "name":"崂山区",
-    },
-    {
-      "name":"李沧区",
-    },
-  ];
+  late List<dynamic> provinceList = [];
+  late List<dynamic> cityList = [];
+  late List<dynamic> areaList = [];
   late FixedExtentScrollController scrollControllerP;
   final Rx<int> provinceIndex = 0.obs;
   late FixedExtentScrollController scrollControllerC;
@@ -203,6 +145,7 @@ class HomeController extends GetxController {
   late List<BMFMarker> fireMarkerList = [];
   late List<dynamic> newItems = [];
   late List<dynamic> allFireList = [];
+  late List<String> filterTimeList = [];
 
   Future<void> requestNotificationPermission() async {
     // 检查是否已经获得通知权限
@@ -227,7 +170,7 @@ class HomeController extends GetxController {
   void onClose() {
     try {
       versionSubscription!.cancel();
-      showToastSubscription.cancel();
+      showToastSubscription!.cancel();
       progressSubscription!.cancel();
       downloadProgressSubscription!.cancel();
       showLoadingSubscription.cancel();
@@ -247,62 +190,60 @@ class HomeController extends GetxController {
           return;
         }
 
-        if (Get.isRegistered<HomeController>()) {
-          showToastWidget(
-            Container(
-              margin: EdgeInsets.fromLTRB(
-                  20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
-              padding: EdgeInsets.fromLTRB(30.w * 3,
-                  event.type == 0 ? 12.h * 3 : 25.h * 3, 30.w * 3, 12.h * 3),
-              decoration: BoxDecoration(
-                  color: HhColors.blackColor.withAlpha(200),
-                  borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
-              constraints: BoxConstraints(minWidth: 117.w * 3),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
-                  event.type == 0
-                      ? const SizedBox()
-                      : Image.asset(
-                    event.type == 1
-                        ? 'assets/images/common/icon_success.png'
-                        : event.type == 2
-                        ? 'assets/images/common/icon_error.png'
-                        : event.type == 3
-                        ? 'assets/images/common/icon_lock.png'
-                        : 'assets/images/common/icon_warn.png',
-                    height: 20.w * 3,
-                    width: 20.w * 3,
-                    fit: BoxFit.fill,
-                  ),
-                  event.type == 0
-                      ? const SizedBox()
-                      : SizedBox(
-                    height: 16.h * 3,
-                  ),
-                  // SizedBox(height: 16.h*3,),
-                  Text(
-                    event.title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: HhColors.whiteColor, fontSize: 14.sp * 3),
-                  ),
-                  // SizedBox(height: 10.h*3,)
-                  // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
-                ],
-              ),
+        showToastWidget(
+          Container(
+            margin: EdgeInsets.fromLTRB(
+                20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
+            padding: EdgeInsets.fromLTRB(30.w * 3,
+                event.type == 0 ? 12.h * 3 : 25.h * 3, 30.w * 3, 12.h * 3),
+            decoration: BoxDecoration(
+                color: HhColors.blackColor.withAlpha(200),
+                borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
+            constraints: BoxConstraints(minWidth: 117.w * 3),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
+                event.type == 0
+                    ? const SizedBox()
+                    : Image.asset(
+                  event.type == 1
+                      ? 'assets/images/common/icon_success.png'
+                      : event.type == 2
+                      ? 'assets/images/common/icon_error.png'
+                      : event.type == 3
+                      ? 'assets/images/common/icon_lock.png'
+                      : 'assets/images/common/icon_warn.png',
+                  height: 20.w * 3,
+                  width: 20.w * 3,
+                  fit: BoxFit.fill,
+                ),
+                event.type == 0
+                    ? const SizedBox()
+                    : SizedBox(
+                  height: 16.h * 3,
+                ),
+                // SizedBox(height: 16.h*3,),
+                Text(
+                  event.title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: HhColors.whiteColor, fontSize: 14.sp * 3),
+                ),
+                // SizedBox(height: 10.h*3,)
+                // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
+              ],
             ),
-            context: context,
-            animation: StyledToastAnimation.slideFromBottomFade,
-            reverseAnimation: StyledToastAnimation.fade,
-            position: StyledToastPosition.center,
-            animDuration: const Duration(seconds: 1),
-            duration: const Duration(seconds: 2),
-            curve: Curves.elasticOut,
-            reverseCurve: Curves.linear,
-          );
-        }
+          ),
+          context: CommonData.context!,
+          animation: StyledToastAnimation.slideFromBottomFade,
+          reverseAnimation: StyledToastAnimation.fade,
+          position: StyledToastPosition.center,
+          animDuration: const Duration(seconds: 1),
+          duration: const Duration(seconds: 2),
+          curve: Curves.elasticOut,
+          reverseCurve: Curves.linear,
+        );
       });
     });
     versionSubscription =
@@ -333,12 +274,10 @@ class HomeController extends GetxController {
     });
     showLoadingSubscription =
         EventBusUtil.getInstance().on<HhLoading>().listen((event) {
-          if (Get.isRegistered<HomeController>()) {
-            if (event.show) {
-              context.loaderOverlay.show();
-            } else {
-              context.loaderOverlay.hide();
-            }
+          if (event.show) {
+            CommonData.context!.loaderOverlay.show();
+          } else {
+            CommonData.context!.loaderOverlay.hide();
           }
     });
     getLocation();
@@ -351,6 +290,7 @@ class HomeController extends GetxController {
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
     postType();
     getVersion();
+    getProvince("010");
     super.onInit();
   }
 
@@ -827,7 +767,7 @@ class HomeController extends GetxController {
   }
 
   void fireListDialog() {
-    showModalBottomSheet(context: context, builder: (a){
+    showModalBottomSheet(context: Get.context!, builder: (a){
       return Obx(() =>Container(
         width: 1.sw,
         height: 0.8.sh,
@@ -888,6 +828,13 @@ class HomeController extends GetxController {
                       width: 0.3.sw,),
                     firstPageProgressIndicatorBuilder: (context) => Container(),
                     itemBuilder: (context, item, index) {
+                      bool hasTimeBefore = false;
+                      /*if(filterTimeList.contains("${item["observeTimestr"]}")){
+                        hasTimeBefore = true;
+                      }else{
+                        filterTimeList.clear();
+                        filterTimeList.add("${item["observeTimestr"]}");
+                      }*/
                       return InkWell(
                         onTap: () async {
                           Get.back();
@@ -902,8 +849,13 @@ class HomeController extends GetxController {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(height: 10.w*3,),
-                            fireTypeByTime.value?Row(
+                            hasTimeBefore||index==0?const SizedBox():Container(
+                              height: 1.w,
+                              width: 1.sw,
+                              color: HhColors.line25Color,
+                            ),
+                            hasTimeBefore?const SizedBox():SizedBox(height: 10.w*3,),
+                            fireTypeByTime.value?(hasTimeBefore?const SizedBox():Row(
                               children: [
                                 SizedBox(width: 10.w*3,),
                                 Icon(Icons.access_time_rounded,color: HhColors.titleColor_55,size: 18.w*3,),
@@ -911,7 +863,7 @@ class HomeController extends GetxController {
                                 Text('${item["observeTimestr"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
                                 SizedBox(width: 10.w*3,),
                               ],
-                            ): Row(
+                            )): Row(
                               children: [
                                 SizedBox(width: 10.w*3,),
                                 Icon(Icons.turned_in_not_rounded,color: HhColors.titleColor_55,size: 18.w*3,),
@@ -932,11 +884,6 @@ class HomeController extends GetxController {
                               ],
                             ),
                             SizedBox(height: 10.w*3,),
-                            Container(
-                              height: 1.w,
-                              width: 1.sw,
-                              color: HhColors.line25Color,
-                            ),
                           ],
                         ),
                       );
@@ -952,7 +899,7 @@ class HomeController extends GetxController {
   }
 
   void showListTypeFilter() {
-    showCupertinoDialog(context: context, builder: (BuildContext context) {
+    showCupertinoDialog(context: Get.context!, builder: (BuildContext context) {
       return Obx(() =>Material(
         color: HhColors.trans,
         child: Stack(
@@ -1045,7 +992,7 @@ class HomeController extends GetxController {
   }
 
   void showFireInfo() {
-    showModalBottomSheet(context: context, builder: (a){
+    showModalBottomSheet(context: Get.context!, builder: (a){
       return Container(
         width: 1.sw,
         height: 0.6.sh,
@@ -1088,9 +1035,10 @@ class HomeController extends GetxController {
                     Container(
                       margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('地址：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["formattedAddress"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          Expanded(child: Text('${fireInfo["formattedAddress"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),)),
                         ],
                       ),
                     ),
@@ -1106,9 +1054,10 @@ class HomeController extends GetxController {
                     Container(
                       margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('经纬度：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["latitude"]},${fireInfo["longitude"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          Expanded(child: Text('${fireInfo["longitude"]} , ${fireInfo["latitude"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),)),
                         ],
                       ),
                     ),
@@ -1190,7 +1139,7 @@ class HomeController extends GetxController {
                         children: [
                           InkWell(
                             onTap: (){
-                              CommonUtils().showPictureDialog(context,url: "${CommonData.fileStart}${fireInfo["visibleLightImgUrl"]}");
+                              CommonUtils().showPictureDialog(Get.context!,url: "${CommonData.fileStart}${fireInfo["visibleLightImgUrl"]}");
                             },
                             child: Image.network("${CommonData.fileStart}${fireInfo["visibleLightImgUrl"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
                               return Image.asset('assets/images/common/ic_no_pic.png',width:160.w*3,height: 100.w*3,fit: BoxFit.fill,);
@@ -1199,7 +1148,7 @@ class HomeController extends GetxController {
                           SizedBox(width: 20.w*3,),
                           InkWell(
                             onTap: (){
-                              CommonUtils().showPictureDialog(context,url: "${CommonData.fileStart}${fireInfo["thermalImagingImgUrl"]}");
+                              CommonUtils().showPictureDialog(Get.context!,url: "${CommonData.fileStart}${fireInfo["thermalImagingImgUrl"]}");
                             },
                             child: Image.asset("${CommonData.fileStart}${fireInfo["thermalImagingImgUrl"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
                               return Image.asset('assets/images/common/ic_no_pic.png',width:160.w*3,height: 100.w*3,fit: BoxFit.fill,);
@@ -1238,8 +1187,8 @@ class HomeController extends GetxController {
     map['provinceCode'] = '37';
     // map['cityCode'] = '04';
     // map['countyCode'] = '27';
-    map['satelliteCodeList'] = satelliteStrList;
-    map['landType'] = landTypeStrList;
+    map['satelliteCodeList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
+    map['landType'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
     map['endTime'] = endTime.value;
     map['bufferArea'] = otherCache.value?"1":"0";
@@ -1543,5 +1492,29 @@ class HomeController extends GetxController {
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
 
+  }
+
+
+  void getProvince(String code) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      provinceList = result["data"];
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
+  void getCity(String code) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      cityList = result["data"];
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
   }
 }

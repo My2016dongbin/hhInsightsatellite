@@ -152,7 +152,7 @@ class HhHttp {
   bool parse401(String data) {
     String str = "";
     try{
-      str = data.substring(0,10);
+      str = data.substring(0,16);
     }catch(e){
       HhLog.e(e.toString());
     }

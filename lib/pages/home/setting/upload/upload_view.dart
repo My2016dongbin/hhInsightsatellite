@@ -693,6 +693,7 @@ class UploadPage extends StatelessWidget {
                       children: getProvince(),
                       onSelectedItemChanged: (int value) {
                         index = value;
+                        logic.getCity(logic.provinceList[index]["areaCode"]);
                       },
 
                     ),
@@ -773,6 +774,7 @@ class UploadPage extends StatelessWidget {
                       children: getCity(),
                       onSelectedItemChanged: (int value) {
                         index = value;
+                        logic.getArea(logic.cityList[index]["areaCode"]);
                       },
 
                     ),

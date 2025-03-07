@@ -2,6 +2,7 @@ import 'package:dio/dio.dart' as dios;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/pages/common/model/model_class.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
@@ -28,66 +29,9 @@ class UploadController extends GetxController {
   late String videoUrl;
   late int maxVideoTimes = 10000;
   StreamSubscription? versionSubscription;
-  late List<dynamic> provinceList = [
-    {
-      "name":"山东省",
-    },
-    {
-      "name":"吉林省",
-    },
-    {
-      "name":"山西省",
-    },
-    {
-      "name":"河南省",
-    },
-    {
-      "name":"河北省",
-    },
-    {
-      "name":"辽宁省",
-    },
-  ];
-  late List<dynamic> cityList = [
-    {
-      "name":"青岛",
-    },
-    {
-      "name":"济南",
-    },
-    {
-      "name":"烟台",
-    },
-    {
-      "name":"潍坊",
-    },
-    {
-      "name":"淄博",
-    },
-    {
-      "name":"济宁",
-    },
-  ];
-  late List<dynamic> areaList = [
-    {
-      "name":"高新区",
-    },
-    {
-      "name":"城阳区",
-    },
-    {
-      "name":"市南区",
-    },
-    {
-      "name":"市北区",
-    },
-    {
-      "name":"崂山区",
-    },
-    {
-      "name":"李沧区",
-    },
-  ];
+  late List<dynamic> provinceList = [];
+  late List<dynamic> cityList = [];
+  late List<dynamic> areaList = [];
   late FixedExtentScrollController scrollControllerP;
   final Rx<int> provinceIndex = 0.obs;
   late FixedExtentScrollController scrollControllerC;
@@ -104,6 +48,42 @@ class UploadController extends GetxController {
           latitudeController.text = "${event.latitude}";
           longitudeController.text = "${event.longitude}";
         });
+
+    getProvince("010");
+  }
+
+  void getProvince(String code) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      provinceList = result["data"];
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
+  void getCity(String code) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      cityList = result["data"];
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
+  void getArea(String code) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      areaList = result["data"];
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
   }
 
   void uploadImage(String filePath) async {

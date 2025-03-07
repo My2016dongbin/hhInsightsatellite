@@ -1205,24 +1205,19 @@ class CommonUtils {
 
   tokenDown() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? id = prefs.getString(SPKeys().id);
-    String? token = prefs.getString(SPKeys().token);
+    String id = prefs.getString(SPKeys().id)??"";
     try{
-      XgFlutterPlugin().deleteAccount(id!, AccountType.UNKNOWN);
-      XgFlutterPlugin().deleteAccount(token!, AccountType.UNKNOWN);
       XgFlutterPlugin().deleteTags([id,"test"]);
     }catch(e){
       //
     }
     prefs.remove(SPKeys().token);
-    CommonData.tenant = CommonData.tenantDef;
-    CommonData.tenantName = CommonData.tenantNameDef;
     CommonData.token = null;
     int now = DateTime.now().millisecondsSinceEpoch;
     if (now - CommonData.time > 2000) {
       CommonData.time = now;
       toLogin();
-      Future.delayed(const Duration(seconds: 1), () {
+      Future.delayed(const Duration(seconds: 2), () {
         EventBusUtil.getInstance().fire(HhToast(title: '登录信息失效,请重新登录'));
       });
     }
@@ -1406,10 +1401,14 @@ class CommonButton extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     return Listener(
       onPointerDown: (down) {
-        onPointerDown!();
+        if(onPointerDown!=null){
+          onPointerDown!();
+        }
       },
       onPointerUp: (up) {
-        onPointerUp!();
+        if(onPointerUp!=null){
+          onPointerUp!();
+        }
       },
       child: Container(
         height: height ?? 85.w,

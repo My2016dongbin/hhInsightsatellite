@@ -20,7 +20,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tpns_flutter_plugin/tpns_flutter_plugin.dart';
 
 class PersonalLoginController extends GetxController {
-  late BuildContext context;
   final Rx<bool> testStatus = true.obs;
   final Rx<bool> pageStatus = false.obs;
   final Rx<bool> tenantStatus = false.obs;
@@ -36,6 +35,15 @@ class PersonalLoginController extends GetxController {
   late String? password;
 
   @override
+  void onClose() {
+    try {
+      showToastSubscription.cancel();
+      showLoadingSubscription.cancel();
+    } catch (e) {
+      //
+    }
+  }
+  @override
   Future<void> onInit() async {
     showToastSubscription =
         EventBusUtil.getInstance().on<HhToast>().listen((event) {
@@ -43,70 +51,66 @@ class PersonalLoginController extends GetxController {
             return;
           }
 
-          if (Get.isRegistered<PersonalLoginController>()) {
-            showToastWidget(
-              Container(
-                margin: EdgeInsets.fromLTRB(
-                    20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
-                padding: EdgeInsets.fromLTRB(
-                    30.w * 3, event.type == 0 ? 13.h * 3 : 25.h * 3, 30.w * 3,
-                    13.h * 3),
-                decoration: BoxDecoration(
-                    color: HhColors.blackColor.withAlpha(200),
-                    borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
-                constraints: BoxConstraints(
-                    minWidth: 117.w * 3
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
-                    event.type == 0 ? const SizedBox() : Image.asset(
-                      event.type == 1
-                          ? 'assets/images/common/icon_success.png'
-                          : event.type == 2
-                          ? 'assets/images/common/icon_error.png'
-                          : event.type == 3
-                          ? 'assets/images/common/icon_lock.png'
-                          : 'assets/images/common/icon_warn.png',
-                      height: 20.w * 3,
-                      width: 20.w * 3,
-                      fit: BoxFit.fill,
-                    ),
-                    event.type == 0 ? const SizedBox() : SizedBox(
-                      height: 16.h * 3,),
-                    // SizedBox(height: 16.h*3,),
-                    Text(
-                      event.title,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: HhColors.whiteColor,
-                          fontSize: 14.sp * 3),
-                    ),
-                    // SizedBox(height: 10.h*3,)
-                    // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
-                  ],
-                ),
+          showToastWidget(
+            Container(
+              margin: EdgeInsets.fromLTRB(
+                  20.w * 3, 15.w * 3, 20.w * 3, 25.w * 3),
+              padding: EdgeInsets.fromLTRB(
+                  30.w * 3, event.type == 0 ? 13.h * 3 : 25.h * 3, 30.w * 3,
+                  13.h * 3),
+              decoration: BoxDecoration(
+                  color: HhColors.blackColor.withAlpha(200),
+                  borderRadius: BorderRadius.all(Radius.circular(8.w * 3))),
+              constraints: BoxConstraints(
+                  minWidth: 117.w * 3
               ),
-              context: context,
-              animation: StyledToastAnimation.slideFromBottomFade,
-              reverseAnimation: StyledToastAnimation.fade,
-              position: StyledToastPosition.center,
-              animDuration: const Duration(seconds: 1),
-              duration: const Duration(seconds: 2),
-              curve: Curves.elasticOut,
-              reverseCurve: Curves.linear,
-            );
-          }
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // event.type==0?const SizedBox():SizedBox(height: 16.w*3,),
+                  event.type == 0 ? const SizedBox() : Image.asset(
+                    event.type == 1
+                        ? 'assets/images/common/icon_success.png'
+                        : event.type == 2
+                        ? 'assets/images/common/icon_error.png'
+                        : event.type == 3
+                        ? 'assets/images/common/icon_lock.png'
+                        : 'assets/images/common/icon_warn.png',
+                    height: 20.w * 3,
+                    width: 20.w * 3,
+                    fit: BoxFit.fill,
+                  ),
+                  event.type == 0 ? const SizedBox() : SizedBox(
+                    height: 16.h * 3,),
+                  // SizedBox(height: 16.h*3,),
+                  Text(
+                    event.title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: HhColors.whiteColor,
+                        fontSize: 14.sp * 3),
+                  ),
+                  // SizedBox(height: 10.h*3,)
+                  // event.type==0?SizedBox(height: 10.h*3,):SizedBox(height: 10.h*3,),
+                ],
+              ),
+            ),
+            context: CommonData.context!,
+            animation: StyledToastAnimation.slideFromBottomFade,
+            reverseAnimation: StyledToastAnimation.fade,
+            position: StyledToastPosition.center,
+            animDuration: const Duration(seconds: 1),
+            duration: const Duration(seconds: 2),
+            curve: Curves.elasticOut,
+            reverseCurve: Curves.linear,
+          );
         });
     showLoadingSubscription =
         EventBusUtil.getInstance().on<HhLoading>().listen((event) {
-          if (Get.isRegistered<PersonalLoginController>()) {
-            if (event.show) {
-              context.loaderOverlay.show();
-            } else {
-              context.loaderOverlay.hide();
-            }
+          if (event.show) {
+            CommonData.context!.loaderOverlay.show();
+          } else {
+            CommonData.context!.loaderOverlay.hide();
           }
         });
 

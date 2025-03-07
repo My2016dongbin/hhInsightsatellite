@@ -8,11 +8,8 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
-import 'package:insightsatellite/pages/home/feedback/feedback_binding.dart';
-import 'package:insightsatellite/pages/home/feedback/feedback_view.dart';
 import 'package:insightsatellite/pages/home/home_controller.dart';
 import 'package:insightsatellite/pages/home/setting/setting_binding.dart';
 import 'package:insightsatellite/pages/home/setting/setting_view.dart';
@@ -28,7 +25,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logic.context = context;
     CommonData.context = context;
     // 在这里设置状态栏字体为深色
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -71,7 +67,7 @@ class HomePage extends StatelessWidget {
   }
 
   home(context) {
-    double statusBarHeight = MediaQuery.of(logic.context).padding.top;
+    double statusBarHeight = MediaQuery.of(Get.context!).padding.top;
     return Stack(
       children: [
         Container(
@@ -168,7 +164,7 @@ class HomePage extends StatelessWidget {
       color: HhColors.whiteColor,
       width: 0.7.sw,
       height: 1.sh,
-      margin: EdgeInsets.only(top: MediaQuery.of(logic.context).padding.top),
+      margin: EdgeInsets.only(top: MediaQuery.of(Get.context!).padding.top),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -182,7 +178,7 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child: InkWell(
                   onTap: (){
-                    Navigator.pop(logic.context);
+                    Navigator.pop(Get.context!);
                     logic.mapTypeTag.value = 3;
                     logic.myMapController.updateMapOptions(logic.mapOptions());
                     logic.mapLoading();
@@ -203,7 +199,7 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child: InkWell(
                   onTap: (){
-                    Navigator.pop(logic.context);
+                    Navigator.pop(Get.context!);
                     logic.mapTypeTag.value = 4;
                     logic.myMapController.updateMapOptions(logic.mapOptions());
                     logic.mapLoading();
@@ -233,7 +229,7 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child: InkWell(
                   onTap: (){
-                    Navigator.pop(logic.context);
+                    Navigator.pop(Get.context!);
                     logic.mapChangeTag.value = 2;
                     logic.mapLoading();
                     Future.delayed(const Duration(milliseconds: 2300),(){
@@ -256,7 +252,7 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child: InkWell(
                   onTap: (){
-                    Navigator.pop(logic.context);
+                    Navigator.pop(Get.context!);
                     logic.mapChangeTag.value = 3;
                     logic.mapLoading();
                     Future.delayed(const Duration(milliseconds: 2300),(){
@@ -287,7 +283,7 @@ class HomePage extends StatelessWidget {
 
 
   void fireSearchDialog() {
-    showModalBottomSheet(context: logic.context, builder: (a){
+    showModalBottomSheet(context: Get.context!, builder: (a){
       return Container(
         width: 1.sw,
         height: 0.55.sh,
@@ -426,7 +422,7 @@ class HomePage extends StatelessWidget {
   }
 
   void showAdvancedFilterDialog() {
-    showModalBottomSheet(context: logic.context, builder: (a){
+    showModalBottomSheet(context: Get.context!, builder: (a){
       return Obx(() =>Container(
         width: 1.sw,
         height: 0.7.sh,
@@ -482,12 +478,12 @@ class HomePage extends StatelessWidget {
                       SizedBox(height: 2.w*3,),
                       InkWell(
                         onTap: (){
-                          DatePicker.showDatePicker(logic.context,
+                          DatePicker.showDatePicker(Get.context!,
                               showTitleActions: true,
                               minTime: DateTime.now().subtract(const Duration(days: 1000)),
                               maxTime:DateTime.now().add(const Duration(days: 1000)),
                               onConfirm: (date) {
-                                DatePicker.showTimePicker(logic.context,
+                                DatePicker.showTimePicker(Get.context!,
                                     showTitleActions: true, onConfirm: (date) {
                                       logic.startTime.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
                                     }, currentTime: date, locale: LocaleType.zh);
@@ -507,12 +503,12 @@ class HomePage extends StatelessWidget {
                       SizedBox(height: 10.w*3,),
                       InkWell(
                       onTap: (){
-                        DatePicker.showDatePicker(logic.context,
+                        DatePicker.showDatePicker(Get.context!,
                             showTitleActions: true,
                             minTime: DateTime.now().subtract(const Duration(days: 1000)),
                             maxTime:DateTime.now().add(const Duration(days: 1000)),
                             onConfirm: (date) {
-                              DatePicker.showTimePicker(logic.context,
+                              DatePicker.showTimePicker(Get.context!,
                                   showTitleActions: true, onConfirm: (date) {
                                     logic.endTime.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
                                   }, currentTime: date, locale: LocaleType.zh);
@@ -803,7 +799,7 @@ class HomePage extends StatelessWidget {
       EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
       return;
     }
-    showModalBottomSheet(context: logic.context,
+    showModalBottomSheet(context: Get.context!,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12.w*3),
@@ -839,6 +835,7 @@ class HomePage extends StatelessWidget {
                       children: getProvince(),
                       onSelectedItemChanged: (int value) {
                         index = value;
+                        logic.getCity(logic.provinceList[index]["areaCode"]);
                       },
 
                     ),
@@ -880,7 +877,7 @@ class HomePage extends StatelessWidget {
       EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
       return;
     }
-    showModalBottomSheet(context: logic.context,
+    showModalBottomSheet(context: Get.context!,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12.w*3),

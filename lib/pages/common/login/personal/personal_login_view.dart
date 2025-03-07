@@ -20,7 +20,7 @@ class PersonalLoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logic.context = context;
+    CommonData.context = context;
     // 在这里设置状态栏字体为深色
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, // 状态栏背景色
@@ -231,7 +231,7 @@ class PersonalLoginPage extends StatelessWidget {
                         scaleFactor: 1.2,
                         onPressed: (){
                           //隐藏输入法
-                          FocusScope.of(logic.context).requestFocus(FocusNode());
+                          FocusScope.of(Get.context!).requestFocus(FocusNode());
 
                           ///登录点击
                           if(logic.accountController!.text.isEmpty){
@@ -293,7 +293,7 @@ class PersonalLoginPage extends StatelessWidget {
   }
 
   void showWebDialog() {
-    showCupertinoDialog(context: logic.context, builder: (context) => Center(
+    showCupertinoDialog(context: Get.context!, builder: (context) => Center(
       child: Container(
         width: 1.sw,
         height: 360.w,
@@ -320,7 +320,7 @@ class PersonalLoginPage extends StatelessWidget {
 
   void showAgreeDialog() {
     showCupertinoDialog(
-        context: logic.context,
+        context: Get.context!,
         builder: (context) => Center(
           child: Container(
             width: 315.w*3,
