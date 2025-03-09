@@ -304,6 +304,7 @@ class HomePage extends StatelessWidget {
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(minutes: 10)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
+                  logic.pageNum = 1;
                   logic.postFire(true);
                 },
                 child: Container(
@@ -321,6 +322,7 @@ class HomePage extends StatelessWidget {
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
+                  logic.pageNum = 1;
                   logic.postFire(true);
                 },
                 child: Container(
@@ -338,6 +340,7 @@ class HomePage extends StatelessWidget {
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
+                  logic.pageNum = 1;
                   logic.postFire(true);
                 },
                 child: Container(
@@ -355,6 +358,7 @@ class HomePage extends StatelessWidget {
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(days: 1)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
+                  logic.pageNum = 1;
                   logic.postFire(true);
                 },
                 child: Container(
@@ -372,6 +376,7 @@ class HomePage extends StatelessWidget {
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(days: 3)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
+                  logic.pageNum = 1;
                   logic.postFire(true);
                 },
                 child: Container(
@@ -389,6 +394,7 @@ class HomePage extends StatelessWidget {
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(days: 5)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
+                  logic.pageNum = 1;
                   logic.postFire(true);
                 },
                 child: Container(
@@ -669,6 +675,7 @@ class HomePage extends StatelessWidget {
                     scaleFactor: 0.6,
                     onPressed: (){
                       Get.back();
+                      logic.pageNum = 1;
                       logic.postFire(true);
                     },
                     child: Container(

@@ -146,6 +146,7 @@ class HomeController extends GetxController {
   late List<dynamic> newItems = [];
   late List<dynamic> allFireList = [];
   late List<String> filterTimeList = [];
+  late int postFireLong = 0;
 
   Future<void> requestNotificationPermission() async {
     // 检查是否已经获得通知权限
@@ -815,8 +816,17 @@ class HomeController extends GetxController {
                   postFire(false);
                 },
                 onLoad: (){
-                  pageNum++;
-                  postFire(false);
+                  int now = DateTime.now().millisecondsSinceEpoch;
+                  HhLog.d("loadMore now ${now - postFireLong}");
+                  if(now - postFireLong > 2000){
+                    postFireLong = now;
+                    pageNum++;
+                    postFire(false);
+                    HhLog.d(" loadMore load $pageNum");
+                  }else{
+                    HhLog.d(" loadMore wait");
+                    easyController.finishLoad(IndicatorResult.none,true);
+                  }
                 },
                 controller: easyController,
                 child: PagedListView<int, dynamic>(
@@ -1200,6 +1210,17 @@ class HomeController extends GetxController {
     if(result["code"]==200){
       newItems = result["rows"];
       fireCount.value = result["total"];
+      //处理页数
+      try{
+        double pageAll = fireCount.value/pageSize;
+        if(pageNum*1.0 > pageAll && (pageNum*1.0 - pageAll >= 1)){
+          easyController.finishLoad(IndicatorResult.noMore,true);
+          return;
+        }
+      }catch(e){
+        //
+      }
+
       if (pageNum == 1) {
         fireController.itemList = [];
         allFireList = [];
