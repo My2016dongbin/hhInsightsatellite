@@ -186,7 +186,7 @@ class PersonalLoginPage extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 17.h*3,),
-                      ///协议
+                      /*///协议
                       Row(
                         children: [
                           SizedBox(width: 7.w*3,),
@@ -224,7 +224,7 @@ class PersonalLoginPage extends StatelessWidget {
                             ),
                           ),
                         ],
-                      ),
+                      ),*/
                       ///登录
                       BouncingWidget(
                         duration: const Duration(milliseconds: 100),

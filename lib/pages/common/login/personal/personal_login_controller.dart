@@ -26,7 +26,7 @@ class PersonalLoginController extends GetxController {
   final Rx<bool> accountStatus = false.obs;
   final Rx<bool> passwordStatus = false.obs;
   final Rx<bool> passwordShowStatus = false.obs;
-  final Rx<bool> confirmStatus = false.obs;
+  final Rx<bool> confirmStatus = true.obs;
   TextEditingController? accountController = TextEditingController();
   TextEditingController? passwordController = TextEditingController();
   late StreamSubscription showToastSubscription;
