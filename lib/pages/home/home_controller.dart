@@ -290,7 +290,9 @@ class HomeController extends GetxController {
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
     postType();
-    getVersion();
+    Future.delayed(const Duration(milliseconds: 2000),(){
+      getVersion();
+    });
     getProvince("010");
     super.onInit();
   }
@@ -386,9 +388,7 @@ class HomeController extends GetxController {
     Map<String, dynamic> map = {};
     map['operatingSystem'] = "Android";
     map['version'] = buildNumber.value;
-    map['type'] = CommonData.test
-        ? (CommonData.personal ? 'testPersonal' : 'testCompany')
-        : (CommonData.personal ? 'personal' : 'company');
+    map['type'] = "personal";
     var result = await HhHttp()
         .request(RequestUtils.versionNew, method: DioMethod.get, params: map);
     HhLog.d("getVersion -- request ${RequestUtils.versionNew}");

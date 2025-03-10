@@ -133,6 +133,9 @@ class HhHttp {
       if(parse401('${response.data}')){
         CommonUtils().tokenDown();
       }
+      if(parse500('${response.data}')){
+        EventBusUtil.getInstance().fire(HhToast(title: "服务异常请稍后重试"));
+      }
       return response.data;
     } on DioException catch (e) {
       HhLog.e("发送请求异常: $e");
@@ -157,5 +160,15 @@ class HhHttp {
       HhLog.e(e.toString());
     }
     return str.contains("401");
+  }
+
+  bool parse500(String data) {
+    String str = "";
+    try{
+      str = data.substring(0,16);
+    }catch(e){
+      HhLog.e(e.toString());
+    }
+    return str.contains("500");
   }
 }

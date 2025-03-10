@@ -116,7 +116,7 @@ android {
             signingConfig signingConfigs.release //解决unsigned
             shrinkResources false
             minifyEnabled false
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             ndk{
                 //QQ微信等大佬都只用"armeabi"
@@ -127,7 +127,7 @@ android {
             signingConfig signingConfigs.debugConfig //解决unsigned
             minifyEnabled false
             shrinkResources false
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             ndk {
                 //这里配置开发调试时的，根据个人需要增减少，x86建议加上不然部分模拟器回报错
