@@ -130,7 +130,11 @@ class HomeController extends GetxController {
   final Rx<String> startTime = "请输入开始时间".obs;
   final Rx<String> endTime = "请输入结束时间".obs;
   final Rx<String> province = "请选择省".obs;
+  late String provinceCode = "";
   final Rx<String> city = "请选择市".obs;
+  late String cityCode = "";
+  final Rx<String> area = "请选择区".obs;
+  late String areaCode = "";
   late List<dynamic> provinceList = [];
   late List<dynamic> cityList = [];
   late List<dynamic> areaList = [];
@@ -138,6 +142,8 @@ class HomeController extends GetxController {
   final Rx<int> provinceIndex = 0.obs;
   late FixedExtentScrollController scrollControllerC;
   final Rx<int> cityIndex = 0.obs;
+  late FixedExtentScrollController scrollControllerA;
+  final Rx<int> areaIndex = 0.obs;
   final Rx<bool> otherOut = false.obs;
   final Rx<bool> otherCache = false.obs;
   final Rx<bool> otherOutShow = true.obs;
@@ -1194,7 +1200,18 @@ class HomeController extends GetxController {
     Map<String, dynamic> map = {};
     map['pageNum'] = '$pageNum';
     map['pageSize'] = '$pageSize';
-    map['provinceCode'] = '37';
+    if(areaCode.isNotEmpty){
+      map['countyCode'] = areaCode;
+    }else{
+      if(cityCode.isNotEmpty){
+        map['cityCode'] = cityCode;
+      }else{
+        if(provinceCode.isNotEmpty){
+          map['provinceCode'] = provinceCode;
+        }
+      }
+    }
+    // map['provinceCode'] = '37';
     // map['cityCode'] = '04';
     // map['countyCode'] = '27';
     map['satelliteCodeList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
@@ -1534,6 +1551,17 @@ class HomeController extends GetxController {
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
       cityList = result["data"];
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
+  void getArea(String code) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      areaList = result["data"];
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }

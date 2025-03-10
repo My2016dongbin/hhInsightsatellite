@@ -133,90 +133,192 @@ class UploadPage extends StatelessWidget {
           ),
         ),
         ///选项
-        Expanded(
-          child: Container(
-            margin: EdgeInsets.fromLTRB(0, statusBarHeight+177.w*3, 0, 65.w*3),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ///省市区
-                  Container(
-                    margin: EdgeInsets.fromLTRB(15.w*3, 15.w*3, 15.w*3, 0),
-                    child: Row(
-                      children: [
-                        BouncingWidget(
-                            duration: const Duration(milliseconds: 100),
-                            scaleFactor: 0.2,
-                            onPressed: () {
-                              chooseProvince();
-                            },
-                            child: Text(logic.province.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
-                        ),
-                        SizedBox(width: 2.w*3,),
-                        Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
-                        SizedBox(width: 10.w*3,),
-                        BouncingWidget(
-                            duration: const Duration(milliseconds: 100),
-                            scaleFactor: 0.2,
-                            onPressed: () {
-                              chooseCity();
-                            },
-                            child: Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
-                        ),
-                        SizedBox(width: 2.w*3,),
-                        Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
-                        SizedBox(width: 10.w*3,),
-                        BouncingWidget(
-                            duration: const Duration(milliseconds: 100),
-                            scaleFactor: 0.2,
-                            onPressed: () {
-                              chooseArea();
-                            },
-                            child: Text(logic.area.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
-                        ),
-                        SizedBox(width: 2.w*3,),
-                        Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
-                        const Expanded(child: SizedBox()),
-                        BouncingWidget(
+        Container(
+          margin: EdgeInsets.fromLTRB(0, statusBarHeight+177.w*3, 0, 65.w*3),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ///省市区
+                Container(
+                  margin: EdgeInsets.fromLTRB(15.w*3, 15.w*3, 15.w*3, 0),
+                  child: Row(
+                    children: [
+                      BouncingWidget(
                           duration: const Duration(milliseconds: 100),
                           scaleFactor: 0.2,
                           onPressed: () {
-                            Get.to(() => LocationPage(),
-                                binding: LocationBinding());
+                            chooseProvince();
                           },
-                          child: Container(
-                            padding: EdgeInsets.all(5.w*3),
-                              color: HhColors.trans,
-                              child: Image.asset('assets/images/common/ic_tomap.png',width:16.w*3,height: 20.w*3,fit: BoxFit.fill,)
-                          ),
+                          child: Text(logic.province.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
+                      ),
+                      SizedBox(width: 2.w*3,),
+                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
+                      SizedBox(width: 10.w*3,),
+                      BouncingWidget(
+                          duration: const Duration(milliseconds: 100),
+                          scaleFactor: 0.2,
+                          onPressed: () {
+                            chooseCity();
+                          },
+                          child: Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
+                      ),
+                      SizedBox(width: 2.w*3,),
+                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
+                      SizedBox(width: 10.w*3,),
+                      BouncingWidget(
+                          duration: const Duration(milliseconds: 100),
+                          scaleFactor: 0.2,
+                          onPressed: () {
+                            chooseArea();
+                          },
+                          child: Text(logic.area.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
+                      ),
+                      SizedBox(width: 2.w*3,),
+                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
+                      const Expanded(child: SizedBox()),
+                      BouncingWidget(
+                        duration: const Duration(milliseconds: 100),
+                        scaleFactor: 0.2,
+                        onPressed: () {
+                          Get.to(() => LocationPage(),
+                              binding: LocationBinding());
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(5.w*3),
+                            color: HhColors.trans,
+                            child: Image.asset('assets/images/common/ic_tomap.png',width:16.w*3,height: 20.w*3,fit: BoxFit.fill,)
                         ),
-                        SizedBox(width: 10.w*3,),
-                      ],
+                      ),
+                      SizedBox(width: 10.w*3,),
+                    ],
+                  ),
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 10.w*3, 12.w*3, 0),
+                ),
+                ///地址
+                Container(
+                  margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 50,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.addressController,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
+                      ),
+                      counterText: '',
+                      hintText: '地址',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                     ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                   ),
-                  Container(
-                    color: HhColors.line25Color,
-                    height: 1.w,
-                    width: 1.sw,
-                    margin: EdgeInsets.fromLTRB(12.w*3, 10.w*3, 12.w*3, 0),
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
+                ),
+                ///经度
+                Container(
+                  margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 20,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.longitudeController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
+                      ),
+                      counterText: '',
+                      hintText: '经度',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                    ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                   ),
-                  ///地址
-                  Container(
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
+                ),
+                ///纬度
+                Container(
+                  margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 20,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.latitudeController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
+                      ),
+                      counterText: '',
+                      hintText: '纬度',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                    ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                  ),
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
+                ),
+                ///时间
+                InkWell(
+                  onTap: (){
+                    DatePicker.showDatePicker(logic.context,
+                        showTitleActions: true,
+                        minTime: DateTime.now().subtract(const Duration(days: 365)),
+                        maxTime:DateTime.now().add(const Duration(days: 365)), onConfirm: (date) {
+                          DatePicker.showTimePicker(logic.context,
+                              showTitleActions: true, onConfirm: (date) {
+                                logic.timeController.text = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
+                              }, currentTime: DateTime.now(), locale: LocaleType.zh);
+                        }, currentTime: DateTime.now(), locale: LocaleType.zh);
+                  },
+                  child: Container(
                     margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
                     child: TextField(
                       textAlign: TextAlign.left,
                       maxLines: 1,
                       maxLength: 50,
                       cursorColor: HhColors.titleColor_99,
-                      controller: logic.addressController,
+                      controller: logic.timeController,
                       keyboardType: TextInputType.text,
+                      enabled: false,
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                         border: const OutlineInputBorder(
                             borderSide: BorderSide.none
                         ),
                         counterText: '',
-                        hintText: '地址',
+                        hintText: '时间',
                         hintStyle: TextStyle(
                             color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                       ),
@@ -224,178 +326,74 @@ class UploadPage extends StatelessWidget {
                       TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                     ),
                   ),
-                  Container(
-                    color: HhColors.line25Color,
-                    height: 1.w,
-                    width: 1.sw,
-                    margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
-                  ),
-                  ///经度
-                  Container(
-                    margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                    child: TextField(
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
-                      maxLength: 20,
-                      cursorColor: HhColors.titleColor_99,
-                      controller: logic.longitudeController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        border: const OutlineInputBorder(
-                            borderSide: BorderSide.none
-                        ),
-                        counterText: '',
-                        hintText: '经度',
-                        hintStyle: TextStyle(
-                            color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
+                ),
+                ///土地类型
+                Container(
+                  margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 20,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.landTypeController,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
                       ),
-                      style:
-                      TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                      counterText: '',
+                      hintText: '土地类型',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                     ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                   ),
-                  Container(
-                    color: HhColors.line25Color,
-                    height: 1.w,
-                    width: 1.sw,
-                    margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
-                  ),
-                  ///纬度
-                  Container(
-                    margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                    child: TextField(
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
-                      maxLength: 20,
-                      cursorColor: HhColors.titleColor_99,
-                      controller: logic.latitudeController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        border: const OutlineInputBorder(
-                            borderSide: BorderSide.none
-                        ),
-                        counterText: '',
-                        hintText: '纬度',
-                        hintStyle: TextStyle(
-                            color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
+                ),
+                ///面积(公顷)
+                Container(
+                  margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 20,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.areaController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
                       ),
-                      style:
-                      TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                      counterText: '',
+                      hintText: '面积(公顷)',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                     ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                   ),
-                  Container(
-                    color: HhColors.line25Color,
-                    height: 1.w,
-                    width: 1.sw,
-                    margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
-                  ),
-                  ///时间
-                  InkWell(
-                    onTap: (){
-                      DatePicker.showDatePicker(logic.context,
-                          showTitleActions: true,
-                          minTime: DateTime.now().subtract(const Duration(days: 365)),
-                          maxTime:DateTime.now().add(const Duration(days: 365)), onConfirm: (date) {
-                            DatePicker.showTimePicker(logic.context,
-                                showTitleActions: true, onConfirm: (date) {
-                                  logic.timeController.text = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
-                                }, currentTime: DateTime.now(), locale: LocaleType.zh);
-                          }, currentTime: DateTime.now(), locale: LocaleType.zh);
-                    },
-                    child: Container(
-                      margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                      child: TextField(
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                        maxLength: 50,
-                        cursorColor: HhColors.titleColor_99,
-                        controller: logic.timeController,
-                        keyboardType: TextInputType.text,
-                        enabled: false,
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          border: const OutlineInputBorder(
-                              borderSide: BorderSide.none
-                          ),
-                          counterText: '',
-                          hintText: '时间',
-                          hintStyle: TextStyle(
-                              color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                        ),
-                        style:
-                        TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    color: HhColors.line25Color,
-                    height: 1.w,
-                    width: 1.sw,
-                    margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
-                  ),
-                  ///土地类型
-                  Container(
-                    margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                    child: TextField(
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
-                      maxLength: 20,
-                      cursorColor: HhColors.titleColor_99,
-                      controller: logic.landTypeController,
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        border: const OutlineInputBorder(
-                            borderSide: BorderSide.none
-                        ),
-                        counterText: '',
-                        hintText: '土地类型',
-                        hintStyle: TextStyle(
-                            color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                      ),
-                      style:
-                      TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                  Container(
-                    color: HhColors.line25Color,
-                    height: 1.w,
-                    width: 1.sw,
-                    margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
-                  ),
-                  ///面积(公顷)
-                  Container(
-                    margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                    child: TextField(
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
-                      maxLength: 20,
-                      cursorColor: HhColors.titleColor_99,
-                      controller: logic.areaController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        border: const OutlineInputBorder(
-                            borderSide: BorderSide.none
-                        ),
-                        counterText: '',
-                        hintText: '面积(公顷)',
-                        hintStyle: TextStyle(
-                            color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                      ),
-                      style:
-                      TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                  Container(
-                    color: HhColors.line25Color,
-                    height: 1.w,
-                    width: 1.sw,
-                    margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
-                  ),
-                ],
-              ),
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
+                ),
+              ],
             ),
           ),
         ),
