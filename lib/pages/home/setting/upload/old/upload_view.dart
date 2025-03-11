@@ -50,8 +50,7 @@ class UploadPage extends StatelessWidget {
   settingView() {
     return Stack(
       children: [
-        Container(color: HhColors.themeColor,width: 1.sw,height: statusBarHeight+150.w,),
-        ///title
+        Image.asset('assets/images/common/ic_add_fire_background.png',width:1.sw,height: statusBarHeight+105.w*3,fit: BoxFit.fill,),
         Align(
           alignment: Alignment.topLeft,
           child: InkWell(
@@ -70,11 +69,11 @@ class UploadPage extends StatelessWidget {
           child: Container(
               margin: EdgeInsets.fromLTRB(0, statusBarHeight + 12.w*3, 0, 0),
               padding: EdgeInsets.all(5.w*3),
-              child: Text('报警上报',style: TextStyle(color: HhColors.whiteColor,fontSize: 14.sp*3),)
+              child: Text('上报',style: TextStyle(color: HhColors.whiteColor,fontSize: 14.sp*3),)
           ),
         ),
         ///图片视频
-        /*Container(
+        Container(
           margin: EdgeInsets.fromLTRB(12.w*3, statusBarHeight+220.w, 12.w*3, 0),
           height: 100.w*3,
           width: 1.sw,
@@ -132,45 +131,50 @@ class UploadPage extends StatelessWidget {
               ),
             ],
           ),
-        ),*/
+        ),
         ///选项
         Container(
-          margin: EdgeInsets.fromLTRB(0, statusBarHeight+50.w*3, 0, 65.w*3),
+          margin: EdgeInsets.fromLTRB(0, statusBarHeight+177.w*3, 0, 65.w*3),
           child: SingleChildScrollView(
             child: Column(
               children: [
                 ///省市区
-                BouncingWidget(
-                  duration: const Duration(milliseconds: 100),
-                  scaleFactor: 0.2,
-                  onPressed: () {
-                    chooseProvince();
-                  },
-                  child: Container(
-                    margin: EdgeInsets.fromLTRB(15.w*3, 15.w*3, 15.w*3, 0),
-                    color: HhColors.trans,
-                    child: Row(
-                      children: [
-                        Text("地区",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                        const Expanded(child: SizedBox()),
-                        Text("${logic.province.value}${logic.city.value}${logic.area.value}",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                        Image.asset('assets/images/common/ic_more.png',width:10.w*3,height: 10.w*3,fit: BoxFit.fill,),
-                      ],
-                    ),
-                  ),
-                ),
                 Container(
-                  color: HhColors.line25Color,
-                  height: 1.w,
-                  width: 1.sw,
-                  margin: EdgeInsets.fromLTRB(12.w*3, 10.w*3, 12.w*3, 0),
-                ),
-                Container(
-                  width: 1.sw,
                   margin: EdgeInsets.fromLTRB(15.w*3, 15.w*3, 15.w*3, 0),
                   child: Row(
                     children: [
-                      Text("地址",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
+                      BouncingWidget(
+                          duration: const Duration(milliseconds: 100),
+                          scaleFactor: 0.2,
+                          onPressed: () {
+                            chooseProvince();
+                          },
+                          child: Text(logic.province.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
+                      ),
+                      SizedBox(width: 2.w*3,),
+                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
+                      SizedBox(width: 10.w*3,),
+                      BouncingWidget(
+                          duration: const Duration(milliseconds: 100),
+                          scaleFactor: 0.2,
+                          onPressed: () {
+                            chooseCity();
+                          },
+                          child: Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
+                      ),
+                      SizedBox(width: 2.w*3,),
+                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
+                      SizedBox(width: 10.w*3,),
+                      BouncingWidget(
+                          duration: const Duration(milliseconds: 100),
+                          scaleFactor: 0.2,
+                          onPressed: () {
+                            chooseArea();
+                          },
+                          child: Text(logic.area.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3),)
+                      ),
+                      SizedBox(width: 2.w*3,),
+                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,),
                       const Expanded(child: SizedBox()),
                       BouncingWidget(
                         duration: const Duration(milliseconds: 100),
@@ -179,16 +183,21 @@ class UploadPage extends StatelessWidget {
                           Get.to(() => LocationPage(),
                               binding: LocationBinding());
                         },
-                        child: Row(
-                          children: [
-                            Image.asset('assets/images/common/ic_tomap.png',width:8.w*3,height: 10.w*3,fit: BoxFit.fill,),
-                            SizedBox(width: 3.w*3,),
-                            Text("定位",style: TextStyle(color: HhColors.themeColor,fontSize: 12.sp*3),),
-                          ],
+                        child: Container(
+                          padding: EdgeInsets.all(5.w*3),
+                            color: HhColors.trans,
+                            child: Image.asset('assets/images/common/ic_tomap.png',width:16.w*3,height: 20.w*3,fit: BoxFit.fill,)
                         ),
-                      )
+                      ),
+                      SizedBox(width: 10.w*3,),
                     ],
                   ),
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 10.w*3, 12.w*3, 0),
                 ),
                 ///地址
                 Container(
@@ -206,7 +215,7 @@ class UploadPage extends StatelessWidget {
                           borderSide: BorderSide.none
                       ),
                       counterText: '',
-                      hintText: '请输入或选择地址',
+                      hintText: '地址',
                       hintStyle: TextStyle(
                           color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                     ),
@@ -223,32 +232,25 @@ class UploadPage extends StatelessWidget {
                 ///经度
                 Container(
                   margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                  child: Row(
-                    children: [
-                      Text("经度",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                      Expanded(
-                        child: TextField(
-                          textAlign: TextAlign.right,
-                          maxLines: 1,
-                          maxLength: 20,
-                          cursorColor: HhColors.titleColor_99,
-                          controller: logic.longitudeController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                            border: const OutlineInputBorder(
-                                borderSide: BorderSide.none
-                            ),
-                            counterText: '',
-                            hintText: '请输入经度',
-                            hintStyle: TextStyle(
-                                color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                          ),
-                          style:
-                          TextStyle(color: HhColors.gray6TextColor, fontSize: 13.sp*3,fontWeight: FontWeight.w500),
-                        ),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 20,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.longitudeController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
                       ),
-                    ],
+                      counterText: '',
+                      hintText: '经度',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                    ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                   ),
                 ),
                 Container(
@@ -260,32 +262,25 @@ class UploadPage extends StatelessWidget {
                 ///纬度
                 Container(
                   margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                  child: Row(
-                    children: [
-                      Text("经度",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                      Expanded(
-                        child: TextField(
-                          textAlign: TextAlign.right,
-                          maxLines: 1,
-                          maxLength: 20,
-                          cursorColor: HhColors.titleColor_99,
-                          controller: logic.latitudeController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                            border: const OutlineInputBorder(
-                                borderSide: BorderSide.none
-                            ),
-                            counterText: '',
-                            hintText: '请输入纬度',
-                            hintStyle: TextStyle(
-                                color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                          ),
-                          style:
-                          TextStyle(color: HhColors.gray6TextColor, fontSize: 13.sp*3,fontWeight: FontWeight.w500),
-                        ),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 20,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.latitudeController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
                       ),
-                    ],
+                      counterText: '',
+                      hintText: '纬度',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                    ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                   ),
                 ),
                 Container(
@@ -303,20 +298,32 @@ class UploadPage extends StatelessWidget {
                         maxTime:DateTime.now().add(const Duration(days: 365)), onConfirm: (date) {
                           DatePicker.showTimePicker(logic.context,
                               showTitleActions: true, onConfirm: (date) {
-                                logic.time.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
+                                logic.timeController.text = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
                               }, currentTime: DateTime.now(), locale: LocaleType.zh);
                         }, currentTime: DateTime.now(), locale: LocaleType.zh);
                   },
                   child: Container(
-                    margin: EdgeInsets.fromLTRB(15.w*3, 15.w*3, 15.w*3, 15.w*3),
-                    child: Row(
-                      children: [
-                        Text("时间",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                        const Expanded(child: SizedBox()),
-                        Text(logic.time.value,style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                        SizedBox(width: 3.w*3,),
-                        Image.asset('assets/images/common/ic_more.png',width:10.w*3,height: 10.w*3,fit: BoxFit.fill,),
-                      ],
+                    margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
+                    child: TextField(
+                      textAlign: TextAlign.left,
+                      maxLines: 1,
+                      maxLength: 50,
+                      cursorColor: HhColors.titleColor_99,
+                      controller: logic.timeController,
+                      keyboardType: TextInputType.text,
+                      enabled: false,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        border: const OutlineInputBorder(
+                            borderSide: BorderSide.none
+                        ),
+                        counterText: '',
+                        hintText: '时间',
+                        hintStyle: TextStyle(
+                            color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
+                      ),
+                      style:
+                      TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),
@@ -327,29 +334,27 @@ class UploadPage extends StatelessWidget {
                   margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
                 ),
                 ///土地类型
-                InkWell(
-                  onTap: (){
-                    DatePicker.showDatePicker(logic.context,
-                        showTitleActions: true,
-                        minTime: DateTime.now().subtract(const Duration(days: 365)),
-                        maxTime:DateTime.now().add(const Duration(days: 365)), onConfirm: (date) {
-                          DatePicker.showTimePicker(logic.context,
-                              showTitleActions: true, onConfirm: (date) {
-                                logic.landType.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
-                              }, currentTime: DateTime.now(), locale: LocaleType.zh);
-                        }, currentTime: DateTime.now(), locale: LocaleType.zh);
-                  },
-                  child: Container(
-                    margin: EdgeInsets.fromLTRB(15.w*3, 15.w*3, 15.w*3, 15.w*3),
-                    child: Row(
-                      children: [
-                        Text("土地类型",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                        const Expanded(child: SizedBox()),
-                        Text(logic.landType.value,style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                        SizedBox(width: 3.w*3,),
-                        Image.asset('assets/images/common/ic_more.png',width:10.w*3,height: 10.w*3,fit: BoxFit.fill,),
-                      ],
+                Container(
+                  margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 20,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.landTypeController,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
+                      ),
+                      counterText: '',
+                      hintText: '土地类型',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                     ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                   ),
                 ),
                 Container(
@@ -361,55 +366,33 @@ class UploadPage extends StatelessWidget {
                 ///面积(公顷)
                 Container(
                   margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                  child: Row(
-                    children: [
-                      Text("面积(公顷)",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                      Expanded(
-                        child: TextField(
-                          textAlign: TextAlign.right,
-                          maxLines: 1,
-                          maxLength: 20,
-                          cursorColor: HhColors.titleColor_99,
-                          controller: logic.areaController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                            border: const OutlineInputBorder(
-                                borderSide: BorderSide.none
-                            ),
-                            counterText: '',
-                            hintText: '请输入面积',
-                            hintStyle: TextStyle(
-                                color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
-                          ),
-                          style:
-                          TextStyle(color: HhColors.gray6TextColor, fontSize: 13.sp*3,fontWeight: FontWeight.w500),
-                        ),
+                  child: TextField(
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    maxLength: 20,
+                    cursorColor: HhColors.titleColor_99,
+                    controller: logic.areaController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      border: const OutlineInputBorder(
+                          borderSide: BorderSide.none
                       ),
-                    ],
-                  ),
-                ),
-                Container(
-                  color: HhColors.line252Color,
-                  height: 5.w*3,
-                  width: 1.sw,
-                  margin: EdgeInsets.only(top: 5.w*3),
-                ),
-                ///图片视频
-                Container(
-                  width: 1.sw,
-                  margin: EdgeInsets.fromLTRB(15.w*3, 10.w*3, 15.w*3, 0),
-                  child: Text("添加图片视频",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                ),
-                ///添加图片
-                logic.pictureStatus.value?Container(
-                  margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                  child: SingleChildScrollView(
-                    child: Row(
-                      children: getPictureChildren(),
+                      counterText: '',
+                      hintText: '面积(公顷)',
+                      hintStyle: TextStyle(
+                          color: HhColors.gray9TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                     ),
+                    style:
+                    TextStyle(color: HhColors.gray6TextColor, fontSize: 12.sp*3,fontWeight: FontWeight.w500),
                   ),
-                ):const SizedBox(),
+                ),
+                Container(
+                  color: HhColors.line25Color,
+                  height: 1.w,
+                  width: 1.sw,
+                  margin: EdgeInsets.fromLTRB(12.w*3, 0, 12.w*3, 0),
+                ),
               ],
             ),
           ),
@@ -429,7 +412,7 @@ class UploadPage extends StatelessWidget {
               margin: EdgeInsets.all(15.w*3),
               decoration: BoxDecoration(
                   color: HhColors.themeColor,
-                  borderRadius: BorderRadius.circular(5.w*3)
+                  borderRadius: BorderRadius.circular(20.w*3)
               ),
               child: Center(child: Text('保存',style: TextStyle(color: HhColors.whiteColor,fontSize: 14.sp*3),)),
             ),
@@ -439,64 +422,6 @@ class UploadPage extends StatelessWidget {
     );
   }
 
-  getPictureChildren() {
-    List<Widget> listW = [];
-    if(logic.pictureList.isNotEmpty){
-      for(int i = 0; i < logic.pictureList.length;i++){
-        XFile file = logic.pictureList[i];
-        listW.add(
-            InkWell(
-              onTap: (){
-                CommonUtils().showPictureFileDialog(logic.context, file:File(file.path));
-              },
-              child: Container(
-                  margin: EdgeInsets.fromLTRB(0, 20.w*3, 10.w*3, 0),
-                  width:80.w*3,height: 80.w*3,
-                  child: Stack(
-                    children: [
-                      Image.file(File(file.path),width:80.w*3,height: 80.w*3,fit: BoxFit.cover,),
-                      Align(alignment: Alignment.topRight,child: InkWell(
-                          onTap: (){
-                            logic.pictureList.removeAt(i);
-                            logic.pictureStatus.value = false;
-                            logic.pictureStatus.value = true;
-                          },
-                          child: Image.asset('assets/images/common/ic_delete.png',width:16.w*3,height: 16.w*3,fit: BoxFit.fill,))
-                      ),
-                    ],
-                  )
-              ),
-            )
-        );
-      }
-      if(logic.pictureList.length < logic.pictureMaxValue){
-        listW.add(
-          InkWell(
-            onTap: (){
-              showChoosePictureTypeDialog();
-            },
-            child: Container(
-              margin: EdgeInsets.only(top: 20.w*3),
-              child: Image.asset('assets/images/common/ic_add_pic.png',width:80.w*3,height: 80.w*3,fit: BoxFit.fill,),
-            ),
-          ),
-        );
-      }
-    }else{
-      listW.add(
-        InkWell(
-          onTap: (){
-            showChoosePictureTypeDialog();
-          },
-          child: Container(
-            margin: EdgeInsets.only(top: 20.w*3),
-            child: Image.asset('assets/images/common/ic_add_pic.png',width:80.w*3,height: 80.w*3,fit: BoxFit.fill,),
-          ),
-        ),
-      );
-    }
-    return listW;
-  }
 
   void showChoosePictureTypeDialog() {
     showModalBottomSheet(context: logic.context, builder: (a){
@@ -589,7 +514,6 @@ class UploadPage extends StatelessWidget {
     },isDismissible: true,enableDrag: false,backgroundColor: HhColors.trans);
   }
 
-
   Future getImageFromGallery() async {
     final List<XFile> pickedFileList = await ImagePicker().pickMultiImage(
       maxWidth: 3000,
@@ -597,21 +521,16 @@ class UploadPage extends StatelessWidget {
       imageQuality: 1,
     );
     if (pickedFileList.isNotEmpty) {
-      logic.pictureList.add(pickedFileList[0]);
-      logic.pictureStatus.value = false;
-      logic.pictureStatus.value = true;
+      logic.picture = pickedFileList[0];
     }
   }
 
   Future<void> getImageFromCamera() async {
     final XFile? photo = await ImagePicker().pickImage(source: ImageSource.camera);
     if (photo != null) {
-      logic.pictureList.add(photo);
-      logic.pictureStatus.value = false;
-      logic.pictureStatus.value = true;
+      logic.picture = photo;
     }
   }
-
   void showChooseVideoTypeDialog() {
     showModalBottomSheet(context: logic.context, builder: (a){
       return Container(
@@ -732,7 +651,7 @@ class UploadPage extends StatelessWidget {
   }
 
   void chooseProvince() {
-    if(logic.provinceList.isEmpty){
+    if(logic.provinceList==null || logic.provinceList.isEmpty){
       EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
       return;
     }
@@ -797,12 +716,11 @@ class UploadPage extends StatelessWidget {
                       ///更新市区数据
                       // logic.cityList.clear();
                       logic.cityIndex.value = 0;
-                      logic.city.value = "";
+                      logic.city.value = "请选择市";
                       //getCityList();
                       // logic.areaList.clear();
                       logic.areaIndex.value = 0;
-                      logic.area.value = "";
-                      chooseCity();
+                      logic.area.value = "请选择区";
                     },
                   ),
                 ],
@@ -814,7 +732,7 @@ class UploadPage extends StatelessWidget {
   }
 
   void chooseCity() {
-    if(logic.cityList.isEmpty){
+    if(logic.cityList==null || logic.cityList.isEmpty){
       EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
       return;
     }
@@ -877,9 +795,10 @@ class UploadPage extends StatelessWidget {
                       logic.city.value = logic.cityList[logic.cityIndex.value]["name"];
                       Navigator.pop(context);
                       ///更新区数据
+                      // logic.areaList.clear();
                       logic.areaIndex.value = 0;
-                      logic.area.value = "";
-                      chooseArea();
+                      logic.area.value = "请选择区";
+                      //getAreaList();
                     },
                   ),
                 ],
@@ -891,7 +810,7 @@ class UploadPage extends StatelessWidget {
   }
 
   void chooseArea() {
-    if(logic.areaList.isEmpty){
+    if(logic.areaList==null || logic.areaList.isEmpty){
       EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
       return;
     }

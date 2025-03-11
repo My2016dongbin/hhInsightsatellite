@@ -1217,7 +1217,7 @@ class CommonUtils {
     if (now - CommonData.time > 2000) {
       CommonData.time = now;
       toLogin();
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 1), () {
         EventBusUtil.getInstance().fire(HhToast(title: '登录信息失效,请重新登录'));
       });
     }

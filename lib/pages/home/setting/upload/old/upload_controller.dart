@@ -13,11 +13,9 @@ import 'package:insightsatellite/utils/RequestUtils.dart';
 
 class UploadController extends GetxController {
   final Rx<bool> testStatus = true.obs;
-  final Rx<String> province = ''.obs;
-  final Rx<String> city = ''.obs;
-  final Rx<String> area = ''.obs;
-  final Rx<String> time = ''.obs;
-  final Rx<String> landType = ''.obs;
+  final Rx<String> province = '请选择省'.obs;
+  final Rx<String> city = '请选择市'.obs;
+  final Rx<String> area = '请选择区'.obs;
   late BuildContext context;
   late TextEditingController addressController = TextEditingController();
   late TextEditingController latitudeController = TextEditingController();
@@ -40,9 +38,6 @@ class UploadController extends GetxController {
   final Rx<int> cityIndex = 0.obs;
   late FixedExtentScrollController scrollControllerA;
   final Rx<int> areaIndex = 0.obs;
-  late List<XFile> pictureList = [];
-  late int pictureMaxValue = 3;
-  final Rx<bool> pictureStatus = true.obs;
 
   @override
   Future<void> onInit() async {
