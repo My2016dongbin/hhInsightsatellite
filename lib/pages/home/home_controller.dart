@@ -400,11 +400,11 @@ class HomeController extends GetxController {
     HhLog.d("getVersion -- request ${RequestUtils.versionNew}");
     HhLog.d("getVersion -- map $map");
     HhLog.d("getVersion -- $result");
-    if (result["code"] == 0 && result["data"] != null) {
+    if (result["code"] == 200 && result["data"] != null) {
       dynamic update = result["data"];
       showVersionDialog(update);
     } else {
-      // EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
   }
 
@@ -412,7 +412,7 @@ class HomeController extends GetxController {
     versionStatus.value = 0;
     bool force = false;
     try {
-      int minSupportedVersion = int.parse(update["minSupportedVersion"]);
+      int minSupportedVersion = int.parse(update["minSupportedVersion"]??"1");
       if (minSupportedVersion > (int.parse(buildNumber.value)) ||
           minSupportedVersion == -1) {
         force = true;
@@ -624,7 +624,7 @@ class HomeController extends GetxController {
                                       versionStatus.value = 1;
                                       downloadStep.value = 0;
                                       downloadUrl =
-                                          "${CommonData.endpoint}${update["apkUrl"]}";
+                                          "${update["apkUrl"]}";
                                       HhLog.d("downloadUrl $downloadUrl");
                                       downloadDir();
                                     } else {
@@ -1155,18 +1155,18 @@ class HomeController extends GetxController {
                         children: [
                           InkWell(
                             onTap: (){
-                              CommonUtils().showPictureDialog(Get.context!,url: "${CommonData.fileStart}${fireInfo["visibleLightImgUrl"]}");
+                              CommonUtils().showPictureDialog(Get.context!,url: "${fireInfo["visibleLightImgUrl"]}");
                             },
-                            child: Image.network("${CommonData.fileStart}${fireInfo["visibleLightImgUrl"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
+                            child: Image.network("${fireInfo["visibleLightImgUrl"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
                               return Image.asset('assets/images/common/ic_no_pic.png',width:160.w*3,height: 100.w*3,fit: BoxFit.fill,);
                             },),
                           ),
                           SizedBox(width: 20.w*3,),
                           InkWell(
                             onTap: (){
-                              CommonUtils().showPictureDialog(Get.context!,url: "${CommonData.fileStart}${fireInfo["thermalImagingImgUrl"]}");
+                              CommonUtils().showPictureDialog(Get.context!,url: "${fireInfo["thermalImagingImgUrl"]}");
                             },
-                            child: Image.asset("${CommonData.fileStart}${fireInfo["thermalImagingImgUrl"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
+                            child: Image.network("${fireInfo["thermalImagingImgUrl"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
                               return Image.asset('assets/images/common/ic_no_pic.png',width:160.w*3,height: 100.w*3,fit: BoxFit.fill,);
                             },),
                           ),
@@ -1214,7 +1214,8 @@ class HomeController extends GetxController {
     // map['provinceCode'] = '37';
     // map['cityCode'] = '04';
     // map['countyCode'] = '27';
-    map['satelliteCodeList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
+    // map['satelliteCodeList'] = satelliteStrList;//.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
+    map['satelliteSeriesList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['landType'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
     map['endTime'] = endTime.value;
@@ -1484,8 +1485,7 @@ class HomeController extends GetxController {
           otherCacheShow.value = resultS["data"]["bufferArea"] == 1;
           otherOut.value = resultS["data"]["overseasHeatSources"] == 1;
           otherCache.value = resultS["data"]["bufferArea"] == 1;
-          String satelliteCodes = resultS["data"]["satelliteCodes"];
-          List<String> satelliteCodeList = satelliteCodes.split(',');
+          List<dynamic> satelliteCodeList = resultS["data"]["satelliteSeriesList"];
           List<dynamic> array = [];
           for(int i = 0;i < satelliteList.length;i++){
             dynamic model = satelliteList[i];

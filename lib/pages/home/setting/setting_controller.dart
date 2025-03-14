@@ -239,8 +239,8 @@ class SettingController extends GetxController {
     ///1。获取卫星类型列表
     Map<String, dynamic> map = {};
     var result = await HhHttp().request(RequestUtils.satelliteType,method: DioMethod.get,params:map);
-    // HhLog.d("satelliteType -- ${RequestUtils.satelliteType} -- $map ");
-    // HhLog.d("satelliteType -- $result");
+    HhLog.d("satelliteType -- ${RequestUtils.satelliteType} -- $map ");
+    HhLog.d("satelliteType -- $result");
     if(result["code"]==200){
       List<dynamic> list = result["data"];
       for(dynamic model in list){
@@ -251,8 +251,8 @@ class SettingController extends GetxController {
       ///2。获取地类列表
       Map<String, dynamic> map2 = {};
       var result2 = await HhHttp().request(RequestUtils.landType,method: DioMethod.get,params:map2);
-      // HhLog.d("landType -- ${RequestUtils.landType} -- $map ");
-      // HhLog.d("landType -- $result2");
+      HhLog.d("landType -- ${RequestUtils.landType} -- $map ");
+      HhLog.d("landType -- $result2");
       if(result2["code"]==200){
         List<dynamic> list = result2["data"];
         for(dynamic model in list){
@@ -274,8 +274,9 @@ class SettingController extends GetxController {
         if(resultS["code"]==200 && resultS["data"] != null){
           otherOut.value = resultS["data"]["overseasHeatSources"] == 1;
           otherCache.value = resultS["data"]["bufferArea"] == 1;
-          String satelliteCodes = resultS["data"]["satelliteCodes"];
-          List<String> satelliteCodeList = satelliteCodes.split(',');
+          // String satelliteCodes = resultS["data"]["satelliteSeriesList"];
+          // List<String> satelliteCodeList = satelliteCodes.split(',');
+          List<dynamic> satelliteCodeList = resultS["data"]["satelliteSeriesList"];
           List<dynamic> array = [];
           for(int i = 0;i < satelliteList.length;i++){
             dynamic model = satelliteList[i];
@@ -353,13 +354,13 @@ class SettingController extends GetxController {
     dynamic data = {
       "tenantId": tenantId,
       "userId":userId,
-      "satelliteCodeList":listSatelliteStr,
+      "satelliteSeriesList":listSatelliteStr,
       "landTypeList":listLandTypeStr,
       "overseasHeatSources": otherOut.value?"1":"0",
       "bufferArea": otherCache.value?"1":"0"
     };
     var result = await HhHttp().request(RequestUtils.typePermissionEdit,method: DioMethod.post,data: data);
-    HhLog.d("typePermissionEdit -- $data");
+    HhLog.d("typePermissionEdit -- ${RequestUtils.typePermissionEdit} $data");
     HhLog.d("typePermissionEdit -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     if(result["code"]==200){

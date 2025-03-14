@@ -329,15 +329,7 @@ class UploadPage extends StatelessWidget {
                 ///土地类型
                 InkWell(
                   onTap: (){
-                    DatePicker.showDatePicker(logic.context,
-                        showTitleActions: true,
-                        minTime: DateTime.now().subtract(const Duration(days: 365)),
-                        maxTime:DateTime.now().add(const Duration(days: 365)), onConfirm: (date) {
-                          DatePicker.showTimePicker(logic.context,
-                              showTitleActions: true, onConfirm: (date) {
-                                logic.landType.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
-                              }, currentTime: DateTime.now(), locale: LocaleType.zh);
-                        }, currentTime: DateTime.now(), locale: LocaleType.zh);
+                    chooseLandType();
                   },
                   child: Container(
                     margin: EdgeInsets.fromLTRB(15.w*3, 15.w*3, 15.w*3, 15.w*3),
@@ -962,6 +954,79 @@ class UploadPage extends StatelessWidget {
       },);
   }
 
+
+  void chooseLandType() {
+    if(logic.landTypeList.isEmpty){
+      EventBusUtil.getInstance().fire(HhToast(title: '数据加载中,请稍后重试',type: 0));
+      return;
+    }
+    showModalBottomSheet(context: logic.context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12.w*3),
+          topRight: Radius.circular(12.w*3),
+        ),
+      ), builder: (BuildContext context) {
+        logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.areaIndex.value);
+        int index = logic.areaIndex.value;
+        return Container(
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.circular(16.w*3)
+          ),
+          height:200,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text("请选择土地类型",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                  )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: 20.w*3),
+                  child: ScrollConfiguration(
+                    behavior: HhBehavior(),
+                    child: CupertinoPicker(
+                      scrollController: logic.scrollControllerP,
+                      itemExtent: 45,
+                      children: getLandType(),
+                      onSelectedItemChanged: (int value) {
+                        index = value;
+                      },
+
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(15.w*3,10.w*3,0,15.w*3),child: Icon(Icons.clear,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      logic.landTypeIndex.value = index;
+                      logic.landType.value = logic.landTypeList[logic.landTypeIndex.value]["name"];
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },);
+  }
+
   getProvince() {
     List<Widget> list = [];
     for(int i = 0;i < logic.provinceList.length;i++){
@@ -995,6 +1060,19 @@ class UploadPage extends StatelessWidget {
           Container(
             color: HhColors.trans,
             child: Center(child: Text(logic.areaList[i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.areaList[i]["name"].length>3?14.sp*3:15.sp*3),)),
+          )
+      );
+    }
+    return list;
+  }
+
+  getLandType() {
+    List<Widget> list = [];
+    for(int i = 0;i < logic.landTypeList.length;i++){
+      list.add(
+          Container(
+            color: HhColors.trans,
+            child: Center(child: Text(logic.landTypeList[i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.landTypeList[i]["name"].length>3?14.sp*3:15.sp*3),)),
           )
       );
     }

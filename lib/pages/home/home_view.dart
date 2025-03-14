@@ -139,6 +139,7 @@ class HomePage extends StatelessWidget {
                     scaleFactor: 0.6,
                     onPressed: (){
                       logic.postType();
+                      logic.getVersion();
                     },
                     child: Image.asset('assets/images/common/ic_refresh.png',width:55.w*3,height: 55.w*3,fit: BoxFit.fill,)
                 ),
