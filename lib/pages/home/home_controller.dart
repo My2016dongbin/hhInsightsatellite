@@ -1448,8 +1448,8 @@ class HomeController extends GetxController {
     ///1。获取卫星类型列表
     Map<String, dynamic> map = {};
     var result = await HhHttp().request(RequestUtils.satelliteType,method: DioMethod.get,params:map);
-    // HhLog.d("satelliteType -- ${RequestUtils.satelliteType} -- $map ");
-    // HhLog.d("satelliteType -- $result");
+    HhLog.d("satelliteType -- ${RequestUtils.satelliteType} -- $map ");
+    HhLog.d("satelliteType -- $result");
     if(result["code"]==200){
       List<dynamic> list = result["data"];
       for(dynamic model in list){
@@ -1460,8 +1460,8 @@ class HomeController extends GetxController {
       ///2。获取地类列表
       Map<String, dynamic> map2 = {};
       var result2 = await HhHttp().request(RequestUtils.landType,method: DioMethod.get,params:map2);
-      // HhLog.d("landType -- ${RequestUtils.landType} -- $map ");
-      // HhLog.d("landType -- $result2");
+      HhLog.d("landType -- ${RequestUtils.landType} -- $map ");
+      HhLog.d("landType -- $result2");
       if(result2["code"]==200){
         List<dynamic> list = result2["data"];
         for(dynamic model in list){
@@ -1469,63 +1469,105 @@ class HomeController extends GetxController {
         }
         landTypeList = list;
 
-        ///3。获取用户权限映射
+
+        ///2.5。获取卫星类型列表-租户筛选
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         String tenantId = prefs.getString(SPKeys().tenantId)??"000000";
         String userId = prefs.getString(SPKeys().id)??"1";
-        dynamic dataS = {
+        dynamic dataT = {
           "tenantId":tenantId,
           "userId":userId
         };
-        // HhLog.d("typePermission -- ${RequestUtils.typePermission} -- $dataS ");
-        var resultS = await HhHttp().request(RequestUtils.typePermission,method: DioMethod.post,data: dataS);
-        // HhLog.d("typePermission -- $resultS");
-        if(resultS["code"]==200 && resultS["data"] != null){
-          otherOutShow.value = resultS["data"]["overseasHeatSources"] == 1;
-          otherCacheShow.value = resultS["data"]["bufferArea"] == 1;
-          otherOut.value = resultS["data"]["overseasHeatSources"] == 1;
-          otherCache.value = resultS["data"]["bufferArea"] == 1;
-          List<dynamic> satelliteCodeList = resultS["data"]["satelliteSeriesList"];
-          List<dynamic> array = [];
+        HhLog.d("typePermission -- ${RequestUtils.satelliteTypeTenant} -- $dataT ");
+        var resultT = await HhHttp().request(RequestUtils.satelliteTypeTenant,method: DioMethod.post,data: dataT);
+        HhLog.d("typePermission -- $resultT");
+        if(resultT["code"]==200 && resultT["data"] != null){
+          List<dynamic> satelliteCodeList = resultT["data"]["satelliteSeriesList"];
+          List<dynamic> arrayT = [];
           for(int i = 0;i < satelliteList.length;i++){
             dynamic model = satelliteList[i];
             if(satelliteCodeList.contains("${model["code"]}")){
-              array.add(model);
+              arrayT.add(model);
             }
           }
-          satelliteList = [];
-          satelliteList.add({
-            "name":"全部",
-            "code":8888,
-            "choose":true,
-          });
-          satelliteList.addAll(array);
-          String landType = resultS["data"]["landType"];
-          List<String> landTypeCodeList = landType.split(',');
-          List<dynamic> rows = [];
+          satelliteList = arrayT;
+
+          List<dynamic> landTypeCodeList = resultT["data"]["landTypeList"];
+          List<dynamic> rowsT = [];
           for(int i = 0;i < landTypeList.length;i++){
             dynamic model = landTypeList[i];
             if(landTypeCodeList.contains("${model["code"]}")){
-              rows.add(model);
+              rowsT.add(model);
             }
           }
-          landTypeList = [];
-          landTypeList.add({
-            "name":"全部",
-            "code":8888,
-            "choose":true,
-          });
-          landTypeList.addAll(rows);
+          landTypeList = rowsT;
 
 
-          ///获取火警数据
-          postFire(false);
+          ///3。获取用户权限映射
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          String tenantId = prefs.getString(SPKeys().tenantId)??"000000";
+          String userId = prefs.getString(SPKeys().id)??"1";
+          dynamic dataS = {
+            "tenantId":tenantId,
+            "userId":userId
+          };
+          HhLog.d("typePermission -- ${RequestUtils.typePermission} -- $dataS ");
+          var resultS = await HhHttp().request(RequestUtils.typePermission,method: DioMethod.post,data: dataS);
+          HhLog.d("typePermission -- $resultS");
+          if(resultS["code"]==200 && resultS["data"] != null){
+            otherOut.value = resultS["data"]["overseasHeatSources"] == 1;
+            otherCache.value = resultS["data"]["bufferArea"] == 1;
+            // String satelliteCodes = resultS["data"]["satelliteSeriesList"];
+            // List<String> satelliteCodeList = satelliteCodes.split(',');
+            List<dynamic> satelliteCodeList = resultS["data"]["satelliteSeriesList"];
+            List<dynamic> array = [];
+            for(int i = 0;i < satelliteList.length;i++){
+              dynamic model = satelliteList[i];
+              if(satelliteCodeList.contains("${model["code"]}")){
+                model["choose"] = true;
+              }else{
+                model["choose"] = false;
+              }
+            }
+            array.add({
+              "name":"全部",
+              "code":8888,
+              "choose":false,
+            });
+            array.addAll(satelliteList);
+            satelliteList = array;
+            String landType = resultS["data"]["landType"];
+            List<String> landTypeCodeList = landType.split(',');
+            List<dynamic> rows = [];
+            for(int i = 0;i < landTypeList.length;i++){
+              dynamic model = landTypeList[i];
+              if(landTypeCodeList.contains("${model["code"]}")){
+                model["choose"] = true;
+              }else{
+                model["choose"] = false;
+              }
+            }
+            rows.add({
+              "name":"全部",
+              "code":8888,
+              "choose":false,
+            });
+            rows.addAll(landTypeList);
+            landTypeList = rows;
+
+          }else{
+            EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
+          }
+
+
         }else{
-          EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
+          EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultT["msg"])));
         }
+
       }else{
         EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result2["msg"])));
       }
+
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }

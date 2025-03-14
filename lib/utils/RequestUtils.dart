@@ -8,6 +8,7 @@ class RequestUtils{
   static const userInfo = '$base/system/user/getInfo/app';//个人信息查询-
   static const fireSearch = '$base/haohai-satellite/SatelliteFireAlarm/page';//火警分页查询-
   static const satelliteType = '$base/system/satelliteConfig/satelliteSeriesList';//'$base/system/satelliteConfig/satelliteCodeList';//卫星类型查询-
+  static const satelliteTypeTenant = '$base/system/satelliteConfig/permissionSelectTenantId';//卫星类型查询-租户内类型查询-
   static const landType = '$base/system/satelliteConfig/landTypeList';//地址类型查询-
   static const typePermission = '$base/system/satelliteConfig/permissionSelectUserId';//'$base/system/satelliteConfig/permissionSelect';//用户查询各类型权限-
   static const typePermissionEdit = '$base/system/satelliteConfig/permissionEditUserId';//'$base/system/satelliteConfig/permissionEdit';//用户修改各类型权限-
