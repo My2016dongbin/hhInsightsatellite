@@ -22,6 +22,7 @@ class CommonData{
   static String ?endpoint;
   static String info = "";
   static int versionTime = 0;
+  static dynamic fireInfo = {};
   static BuildContext? context;
   static String fileStart = "http://web.ehaohai.com:2019";
 

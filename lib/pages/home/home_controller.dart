@@ -1029,6 +1029,7 @@ class HomeController extends GetxController {
                     duration: const Duration(milliseconds: 100),
                     scaleFactor: 0.6,
                     onPressed: (){
+                      CommonData.fireInfo = fireInfo;
                       Get.to(() => FeedBackPage(),
                           binding: FeedBackBinding(),preventDuplicates: false);
                     },
@@ -1228,6 +1229,11 @@ class HomeController extends GetxController {
     if(result["code"]==200){
       newItems = result["rows"];
       fireCount.value = result["total"];
+      if(newItems.isEmpty && pageNum == 1){
+        fireController.itemList = [];
+        myMapController.cleanAllMarkers();
+        fireMarkerList.clear();
+      }
       //处理页数
       try{
         double pageAll = fireCount.value/pageSize;
@@ -1236,7 +1242,7 @@ class HomeController extends GetxController {
           return;
         }
       }catch(e){
-        //
+        HhLog.d("fireSearch catch -- $result");
       }
 
       if (pageNum == 1) {
