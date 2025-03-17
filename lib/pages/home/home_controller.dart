@@ -406,7 +406,7 @@ class HomeController extends GetxController {
       dynamic update = result["data"];
       showVersionDialog(update);
     } else {
-      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+      // EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
   }
 
