@@ -13,6 +13,8 @@ class RequestUtils{
   static const typePermission = '$base/system/satelliteConfig/permissionSelectUserId';//'$base/system/satelliteConfig/permissionSelect';//用户查询各类型权限-
   static const typePermissionEdit = '$base/system/satelliteConfig/permissionEditUserId';//'$base/system/satelliteConfig/permissionEdit';//用户修改各类型权限-
   static const fileUpload = '$base/resource/oss/upload';//文件上传-
+  static const fireFeedback = '$base/satellite/fireFeedback';//火警反馈-
+  static const fireReport = '$base/satellite/fireReport';//火警上报-
   static const gridSearch = '$base/system/area/listAll';//省市区查询-
   static const logout = '$base/admin-api/system/auth/logout';//登出
   static const versionNew = '$base/system/androidUpgrade/getAndroidUpgradeVersionNew';//查询版本新版-

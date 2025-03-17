@@ -68,6 +68,7 @@ class HomeController extends GetxController {
   late String downloadUrl =
       'http://192.168.1.88:9000/resource/fireRebuild-2.1.1.apk';
   late String savePath = '';
+  late bool isFromPush = false;
 
   late BMFMapController myMapController;
 
@@ -263,6 +264,7 @@ class HomeController extends GetxController {
     });
     messageSubscription =
         EventBusUtil.getInstance().on<Message>().listen((event) {
+          isFromPush = true;
           pageNum = 1;
           postFire(false);
     });
@@ -299,7 +301,7 @@ class HomeController extends GetxController {
     Future.delayed(const Duration(milliseconds: 2000),(){
       getVersion();
     });
-    getProvince("010");
+    getProvince(CommonData.china);
     super.onInit();
   }
 
@@ -1185,7 +1187,10 @@ class HomeController extends GetxController {
   }
 
   Future<void> postFire(bool showList) async {
-    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    if(!isFromPush){
+      EventBusUtil.getInstance().fire(HhLoading(show: true));
+    }
+    isFromPush = false;
     List<String> satelliteStrList = [];
     List<String> landTypeStrList = [];
     for(dynamic model in satelliteList){
@@ -1212,10 +1217,6 @@ class HomeController extends GetxController {
         }
       }
     }
-    // map['provinceCode'] = '37';
-    // map['cityCode'] = '04';
-    // map['countyCode'] = '27';
-    // map['satelliteCodeList'] = satelliteStrList;//.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['satelliteSeriesList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['landType'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
@@ -1561,6 +1562,8 @@ class HomeController extends GetxController {
             rows.addAll(landTypeList);
             landTypeList = rows;
 
+            pageNum = 1;
+            postFire(false);
           }else{
             EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
           }

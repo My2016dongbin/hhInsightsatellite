@@ -126,15 +126,19 @@ class MyAppState extends State<HhApp> {
 
       },
       onReceiveNotificationResponse: (Map<String, dynamic> msg) async {
-        ///消息刷新
-        EventBusUtil.getInstance().fire(Message());
-        HhLog.d("HomePage -> onReceiveNotificationResponse -> $msg");
-        ///播放提示音
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        bool voice = prefs.getBool(SPKeys().voice)??false;
-        if(voice){
-          final AudioPlayer audioPlayer = AudioPlayer();
-          audioPlayer.play(AssetSource('audio/common/find_fire.mp3'));
+
+        if(DateTime.now().millisecondsSinceEpoch - CommonData.pushTime > 3000){
+          CommonData.pushTime = DateTime.now().millisecondsSinceEpoch;
+          ///消息刷新
+          EventBusUtil.getInstance().fire(Message());
+          HhLog.d("HomePage -> onReceiveNotificationResponse -> $msg");
+          ///播放提示音
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          bool voice = prefs.getBool(SPKeys().voice)??false;
+          if(voice){
+            final AudioPlayer audioPlayer = AudioPlayer();
+            audioPlayer.play(AssetSource('audio/common/find_fire.mp3'));
+          }
         }
         try{
           dynamic custom = jsonDecode(msg['customMessage']);

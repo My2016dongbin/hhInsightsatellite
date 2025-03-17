@@ -18,18 +18,18 @@ class UploadController extends GetxController {
   final Rx<String> province = ''.obs;
   final Rx<String> city = ''.obs;
   final Rx<String> area = ''.obs;
+  late String areaStr = "";
+  late String areaCode = "";
   final Rx<String> time = ''.obs;
   final Rx<String> landType = ''.obs;
   late BuildContext context;
   late TextEditingController addressController = TextEditingController();
   late TextEditingController latitudeController = TextEditingController();
   late TextEditingController longitudeController = TextEditingController();
-  late TextEditingController timeController = TextEditingController();
-  late TextEditingController landTypeController = TextEditingController();
   late TextEditingController areaController = TextEditingController();
   late XFile picture;
   late XFile video;
-  late String pictureUrl;
+  late String imageUrl;
   late String videoUrl;
   late int maxVideoTimes = 10000;
   StreamSubscription? versionSubscription;
@@ -47,6 +47,9 @@ class UploadController extends GetxController {
   final Rx<bool> pictureStatus = true.obs;
   late List<dynamic> landTypeList = [];
   final Rx<int> landTypeIndex = 0.obs;
+  late List<String> pictureUrlList = [];
+  late int picturePostIndex = 0;
+  late String thumbnailPath = "";
 
   @override
   Future<void> onInit() async {
@@ -58,7 +61,7 @@ class UploadController extends GetxController {
           longitudeController.text = "${event.longitude}";
         });
 
-    getProvince("010");
+    getProvince(CommonData.china);
     getLandType();
   }
 
@@ -141,10 +144,10 @@ class UploadController extends GetxController {
     }
   }
 
-  void uploadImage(String filePath) async {
+  void uploadImage() async {
     var dio = dios.Dio();
     dios.FormData formData = dios.FormData.fromMap({
-      "file": await dios.MultipartFile.fromFile(filePath,
+      "file": await dios.MultipartFile.fromFile(pictureList[picturePostIndex].path,
           filename: "fire.png"),
     });
 
@@ -159,17 +162,26 @@ class UploadController extends GetxController {
       if(response.data.toString().contains("401")){
         CommonUtils().tokenDown();
       }
-      HhLog.d("上传成功: ${response.data}");
-      pictureUrl = response.data["data"]["url"];
-      uploadVideo(video.path);
+      pictureUrlList.add(response.data["data"]["url"]);
+      if(picturePostIndex < pictureList.length-1){
+        picturePostIndex++;
+        if(pictureList[picturePostIndex].path.contains("png")||pictureList[picturePostIndex].path.contains("jpg")){
+          uploadImage();
+        }else{
+          uploadVideo();
+        }
+      }else{
+        upload();
+      }
+
     } catch (e) {
-      HhLog.d("上传失败: $e");
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
     }
   }
-  void uploadVideo(String filePath) async {
+  void uploadVideo() async {
     var dio = dios.Dio();
     dios.FormData formData = dios.FormData.fromMap({
-      "file": await dios.MultipartFile.fromFile(filePath,
+      "file": await dios.MultipartFile.fromFile(pictureList[picturePostIndex].path,
           filename: "fire.mp4"),
     });
 
@@ -184,10 +196,79 @@ class UploadController extends GetxController {
       if(response.data.toString().contains("401")){
         CommonUtils().tokenDown();
       }
-      HhLog.d("上传成功: ${response.data}");
-      videoUrl = response.data["data"]["url"];
+      pictureUrlList.add(response.data["data"]["url"]);
+      if(picturePostIndex < pictureList.length-1){
+        picturePostIndex++;
+        if(pictureList[picturePostIndex].path.contains("png")||pictureList[picturePostIndex].path.contains("jpg")){
+          uploadImage();
+        }else{
+          uploadVideo();
+        }
+      }else{
+        upload();
+      }
+
     } catch (e) {
-      HhLog.d("上传失败: $e");
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+    }
+  }
+
+
+  Future<void> upload() async {
+    imageUrl = "";
+    videoUrl = "";
+    for(String url in pictureUrlList){
+      if(url.contains("png")||url.contains("jpg")){
+        ///图片
+        if(imageUrl.isEmpty){
+          imageUrl = url;
+        }else{
+          imageUrl = "$imageUrl,$url";
+        }
+      }else{
+        ///视频
+        if(videoUrl.isEmpty){
+          videoUrl = url;
+        }else{
+          videoUrl = "$videoUrl,$url";
+        }
+      }
+    }
+    ///处理省市区
+    if(area.value.isNotEmpty){
+      areaStr = area.value;
+      areaCode = areaList[areaIndex.value]["areaCode"];
+    }else{
+      if(city.value.isNotEmpty){
+        areaStr = city.value;
+        areaCode = cityList[cityIndex.value]["areaCode"];
+      }else{
+        if(province.value.isNotEmpty){
+          areaStr = province.value;
+          areaCode = provinceList[provinceIndex.value]["areaCode"];
+        }
+      }
+    }
+    dynamic data = {
+      "address":addressController.text,
+      "area":areaController.text,
+      "areaCode":areaCode,
+      "landType":landTypeList[landTypeIndex.value]["code"],
+      "reportTime":time.value,
+      "longitude":CommonUtils().latLngCount(longitudeController.text),
+      "latitude":CommonUtils().latLngCount(latitudeController.text),
+      "imageUrl":imageUrl,
+      "videoUrl":videoUrl,
+    };
+    var result = await HhHttp().request(RequestUtils.fireReport,method: DioMethod.post,data:data);
+    HhLog.d("fireReport -- ${RequestUtils.fireReport} $data");
+    HhLog.d("fireReport -- $result");
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    if(result["code"]==200){
+      EventBusUtil.getInstance().fire(HhToast(title: "上报成功",type: 0));
+      Get.back();
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
   }
 

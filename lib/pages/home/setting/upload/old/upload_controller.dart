@@ -49,7 +49,7 @@ class UploadController extends GetxController {
           longitudeController.text = "${event.longitude}";
         });
 
-    getProvince("010");
+    getProvince(CommonData.china);
   }
 
   void getProvince(String code) async {

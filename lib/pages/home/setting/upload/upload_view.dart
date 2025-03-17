@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'dart:ui';
 import 'package:bouncing_widget/bouncing_widget.dart';
@@ -230,7 +231,7 @@ class UploadPage extends StatelessWidget {
                         child: TextField(
                           textAlign: TextAlign.right,
                           maxLines: 1,
-                          maxLength: 20,
+                          maxLength: 10,
                           cursorColor: HhColors.titleColor_99,
                           controller: logic.longitudeController,
                           keyboardType: TextInputType.number,
@@ -267,7 +268,7 @@ class UploadPage extends StatelessWidget {
                         child: TextField(
                           textAlign: TextAlign.right,
                           maxLines: 1,
-                          maxLength: 20,
+                          maxLength: 10,
                           cursorColor: HhColors.titleColor_99,
                           controller: logic.latitudeController,
                           keyboardType: TextInputType.number,
@@ -360,7 +361,7 @@ class UploadPage extends StatelessWidget {
                         child: TextField(
                           textAlign: TextAlign.right,
                           maxLines: 1,
-                          maxLength: 20,
+                          maxLength: 5,
                           cursorColor: HhColors.titleColor_99,
                           controller: logic.areaController,
                           keyboardType: TextInputType.number,
@@ -413,7 +414,54 @@ class UploadPage extends StatelessWidget {
             duration: const Duration(milliseconds: 100),
             scaleFactor: 0.6,
             onPressed: () {
-              logic.uploadImage(logic.picture.path);
+              if(logic.province.value.isEmpty && logic.city.value.isEmpty && logic.area.value.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请选择地区"));
+                return;
+              }
+              if(logic.addressController.text.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入或选择地址"));
+                return;
+              }
+              if(logic.latitudeController.text.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入纬度"));
+                return;
+              }
+              if(logic.longitudeController.text.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入经度"));
+                return;
+              }
+              if(logic.time.value.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请选择时间"));
+                return;
+              }
+              if(logic.landType.value.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请选择土地类型"));
+                return;
+              }
+              if(logic.areaController.text.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入面积"));
+                return;
+              }
+              try{
+                int parse = int.parse(logic.areaController.text);
+                logic.areaController.text = "$parse";
+              }catch(e){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的面积"));
+                return;
+              }
+              if(logic.pictureList.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请至少选择一张图片或视频"));
+                return;
+              }
+
+              logic.pictureUrlList = [];
+              logic.picturePostIndex = 0;
+              EventBusUtil.getInstance().fire(HhLoading(show: true));
+              if(logic.pictureList[logic.picturePostIndex].path.contains("png")||logic.pictureList[logic.picturePostIndex].path.contains("jpg")){
+                logic.uploadImage();
+              }else{
+                logic.uploadVideo();
+              }
             },
             child: Container(
               height: 40.w*3,
@@ -439,14 +487,20 @@ class UploadPage extends StatelessWidget {
         listW.add(
             InkWell(
               onTap: (){
-                CommonUtils().showPictureFileDialog(logic.context, file:File(file.path));
+                if(file.path.contains("jpg")||file.path.contains("png")){
+                  CommonUtils().showPictureFileDialog(logic.context, file:File(file.path));
+                }else{
+                  CommonUtils().showVideoFileDialog(logic.context, file:File(file.path));
+                }
               },
               child: Container(
                   margin: EdgeInsets.fromLTRB(0, 20.w*3, 10.w*3, 0),
                   width:80.w*3,height: 80.w*3,
                   child: Stack(
                     children: [
-                      Image.file(File(file.path),width:80.w*3,height: 80.w*3,fit: BoxFit.cover,),
+                      Image.file(File(file.path),width:80.w*3,height: 80.w*3,fit: BoxFit.cover,errorBuilder: (a,b,c){
+                        return Image.asset('assets/images/common/huaban.png',width:80.w*3,height: 80.w*3,fit: BoxFit.fill,);
+                      },),
                       Align(alignment: Alignment.topRight,child: InkWell(
                           onTap: (){
                             logic.pictureList.removeAt(i);
@@ -465,7 +519,7 @@ class UploadPage extends StatelessWidget {
         listW.add(
           InkWell(
             onTap: (){
-              showChoosePictureTypeDialog();
+              showChooseTypeDialog();
             },
             child: Container(
               margin: EdgeInsets.only(top: 20.w*3),
@@ -478,7 +532,7 @@ class UploadPage extends StatelessWidget {
       listW.add(
         InkWell(
           onTap: (){
-            showChoosePictureTypeDialog();
+            showChooseTypeDialog();
           },
           child: Container(
             margin: EdgeInsets.only(top: 20.w*3),
@@ -488,6 +542,72 @@ class UploadPage extends StatelessWidget {
       );
     }
     return listW;
+  }
+
+  void showChooseTypeDialog() {
+    showModalBottomSheet(context: logic.context, builder: (a){
+      return Container(
+        width: 1.sw,
+        decoration: BoxDecoration(
+            color: HhColors.trans,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(8.w*3))
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            BouncingWidget(
+              duration: const Duration(milliseconds: 100),
+              scaleFactor: 0,
+              child: Container(
+                width: 1.sw,
+                height: 50.w*3,
+                margin: EdgeInsets.fromLTRB(0, 20.w*3, 0, 0),
+                decoration: BoxDecoration(
+                    color: HhColors.whiteColor,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(8.w*3))
+                ),
+                child: Center(
+                  child: Text(
+                    "图片",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: HhColors.blackColor, fontSize: 15.sp*3),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Get.back();
+                showChoosePictureTypeDialog();
+              },
+            ),
+            Container(
+              color: HhColors.grayLineColor,
+              height: 2.w,
+              width: 1.sw,
+            ),
+            BouncingWidget(
+              duration: const Duration(milliseconds: 100),
+              scaleFactor: 0,
+              child: Container(
+                width: 1.sw,
+                height: 50.w*3,
+                color: HhColors.whiteColor,
+                child: Center(
+                  child: Text(
+                    "视频",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: HhColors.blackColor, fontSize: 15.sp*3),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Get.back();
+                showChooseVideoTypeDialog();
+              },
+            ),
+          ],
+        ),
+      );
+    },isDismissible: true,enableDrag: false,backgroundColor: HhColors.trans);
   }
 
   void showChoosePictureTypeDialog() {
@@ -581,12 +701,11 @@ class UploadPage extends StatelessWidget {
     },isDismissible: true,enableDrag: false,backgroundColor: HhColors.trans);
   }
 
-
   Future getImageFromGallery() async {
     final List<XFile> pickedFileList = await ImagePicker().pickMultiImage(
       maxWidth: 3000,
       maxHeight: 3000,
-      imageQuality: 1,
+      imageQuality: 20,
     );
     if (pickedFileList.isNotEmpty) {
       logic.pictureList.add(pickedFileList[0]);
@@ -596,7 +715,10 @@ class UploadPage extends StatelessWidget {
   }
 
   Future<void> getImageFromCamera() async {
-    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.camera);
+    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.camera,
+      maxWidth: 3000,
+      maxHeight: 3000,
+      imageQuality: 20,);
     if (photo != null) {
       logic.pictureList.add(photo);
       logic.pictureStatus.value = false;
@@ -705,7 +827,10 @@ class UploadPage extends StatelessWidget {
         EventBusUtil.getInstance().fire(HhToast(title: '上传视频不能超过50M'));
         return;
       }
-      logic.video = video;
+      // logic.video = video;
+      logic.pictureList.add(video);
+      logic.pictureStatus.value = false;
+      logic.pictureStatus.value = true;
     }
   }
 
@@ -719,7 +844,10 @@ class UploadPage extends StatelessWidget {
         EventBusUtil.getInstance().fire(HhToast(title: '上传视频不能超过50M'));
         return;
       }
-      logic.video = video;
+      // logic.video = video;
+      logic.pictureList.add(video);
+      logic.pictureStatus.value = false;
+      logic.pictureStatus.value = true;
     }
   }
 
@@ -764,7 +892,7 @@ class UploadPage extends StatelessWidget {
                       children: getProvince(),
                       onSelectedItemChanged: (int value) {
                         index = value;
-                        logic.getCity(logic.provinceList[index]["areaCode"]);
+                        // logic.getCity(logic.provinceList[index]["areaCode"]);
                       },
 
                     ),
@@ -783,6 +911,8 @@ class UploadPage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
+                      logic.getCity(logic.provinceList[index]["areaCode"]);
+
                       logic.provinceIndex.value = index;
                       logic.province.value = logic.provinceList[logic.provinceIndex.value]["name"];
                       Navigator.pop(context);
@@ -794,7 +924,8 @@ class UploadPage extends StatelessWidget {
                       // logic.areaList.clear();
                       logic.areaIndex.value = 0;
                       logic.area.value = "";
-                      chooseCity();
+
+                      delayChooseCity();
                     },
                   ),
                 ],
@@ -846,7 +977,7 @@ class UploadPage extends StatelessWidget {
                       children: getCity(),
                       onSelectedItemChanged: (int value) {
                         index = value;
-                        logic.getArea(logic.cityList[index]["areaCode"]);
+                        // logic.getArea(logic.cityList[index]["areaCode"]);
                       },
 
                     ),
@@ -865,13 +996,16 @@ class UploadPage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
+                      logic.getArea(logic.cityList[index]["areaCode"]);
+
                       logic.cityIndex.value = index;
                       logic.city.value = logic.cityList[logic.cityIndex.value]["name"];
                       Navigator.pop(context);
                       ///更新区数据
                       logic.areaIndex.value = 0;
                       logic.area.value = "";
-                      chooseArea();
+
+                      delayChooseArea();
                     },
                   ),
                 ],
@@ -1077,5 +1211,25 @@ class UploadPage extends StatelessWidget {
       );
     }
     return list;
+  }
+
+  void delayChooseCity() {
+    Future.delayed(const Duration(milliseconds: 1000),(){
+      if(logic.cityList.isNotEmpty){
+        chooseCity();
+      }else{
+        delayChooseCity();
+      }
+    });
+  }
+
+  void delayChooseArea() {
+    Future.delayed(const Duration(milliseconds: 1000),(){
+      if(logic.areaList.isNotEmpty){
+        chooseArea();
+      }else{
+        delayChooseArea();
+      }
+    });
   }
 }

@@ -8,9 +8,11 @@ import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/pages/home/feedback/feedback_controller.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
+import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
 
 class FeedBackPage extends StatelessWidget {
@@ -140,7 +142,7 @@ class FeedBackPage extends StatelessWidget {
                 TextField(
                   textAlign: TextAlign.left,
                   maxLines: 1,
-                  maxLength: 50,
+                  maxLength: 10,
                   cursorColor: HhColors.titleColor_99,
                   controller: logic.longitudeController,
                   keyboardType: TextInputType.number,
@@ -169,7 +171,7 @@ class FeedBackPage extends StatelessWidget {
                 TextField(
                   textAlign: TextAlign.left,
                   maxLines: 1,
-                  maxLength: 50,
+                  maxLength: 10,
                   cursorColor: HhColors.titleColor_99,
                   controller: logic.latitudeController,
                   keyboardType: TextInputType.number,
@@ -251,7 +253,43 @@ class FeedBackPage extends StatelessWidget {
             duration: const Duration(milliseconds: 100),
             scaleFactor: 0.2,
             onPressed: () {
-
+              if(logic.addressController.text.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入详细地址"));
+                return;
+              }
+              if(logic.descController.text.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入火情描述"));
+                return;
+              }
+              if(logic.longitudeController.text.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入经度"));
+                return;
+              }
+              try{
+                double parse = double.parse(logic.longitudeController.text);
+                logic.longitudeController.text = "$parse";
+              }catch(e){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的经度"));
+                return;
+              }
+              if(logic.latitudeController.text.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入纬度"));
+                return;
+              }
+              try{
+                double parse = double.parse(logic.latitudeController.text);
+                logic.latitudeController.text = "$parse";
+              }catch(e){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的纬度"));
+                return;
+              }
+              if(logic.pictureList.isEmpty){
+                EventBusUtil.getInstance().fire(HhToast(title: "请至少选择一张图片"));
+                return;
+              }
+              logic.pictureUrlList = [];
+              logic.picturePostIndex = 0;
+              logic.uploadImage();
             },
             child: Container(
               height: 40.w*3,
@@ -364,7 +402,7 @@ class FeedBackPage extends StatelessWidget {
     final List<XFile> pickedFileList = await ImagePicker().pickMultiImage(
       maxWidth: 3000,
       maxHeight: 3000,
-      imageQuality: 1,
+      imageQuality: 20,
     );
     if (pickedFileList.isNotEmpty) {
       logic.pictureList.add(pickedFileList[0]);
@@ -374,7 +412,10 @@ class FeedBackPage extends StatelessWidget {
   }
 
   Future<void> getImageFromCamera() async {
-    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.camera);
+    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.camera,
+      maxWidth: 3000,
+      maxHeight: 3000,
+      imageQuality: 20,);
     if (photo != null) {
       logic.pictureList.add(photo);
       logic.pictureStatus.value = false;

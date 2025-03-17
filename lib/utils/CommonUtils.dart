@@ -595,6 +595,89 @@ class CommonUtils {
         },
         barrierDismissible: true);
   }
+  ///视频查看Dialog
+  showVideoFileDialog(
+      context, {
+        required File file,
+        String? asset,
+      }) {
+    showCupertinoDialog(
+        context: context,
+        builder: (BuildContext context) {
+          double statusBarHeight = MediaQuery.of(context).padding.top;
+          return Container(
+            height: 1.sh,
+            width: 1.sw,
+            color: HhColors.blackRealColor,
+            child: Stack(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(top: 80.h),
+                  width: 1.sw,
+                  child: Center(
+                    child: PhotoView(
+                      imageProvider: /*url==null?AssetImage(asset!):*/
+                      FileImage(file),
+                      errorBuilder: (c, o, s) {
+                        return Container(
+                          clipBehavior: Clip.hardEdge,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4.w * 3)),
+                          child: Image.asset(
+                            "assets/images/common/ic_no_pic.png",
+                            fit: BoxFit.fill,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 80.w * 3,
+                  width: 1.sw,
+                  color: HhColors.themeColor,
+                  padding: EdgeInsets.only(top: statusBarHeight),
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          '图片查看',
+                          style: TextStyle(
+                              decoration: TextDecoration.none,
+                              color: HhColors.whiteColor,
+                              fontSize: 14.sp * 3,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: BouncingWidget(
+                          duration: const Duration(milliseconds: 100),
+                          scaleFactor: 1.2,
+                          onPressed: () {
+                            Get.back();
+                          },
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(15.w * 3, 0, 0, 0),
+                            color: HhColors.trans,
+                            child: Image.asset(
+                              "assets/images/common/ic_back.png",
+                              width:20.w*3,height: 20.w*3,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        barrierDismissible: true);
+  }
 
   ///通用Dialog（取消/确认）
   showCommonDialog(context, title, leftClick, rightClick,
@@ -1349,6 +1432,15 @@ class CommonUtils {
       return "assets/images/common/test_video.jpg";
     }else{
       return "assets/images/common/test_video.jpg";
+    }
+  }
+
+  latLngCount(String text) {
+    try{
+      String res = text.substring(0,text.indexOf(".")+1+6);
+      return res;
+    }catch(e){
+      return text;
     }
   }
 }

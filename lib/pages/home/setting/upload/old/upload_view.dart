@@ -12,7 +12,7 @@ import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/location/location_binding.dart';
 import 'package:insightsatellite/pages/common/location/location_controller.dart';
 import 'package:insightsatellite/pages/common/location/location_view.dart';
-import 'package:insightsatellite/pages/home/setting/upload/upload_controller.dart';
+import 'package:insightsatellite/pages/home/setting/upload/old/upload_controller.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhBehavior.dart';

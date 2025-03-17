@@ -26,7 +26,7 @@ class LocationController extends GetxController {
   void onBMFMapCreated(BMFMapController controller_) {
     controller = controller_;
     userMarker();
-    controller?.setCenterCoordinate(BMFCoordinate(CommonData.latitude!,CommonData.longitude!),false);
+    controller?.setCenterCoordinate(BMFCoordinate(CommonData.latitude??36.308577,CommonData.longitude??120.314397),false);
     controller?.setZoomTo(17);
     controller?.setMapOnClickedMapBlankCallback(callback: (BMFCoordinate coordinate) {
       controller?.cleanAllMarkers();
@@ -53,7 +53,7 @@ class LocationController extends GetxController {
   void userMarker() {
     /// 创建BMFMarker
     BMFMarker point = BMFMarker(
-        position: BMFCoordinate(CommonData.latitude!,CommonData.longitude!),
+        position: BMFCoordinate(CommonData.latitude??36.308577,CommonData.longitude??120.314397),
         enabled: false,
         visible: true,
         identifier: "location",
