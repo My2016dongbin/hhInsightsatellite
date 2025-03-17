@@ -72,66 +72,6 @@ class UploadPage extends StatelessWidget {
               child: Text('报警上报',style: TextStyle(color: HhColors.whiteColor,fontSize: 14.sp*3),)
           ),
         ),
-        ///图片视频
-        /*Container(
-          margin: EdgeInsets.fromLTRB(12.w*3, statusBarHeight+220.w, 12.w*3, 0),
-          height: 100.w*3,
-          width: 1.sw,
-          decoration: BoxDecoration(
-            color: HhColors.whiteColor,
-            borderRadius: BorderRadius.circular(10.w*3),
-            boxShadow: const [
-              BoxShadow(
-                color: HhColors.trans_77,
-                ///控制阴影的位置
-                offset: Offset(0, 3),
-                ///控制阴影的大小
-                blurRadius: 10.0,
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.2,
-                onPressed: () {
-                  showChoosePictureTypeDialog();
-                },
-                child: Container(
-                  padding:EdgeInsets.fromLTRB(20.w*3, 5.w*3, 5.w*3, 5.w*3),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset('assets/images/common/ic_add_photo.png',width:50.w*3,height: 50.w*3,fit: BoxFit.fill,),
-                      SizedBox(height: 2.w*3,),
-                      Text('添加图片',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                    ],
-                  ),
-                ),
-              ),
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.2,
-                onPressed: () {
-                  showChooseVideoTypeDialog();
-                },
-                child: Container(
-                  padding:EdgeInsets.fromLTRB(5.w*3, 5.w*3, 20.w*3, 5.w*3),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset('assets/images/common/huaban.png',width:50.w*3,height: 50.w*3,fit: BoxFit.fill,),
-                      SizedBox(height: 2.w*3,),
-                      Text('添加视频',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),*/
         ///选项
         Container(
           margin: EdgeInsets.fromLTRB(0, statusBarHeight+50.w*3, 0, 65.w*3),
