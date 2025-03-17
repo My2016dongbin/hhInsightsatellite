@@ -11,7 +11,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/location/location_binding.dart';
-import 'package:insightsatellite/pages/common/location/location_controller.dart';
 import 'package:insightsatellite/pages/common/location/location_view.dart';
 import 'package:insightsatellite/pages/home/setting/upload/upload_controller.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
@@ -21,7 +20,6 @@ import 'package:insightsatellite/utils/HhColors.dart';
 
 class UploadPage extends StatelessWidget {
   final logic = Get.find<UploadController>();
-  final logicLocation = Get.find<LocationController>();
   late double statusBarHeight = 0;
   UploadPage({super.key});
 
@@ -263,7 +261,7 @@ class UploadPage extends StatelessWidget {
                   margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
                   child: Row(
                     children: [
-                      Text("经度",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
+                      Text("纬度",style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
                       Expanded(
                         child: TextField(
                           textAlign: TextAlign.right,

@@ -745,7 +745,8 @@ class HomeController extends GetxController {
             fireInfo = allFireList[i];
             showFireInfo();
             myMapController.setCenterCoordinate(
-              BMFCoordinate(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}")), false,
+              BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[1]),
+              false,
             );
             myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
             return;
@@ -760,7 +761,8 @@ class HomeController extends GetxController {
             fireInfo = modelX;
             showFireInfo();
             myMapController.setCenterCoordinate(
-              BMFCoordinate(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}")), false,
+              BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}"))[1]),
+              false,
             );
             myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
             break;
@@ -858,7 +860,8 @@ class HomeController extends GetxController {
                           Get.back();
                           fireInfo = item;
                           myMapController.setCenterCoordinate(
-                            BMFCoordinate(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}")), false,
+                            BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[1]),
+                            false,
                           );
                           int currentZoom = await myMapController.getZoomLevel() ?? 13;
                           myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
@@ -1287,7 +1290,8 @@ class HomeController extends GetxController {
     if(allFireList.isNotEmpty){
       ///跳到第一火点
       myMapController.setCenterCoordinate(
-          BMFCoordinate(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"])), true,animateDurationMs: 200
+          BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[0],ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[1]),
+          true,animateDurationMs: 200
       );
     }
   }
@@ -1528,38 +1532,32 @@ class HomeController extends GetxController {
             // List<String> satelliteCodeList = satelliteCodes.split(',');
             List<dynamic> satelliteCodeList = resultS["data"]["satelliteSeriesList"];
             List<dynamic> array = [];
-            for(int i = 0;i < satelliteList.length;i++){
-              dynamic model = satelliteList[i];
-              if(satelliteCodeList.contains("${model["code"]}")){
-                model["choose"] = true;
-              }else{
-                model["choose"] = false;
-              }
-            }
             array.add({
               "name":"全部",
               "code":8888,
-              "choose":false,
+              "choose":true,
             });
-            array.addAll(satelliteList);
+            for(int i = 0;i < satelliteList.length;i++){
+              dynamic model = satelliteList[i];
+              if(satelliteCodeList.contains("${model["code"]}")){
+                array.add(model);
+              }
+            }
             satelliteList = array;
             String landType = resultS["data"]["landType"];
             List<String> landTypeCodeList = landType.split(',');
             List<dynamic> rows = [];
-            for(int i = 0;i < landTypeList.length;i++){
-              dynamic model = landTypeList[i];
-              if(landTypeCodeList.contains("${model["code"]}")){
-                model["choose"] = true;
-              }else{
-                model["choose"] = false;
-              }
-            }
             rows.add({
               "name":"全部",
               "code":8888,
-              "choose":false,
+              "choose":true,
             });
-            rows.addAll(landTypeList);
+            for(int i = 0;i < landTypeList.length;i++){
+              dynamic model = landTypeList[i];
+              if(landTypeCodeList.contains("${model["code"]}")){
+                rows.add(model);
+              }
+            }
             landTypeList = rows;
 
             pageNum = 1;

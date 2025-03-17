@@ -9,6 +9,7 @@ import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
+import 'package:insightsatellite/utils/ParseLocation.dart';
 import 'package:insightsatellite/utils/RequestUtils.dart';
 import 'package:insightsatellite/utils/SPKeys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,8 +58,9 @@ class UploadController extends GetxController {
     versionSubscription =
         EventBusUtil.getInstance().on<LocationSearch>().listen((event) {
           addressController.text = event.address;
-          latitudeController.text = "${event.latitude}";
-          longitudeController.text = "${event.longitude}";
+          List<double> parse = ParseLocation.bd09_To_gps84(event.latitude,event.longitude);
+          latitudeController.text = CommonUtils().latLngCount("${parse[0]}");
+          longitudeController.text = CommonUtils().latLngCount("${parse[1]}");
         });
 
     getProvince(CommonData.china);

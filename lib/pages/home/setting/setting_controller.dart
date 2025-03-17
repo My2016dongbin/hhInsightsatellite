@@ -312,10 +312,12 @@ class SettingController extends GetxController {
             // List<String> satelliteCodeList = satelliteCodes.split(',');
             List<dynamic> satelliteCodeList = resultS["data"]["satelliteSeriesList"];
             List<dynamic> array = [];
+            int arrayCount = 0;
             for(int i = 0;i < satelliteList.length;i++){
               dynamic model = satelliteList[i];
               if(satelliteCodeList.contains("${model["code"]}")){
                 model["choose"] = true;
+                arrayCount++;
               }else{
                 model["choose"] = false;
               }
@@ -323,17 +325,19 @@ class SettingController extends GetxController {
             array.add({
               "name":"全部",
               "code":8888,
-              "choose":false,
+              "choose":arrayCount==satelliteList.length,
             });
             array.addAll(satelliteList);
             satelliteList = array;
             String landType = resultS["data"]["landType"];
             List<String> landTypeCodeList = landType.split(',');
             List<dynamic> rows = [];
+            int rowsCount = 0;
             for(int i = 0;i < landTypeList.length;i++){
               dynamic model = landTypeList[i];
               if(landTypeCodeList.contains("${model["code"]}")){
                 model["choose"] = true;
+                rowsCount++;
               }else{
                 model["choose"] = false;
               }
@@ -341,7 +345,7 @@ class SettingController extends GetxController {
             rows.add({
               "name":"全部",
               "code":8888,
-              "choose":false,
+              "choose":rowsCount==landTypeList.length,
             });
             rows.addAll(landTypeList);
             landTypeList = rows;
