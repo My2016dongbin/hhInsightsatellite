@@ -1,5 +1,4 @@
 import 'package:bouncing_widget/bouncing_widget.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,7 +79,7 @@ class HomePage extends StatelessWidget {
           child: SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),//禁用滑动
             child: SizedBox(
-              height: 1.2.sh,//遮盖水印
+              height: 1.1.sh-statusBarHeight,//遮盖水印 1.2.sh
               width: 1.sw,
               child: BMFMapWidget(
                 onBMFMapCreated: (controller) {

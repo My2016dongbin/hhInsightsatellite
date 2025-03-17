@@ -1310,6 +1310,10 @@ class HomeController extends GetxController {
         center: BMFCoordinate(CommonData.latitude ?? 36.30865,
             CommonData.longitude ?? 120.314037),
         zoomLevel: 6,
+        showMapScaleBar:true,
+        mapScaleBarPosition:BMFPoint(40.w*3,160.h*3),
+        compassEnabled: true,
+        showZoomControl: false,
         showDEMLayer: true,
         //地图是否展示地形图层默认false，since 3.6.0
         overlookEnabled: mapChangeTag.value == 3 ? true : false,
@@ -1320,7 +1324,8 @@ class HomeController extends GetxController {
         // 地图俯视角度，在手机上当前可使用的范围为－45～0度 (ios取int值)
         mapType:
             mapTypeTag.value == 3 ? BMFMapType.Standard : BMFMapType.Satellite,
-        mapPadding: BMFEdgeInsets(left: 30.w, top: 0, right: 30.w, bottom: 0));
+        mapPadding: BMFEdgeInsets(left: 30.w, top: 0, right: 30.w, bottom: 0),
+    );
   }
 
   void parseSatelliteChoose(int index) {
