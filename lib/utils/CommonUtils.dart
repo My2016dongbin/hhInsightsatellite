@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'dart:math';
@@ -599,24 +600,31 @@ class CommonUtils {
   }
 
 
+  Future<bool> onWillPop() async {
+    _controller.dispose();
+    state = false;
+    return true; // 返回 false 阻止对话框关闭
+  }
+  void checkVideoEnded() {
+    if (_controller != null &&
+        _controller!.value.position >= _controller!.value.duration) {
+      _showControls.value = true;//播放结束显示控制按钮
+      playStatus.value = false;
+    }
+  }
   late VideoPlayerController _controller;
   final Rx<bool> _showControls = true.obs;//控制是否显示播放按钮&进度条
   final Rx<bool> playStatus = true.obs;//播放暂停
-  late bool state = true;
+  final Rx<bool> state = true.obs;//状态
   ///视频查看Dialog
   showVideoFileDialog(
       context, {
         required File file,
         String? asset,
       }) {
-    Future<bool> onWillPop() async {
-      _controller.dispose();
-      state = false;
-      return true; // 返回 false 阻止对话框关闭
-    }
-    _controller = VideoPlayerController.file(file)
+    _controller = VideoPlayerController.file(file)..addListener(checkVideoEnded)
       ..initialize().then((_) {
-        state = true;
+        state.value = true;
         showCupertinoDialog(
             context: context,
             builder: (BuildContext context) {
@@ -716,8 +724,8 @@ class CommonUtils {
                                 scaleFactor: 1.2,
                                 onPressed: () {
                                   Get.back();
+                                  state.value = false;
                                   _controller.dispose();
-                                  state = false;
                                 },
                                 child: Container(
                                   margin: EdgeInsets.fromLTRB(15.w * 3, 0, 0, 0),
@@ -739,8 +747,12 @@ class CommonUtils {
               );
             },
             barrierDismissible: false,useRootNavigator: false);
-        if(state){
-          _controller.play();
+        if(state.value){
+          try{
+            _controller.play();
+          }catch(e){
+            //
+          }
         }
       });
   }
