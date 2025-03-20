@@ -423,8 +423,10 @@ class UploadPage extends StatelessWidget {
       for(int i = 0; i < logic.pictureList.length;i++){
         XFile file = logic.pictureList[i];
         listW.add(
-            InkWell(
-              onTap: (){
+            BouncingWidget(
+              duration: const Duration(milliseconds: 100),
+              scaleFactor: 0.2,
+              onPressed: (){
                 if(file.path.contains("jpg")||file.path.contains("png")){
                   CommonUtils().showPictureFileDialog(logic.context, file:File(file.path));
                 }else{
@@ -640,13 +642,13 @@ class UploadPage extends StatelessWidget {
   }
 
   Future getImageFromGallery() async {
-    final List<XFile> pickedFileList = await ImagePicker().pickMultiImage(
+    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.gallery,
       maxWidth: 3000,
       maxHeight: 3000,
       imageQuality: 20,
     );
-    if (pickedFileList.isNotEmpty) {
-      logic.pictureList.add(pickedFileList[0]);
+    if (photo != null) {
+      logic.pictureList.add(photo);
       logic.pictureStatus.value = false;
       logic.pictureStatus.value = true;
     }

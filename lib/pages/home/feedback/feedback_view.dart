@@ -399,13 +399,13 @@ class FeedBackPage extends StatelessWidget {
   }
 
   Future getImageFromGallery() async {
-    final List<XFile> pickedFileList = await ImagePicker().pickMultiImage(
+    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.gallery,
       maxWidth: 3000,
       maxHeight: 3000,
       imageQuality: 20,
     );
-    if (pickedFileList.isNotEmpty) {
-      logic.pictureList.add(pickedFileList[0]);
+    if (photo != null) {
+      logic.pictureList.add(photo);
       logic.pictureStatus.value = false;
       logic.pictureStatus.value = true;
     }

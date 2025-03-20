@@ -6,6 +6,7 @@ import 'package:bouncing_widget/bouncing_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
@@ -21,6 +22,7 @@ import 'package:tpns_flutter_plugin/tpns_flutter_plugin.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:pointycastle/asymmetric/api.dart';
+import 'package:video_player/video_player.dart';
 
 class CommonUtils {
   List<Color> gradientColors() {
@@ -466,7 +468,7 @@ class CommonUtils {
                   ),
                 ),
                 Container(
-                  height: 80.w * 3,
+                  height: 80.w * 3 + (Platform.isIOS?20.w*3:0),
                   width: 1.sw,
                   color: HhColors.themeColor,
                   padding: EdgeInsets.only(top: statusBarHeight),
@@ -550,7 +552,7 @@ class CommonUtils {
                   ),
                 ),
                 Container(
-                  height: 80.w * 3,
+                  height: 80.w * 3 + (Platform.isIOS?20.w*3:0),
                   width: 1.sw,
                   color: HhColors.themeColor,
                   padding: EdgeInsets.only(top: statusBarHeight),
@@ -595,88 +597,152 @@ class CommonUtils {
         },
         barrierDismissible: true);
   }
+
+
+  late VideoPlayerController _controller;
+  final Rx<bool> _showControls = true.obs;//控制是否显示播放按钮&进度条
+  final Rx<bool> playStatus = true.obs;//播放暂停
+  late bool state = true;
   ///视频查看Dialog
   showVideoFileDialog(
       context, {
         required File file,
         String? asset,
       }) {
-    showCupertinoDialog(
-        context: context,
-        builder: (BuildContext context) {
-          double statusBarHeight = MediaQuery.of(context).padding.top;
-          return Container(
-            height: 1.sh,
-            width: 1.sw,
-            color: HhColors.blackRealColor,
-            child: Stack(
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top: 80.h),
+    Future<bool> onWillPop() async {
+      _controller.dispose();
+      state = false;
+      return true; // 返回 false 阻止对话框关闭
+    }
+    _controller = VideoPlayerController.file(file)
+      ..initialize().then((_) {
+        state = true;
+        showCupertinoDialog(
+            context: context,
+            builder: (BuildContext context) {
+              double statusBarHeight = MediaQuery.of(context).padding.top;
+              return WillPopScope(
+                onWillPop: onWillPop, // 监听返回键
+                child: Obx(
+              () => Container(
+                  height: 1.sh,
                   width: 1.sw,
-                  child: Center(
-                    child: PhotoView(
-                      imageProvider: /*url==null?AssetImage(asset!):*/
-                      FileImage(file),
-                      errorBuilder: (c, o, s) {
-                        return Container(
-                          clipBehavior: Clip.hardEdge,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4.w * 3)),
-                          child: Image.asset(
-                            "assets/images/common/ic_no_pic.png",
-                            fit: BoxFit.fill,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                Container(
-                  height: 80.w * 3,
-                  width: 1.sw,
-                  color: HhColors.themeColor,
-                  padding: EdgeInsets.only(top: statusBarHeight),
+                  color: HhColors.blackRealColor,
                   child: Stack(
                     children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          '图片查看',
-                          style: TextStyle(
-                              decoration: TextDecoration.none,
-                              color: HhColors.whiteColor,
-                              fontSize: 14.sp * 3,
-                              fontWeight: FontWeight.w500),
+                      Container(
+                        margin: EdgeInsets.only(top: statusBarHeight + 80.w * 3 + (Platform.isIOS?20.w*3:0)),
+                        width: 1.sw,
+                        child: Center(
+                          child: _controller == null
+                              ? Text("视频不存在",style: TextStyle(color: HhColors.whiteColor),)
+                              : _controller!.value.isInitialized
+                              ? GestureDetector(
+                            onTap: () {
+                              _showControls.value = !_showControls.value; // 点击切换控制条显示
+                            },
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                AspectRatio(
+                                  aspectRatio: _controller!.value.aspectRatio,
+                                  child: VideoPlayer(_controller!),
+                                ),
+
+                                // 播放/暂停按钮
+                                if (_showControls.value)
+                                  Positioned(
+                                    child: IconButton(
+                                      iconSize: 60,
+                                      icon: Icon(
+                                        playStatus.value
+                                            ? Icons.pause_circle_filled
+                                            : Icons.play_circle_filled,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        playStatus.value = !playStatus.value;
+                                        _controller!.value.isPlaying
+                                            ? _controller!.pause()
+                                            : _controller!.play();
+                                      },
+                                    ),
+                                  ),
+
+                                // 视频进度条
+                                if (_showControls.value)
+                                  Positioned(
+                                    bottom: 10,
+                                    left: 0,
+                                    right: 0,
+                                    child: VideoProgressIndicator(
+                                      _controller!,
+                                      allowScrubbing: true, // 允许拖动进度条
+                                      colors: VideoProgressColors(
+                                        playedColor: Colors.blue,
+                                        bufferedColor: Colors.grey,
+                                        backgroundColor: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          )
+                              : CircularProgressIndicator(),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: BouncingWidget(
-                          duration: const Duration(milliseconds: 100),
-                          scaleFactor: 1.2,
-                          onPressed: () {
-                            Get.back();
-                          },
-                          child: Container(
-                            margin: EdgeInsets.fromLTRB(15.w * 3, 0, 0, 0),
-                            color: HhColors.trans,
-                            child: Image.asset(
-                              "assets/images/common/ic_back.png",
-                              width:20.w*3,height: 20.w*3,
-                              fit: BoxFit.fill,
+                      Container(
+                        height: 80.w * 3 + (Platform.isIOS?20.w*3:0),
+                        width: 1.sw,
+                        color: HhColors.themeColor,
+                        padding: EdgeInsets.only(top: statusBarHeight),
+                        child: Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.center,
+                              child: Text(
+                                '视频查看',
+                                style: TextStyle(
+                                    decoration: TextDecoration.none,
+                                    color: HhColors.whiteColor,
+                                    fontSize: 14.sp * 3,
+                                    fontWeight: FontWeight.w500),
+                              ),
                             ),
-                          ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: BouncingWidget(
+                                duration: const Duration(milliseconds: 100),
+                                scaleFactor: 1.2,
+                                onPressed: () {
+                                  Get.back();
+                                  _controller.dispose();
+                                  state = false;
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.fromLTRB(15.w * 3, 0, 0, 0),
+                                  color: HhColors.trans,
+                                  child: Image.asset(
+                                    "assets/images/common/ic_back.png",
+                                    width:20.w*3,height: 20.w*3,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-        barrierDismissible: true);
+                )),
+              );
+            },
+            barrierDismissible: false,useRootNavigator: false);
+        if(state){
+          _controller.play();
+        }
+      });
   }
 
   ///通用Dialog（取消/确认）

@@ -394,7 +394,7 @@ class HomeController extends GetxController {
 
   Future<void> getVersion() async {
     Map<String, dynamic> map = {};
-    map['operatingSystem'] = "Android";
+    map['operatingSystem'] = Platform.isIOS?"IOS":"Android";
     map['version'] = buildNumber.value;
     map['type'] = "personal";
     var result = await HhHttp()

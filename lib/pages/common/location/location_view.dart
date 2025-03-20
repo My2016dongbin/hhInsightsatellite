@@ -69,7 +69,7 @@ class LocationPage extends StatelessWidget {
           ),
         ),
         Container(
-          margin: EdgeInsets.only(top: 77.w*3),
+          margin: EdgeInsets.only(top: statusBarHeight+50.w*3),
           child: BMFMapWidget(
             onBMFMapCreated: (controller) {
               logic.onBMFMapCreated(controller);
