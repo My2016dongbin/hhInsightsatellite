@@ -602,7 +602,7 @@ class CommonUtils {
 
   Future<bool> onWillPop() async {
     _controller.dispose();
-    state = false;
+    state.value = false;
     return true; // 返回 false 阻止对话框关闭
   }
   void checkVideoEnded() {
@@ -631,8 +631,7 @@ class CommonUtils {
               double statusBarHeight = MediaQuery.of(context).padding.top;
               return WillPopScope(
                 onWillPop: onWillPop, // 监听返回键
-                child: Obx(
-              () => Container(
+                child: Obx(() => state.value?Container(
                   height: 1.sh,
                   width: 1.sw,
                   color: HhColors.blackRealColor,
@@ -644,7 +643,7 @@ class CommonUtils {
                         child: Center(
                           child: _controller == null
                               ? Text("视频不存在",style: TextStyle(color: HhColors.whiteColor),)
-                              : _controller!.value.isInitialized
+                              : _controller.value.isInitialized
                               ? GestureDetector(
                             onTap: () {
                               _showControls.value = !_showControls.value; // 点击切换控制条显示
@@ -653,8 +652,8 @@ class CommonUtils {
                               alignment: Alignment.center,
                               children: [
                                 AspectRatio(
-                                  aspectRatio: _controller!.value.aspectRatio,
-                                  child: VideoPlayer(_controller!),
+                                  aspectRatio: _controller.value.aspectRatio,
+                                  child: VideoPlayer(_controller),
                                 ),
 
                                 // 播放/暂停按钮
@@ -669,10 +668,16 @@ class CommonUtils {
                                         color: Colors.white,
                                       ),
                                       onPressed: () {
-                                        playStatus.value = !playStatus.value;
-                                        _controller!.value.isPlaying
-                                            ? _controller!.pause()
-                                            : _controller!.play();
+                                        _controller.value.isPlaying
+                                            ? _controller.pause()
+                                            : _controller.play();
+                                        Future.delayed(const Duration(milliseconds: 200),(){
+                                          if(_controller.value.isPlaying){
+                                            playStatus.value = true;
+                                          }else{
+                                            playStatus.value = false;
+                                          }
+                                        });
                                       },
                                     ),
                                   ),
@@ -684,9 +689,9 @@ class CommonUtils {
                                     left: 0,
                                     right: 0,
                                     child: VideoProgressIndicator(
-                                      _controller!,
+                                      _controller,
                                       allowScrubbing: true, // 允许拖动进度条
-                                      colors: VideoProgressColors(
+                                      colors: const VideoProgressColors(
                                         playedColor: Colors.blue,
                                         bufferedColor: Colors.grey,
                                         backgroundColor: Colors.black,
@@ -743,7 +748,7 @@ class CommonUtils {
                       ),
                     ],
                   ),
-                )),
+                ):const SizedBox()),
               );
             },
             barrierDismissible: false,useRootNavigator: false);
