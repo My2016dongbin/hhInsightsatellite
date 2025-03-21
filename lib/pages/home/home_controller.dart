@@ -1221,7 +1221,7 @@ class HomeController extends GetxController {
       }
     }
     map['satelliteSeriesList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
-    map['landType'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
+    map['landTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
     map['endTime'] = endTime.value;
     map['bufferArea'] = otherCache.value?"1":"0";
