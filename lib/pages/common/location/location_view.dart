@@ -123,7 +123,7 @@ class LocationPage extends StatelessWidget {
                     }else{
                       Get.back();
                       ///回传定位结果
-                      EventBusUtil.getInstance().fire(LocationSearch(logic.locText.value,logic.latitude.value,logic.longitude.value));
+                      EventBusUtil.getInstance().fire(LocationSearch(logic.locText.value,logic.latitude.value,logic.longitude.value,logic.province,logic.city,logic.district));
                     }
                   },
                   child: Container(

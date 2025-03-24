@@ -399,15 +399,33 @@ class FeedBackPage extends StatelessWidget {
   }
 
   Future getImageFromGallery() async {
-    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.gallery,
+    // final XFile? photo = await ImagePicker().pickImage(source: ImageSource.gallery,
+    //   maxWidth: 3000,
+    //   maxHeight: 3000,
+    //   imageQuality: 20,
+    // );
+    final List<XFile> photo = await ImagePicker().pickMultiImage(
       maxWidth: 3000,
       maxHeight: 3000,
       imageQuality: 20,
     );
-    if (photo != null) {
-      logic.pictureList.add(photo);
+    if (photo.isNotEmpty) {
+      for(int i = 0;i < photo.length; i++){
+        XFile fileModel = photo[i];
+        if((logic.pictureList.length + 1) <= logic.pictureMaxValue){
+          logic.pictureList.add(fileModel);
+        }else{
+          EventBusUtil.getInstance().fire(HhToast(title: "最多选择${logic.pictureMaxValue}张图片"));
+          logic.pictureStatus.value = false;
+          logic.pictureStatus.value = true;
+          return;
+        }
+      }
       logic.pictureStatus.value = false;
       logic.pictureStatus.value = true;
+      // logic.pictureList.add(photo);
+      // logic.pictureStatus.value = false;
+      // logic.pictureStatus.value = true;
     }
   }
 

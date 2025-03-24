@@ -17,6 +17,9 @@ class LocationController extends GetxController {
   final Rx<double> latitude = 0.0.obs;
   final Rx<String> locText = ''.obs;
   BMFMapController ?controller;
+  String province = "";
+  String city = "";
+  String district = "";
 
   @override
   Future<void> onInit() async {
@@ -82,8 +85,13 @@ class LocationController extends GetxController {
       }else{
         locText.value = CommonUtils().parseNull("${result.address}", "定位中..");
       }
+      if(result.addressDetail!=null){
+        province = result.addressDetail!.province??"";
+        city = result.addressDetail!.city??"";
+        district = result.addressDetail!.district??"";
+      }
       ///回传定位结果
-      EventBusUtil.getInstance().fire(LocationSearch(locText.value,latitude.value,longitude.value));
+      EventBusUtil.getInstance().fire(LocationSearch(locText.value,latitude.value,longitude.value,province,city,district));
     });
     /// 发起检索
     bool flag = await reverseGeoCodeSearch.reverseGeoCodeSearch(reverseGeoCodeSearchOption);

@@ -17,6 +17,9 @@ import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhBehavior.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
+import 'package:insightsatellite/utils/HhLog.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class UploadPage extends StatelessWidget {
   final logic = Get.find<UploadController>();
@@ -364,8 +367,22 @@ class UploadPage extends StatelessWidget {
                 EventBusUtil.getInstance().fire(HhToast(title: "请输入纬度"));
                 return;
               }
+              try{
+                double parse = double.parse(logic.latitudeController.text);
+                logic.latitudeController.text = "$parse";
+              }catch(e){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的纬度"));
+                return;
+              }
               if(logic.longitudeController.text.isEmpty){
                 EventBusUtil.getInstance().fire(HhToast(title: "请输入经度"));
+                return;
+              }
+              try{
+                double parse = double.parse(logic.longitudeController.text);
+                logic.longitudeController.text = "$parse";
+              }catch(e){
+                EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的经度"));
                 return;
               }
               if(logic.time.value.isEmpty){
@@ -381,7 +398,7 @@ class UploadPage extends StatelessWidget {
                 return;
               }
               try{
-                int parse = int.parse(logic.areaController.text);
+                double parse = double.parse(logic.areaController.text);
                 logic.areaController.text = "$parse";
               }catch(e){
                 EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的面积"));
@@ -395,7 +412,7 @@ class UploadPage extends StatelessWidget {
               logic.pictureUrlList = [];
               logic.picturePostIndex = 0;
               EventBusUtil.getInstance().fire(HhLoading(show: true));
-              if(logic.pictureList[logic.picturePostIndex].path.contains("png")||logic.pictureList[logic.picturePostIndex].path.contains("jpg")){
+              if(logic.pictureList[logic.picturePostIndex]["file"].path.contains("png")||logic.pictureList[logic.picturePostIndex]["file"].path.contains("jpg")){
                 logic.uploadImage();
               }else{
                 logic.uploadVideo();
@@ -421,7 +438,8 @@ class UploadPage extends StatelessWidget {
     List<Widget> listW = [];
     if(logic.pictureList.isNotEmpty){
       for(int i = 0; i < logic.pictureList.length;i++){
-        XFile file = logic.pictureList[i];
+        XFile file = logic.pictureList[i]["file"];
+        XFile catchFile = logic.pictureList[i]["catch"];
         listW.add(
             BouncingWidget(
               duration: const Duration(milliseconds: 100),
@@ -438,8 +456,8 @@ class UploadPage extends StatelessWidget {
                   width:80.w*3,height: 80.w*3,
                   child: Stack(
                     children: [
-                      Image.file(File(file.path),width:80.w*3,height: 80.w*3,fit: BoxFit.cover,errorBuilder: (a,b,c){
-                        return Image.asset('assets/images/common/huaban.png',width:80.w*3,height: 80.w*3,fit: BoxFit.fill,);
+                      Image.file(File(catchFile.path),width:80.w*3,height: 80.w*3,fit: BoxFit.cover,errorBuilder: (a,b,c){
+                        return Image.asset('assets/images/common/ic_no_pic.png',width:80.w*3,height: 80.w*3,fit: BoxFit.fill,);
                       },),
                       Align(alignment: Alignment.topRight,child: InkWell(
                           onTap: (){
@@ -448,6 +466,8 @@ class UploadPage extends StatelessWidget {
                             logic.pictureStatus.value = true;
                           },
                           child: Image.asset('assets/images/common/ic_delete.png',width:16.w*3,height: 16.w*3,fit: BoxFit.fill,))
+                      ),
+                      file.path.contains("jpg")||file.path.contains("png")?const SizedBox():Align(alignment: Alignment.center,child: Icon(Icons.play_circle,size: 26.w*3,color: HhColors.gray9TextColor,)
                       ),
                     ],
                   )
@@ -642,16 +662,45 @@ class UploadPage extends StatelessWidget {
   }
 
   Future getImageFromGallery() async {
-    final XFile? photo = await ImagePicker().pickImage(source: ImageSource.gallery,
+    // final XFile? photo = await ImagePicker().pickImage(source: ImageSource.gallery,
+    //   maxWidth: 3000,
+    //   maxHeight: 3000,
+    //   imageQuality: 20,
+    // );
+    final List<XFile> photo = await ImagePicker().pickMultiImage(
       maxWidth: 3000,
       maxHeight: 3000,
       imageQuality: 20,
     );
-    if (photo != null) {
-      logic.pictureList.add(photo);
+    if (photo.isNotEmpty) {
+      for(int i = 0;i < photo.length; i++){
+        XFile fileModel = photo[i];
+        if((logic.pictureList.length + 1) <= logic.pictureMaxValue){
+          logic.pictureList.add(
+              {
+                "file":fileModel,
+                "catch":fileModel
+              });
+        }else{
+          EventBusUtil.getInstance().fire(HhToast(title: "最多选择${logic.pictureMaxValue}张图片"));
+          logic.pictureStatus.value = false;
+          logic.pictureStatus.value = true;
+          return;
+        }
+      }
       logic.pictureStatus.value = false;
       logic.pictureStatus.value = true;
     }
+    // if (photo != null) {
+    //   logic.pictureList.add(
+    //       {
+    //         "file":photo,
+    //         "catch":photo
+    //       }
+    //   );
+    //   logic.pictureStatus.value = false;
+    //   logic.pictureStatus.value = true;
+    // }
   }
 
   Future<void> getImageFromCamera() async {
@@ -660,7 +709,12 @@ class UploadPage extends StatelessWidget {
       maxHeight: 3000,
       imageQuality: 20,);
     if (photo != null) {
-      logic.pictureList.add(photo);
+      logic.pictureList.add(
+          {
+            "file":photo,
+            "catch":photo
+          }
+      );
       logic.pictureStatus.value = false;
       logic.pictureStatus.value = true;
     }
@@ -767,8 +821,21 @@ class UploadPage extends StatelessWidget {
         EventBusUtil.getInstance().fire(HhToast(title: '上传视频不能超过50M'));
         return;
       }
-      // logic.video = video;
-      logic.pictureList.add(video);
+
+      final String thumb = await VideoThumbnail.thumbnailFile(
+        video: video.path, // 本地路径或网络视频URL
+        thumbnailPath: (await getTemporaryDirectory()).path, // 存储缩略图的路径
+        imageFormat: ImageFormat.PNG,
+        maxHeight: 500, // 生成的缩略图高度
+        quality: 95, // 图片质量
+      )??"";
+      HhLog.d("thumb $thumb");
+      logic.pictureList.add(
+        {
+          "file":video,
+          "catch":XFile(thumb)
+        }
+      );
       logic.pictureStatus.value = false;
       logic.pictureStatus.value = true;
     }
@@ -784,8 +851,19 @@ class UploadPage extends StatelessWidget {
         EventBusUtil.getInstance().fire(HhToast(title: '上传视频不能超过50M'));
         return;
       }
-      // logic.video = video;
-      logic.pictureList.add(video);
+      final String thumb = await VideoThumbnail.thumbnailFile(
+        video: video.path, // 本地路径或网络视频URL
+        thumbnailPath: (await getTemporaryDirectory()).path, // 存储缩略图的路径
+        imageFormat: ImageFormat.PNG,
+        maxHeight: 500, // 生成的缩略图高度
+        quality: 95, // 图片质量
+      )??"";
+      logic.pictureList.add(
+          {
+            "file":video,
+            "catch":XFile(thumb)
+          }
+      );
       logic.pictureStatus.value = false;
       logic.pictureStatus.value = true;
     }
@@ -888,7 +966,7 @@ class UploadPage extends StatelessWidget {
           topRight: Radius.circular(12.w*3),
         ),
       ), builder: (BuildContext context) {
-        logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.cityIndex.value);
+        logic.scrollControllerC = FixedExtentScrollController(initialItem: logic.cityIndex.value);
         int index = logic.cityIndex.value;
         return Container(
           decoration: BoxDecoration(
@@ -912,7 +990,7 @@ class UploadPage extends StatelessWidget {
                   child: ScrollConfiguration(
                     behavior: HhBehavior(),
                     child: CupertinoPicker(
-                      scrollController: logic.scrollControllerP,
+                      scrollController: logic.scrollControllerC,
                       itemExtent: 45,
                       children: getCity(),
                       onSelectedItemChanged: (int value) {
@@ -968,7 +1046,7 @@ class UploadPage extends StatelessWidget {
           topRight: Radius.circular(12.w*3),
         ),
       ), builder: (BuildContext context) {
-        logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.areaIndex.value);
+        logic.scrollControllerA = FixedExtentScrollController(initialItem: logic.areaIndex.value);
         int index = logic.areaIndex.value;
         return Container(
           decoration: BoxDecoration(
@@ -992,7 +1070,7 @@ class UploadPage extends StatelessWidget {
                   child: ScrollConfiguration(
                     behavior: HhBehavior(),
                     child: CupertinoPicker(
-                      scrollController: logic.scrollControllerP,
+                      scrollController: logic.scrollControllerA,
                       itemExtent: 45,
                       children: getArea(),
                       onSelectedItemChanged: (int value) {
@@ -1041,7 +1119,7 @@ class UploadPage extends StatelessWidget {
           topRight: Radius.circular(12.w*3),
         ),
       ), builder: (BuildContext context) {
-        logic.scrollControllerP = FixedExtentScrollController(initialItem: logic.areaIndex.value);
+        logic.scrollControllerT = FixedExtentScrollController(initialItem: logic.landTypeIndex.value);
         int index = logic.areaIndex.value;
         return Container(
           decoration: BoxDecoration(
@@ -1065,7 +1143,7 @@ class UploadPage extends StatelessWidget {
                   child: ScrollConfiguration(
                     behavior: HhBehavior(),
                     child: CupertinoPicker(
-                      scrollController: logic.scrollControllerP,
+                      scrollController: logic.scrollControllerT,
                       itemExtent: 45,
                       children: getLandType(),
                       onSelectedItemChanged: (int value) {

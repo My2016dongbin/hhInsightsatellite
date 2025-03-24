@@ -43,7 +43,8 @@ class UploadController extends GetxController {
   final Rx<int> cityIndex = 0.obs;
   late FixedExtentScrollController scrollControllerA;
   final Rx<int> areaIndex = 0.obs;
-  late List<XFile> pictureList = [];
+  late FixedExtentScrollController scrollControllerT;
+  late List<dynamic> pictureList = [];
   late int pictureMaxValue = 3;
   final Rx<bool> pictureStatus = true.obs;
   late List<dynamic> landTypeList = [];
@@ -61,10 +62,64 @@ class UploadController extends GetxController {
           List<double> parse = ParseLocation.bd09_To_gps84(event.latitude,event.longitude);
           latitudeController.text = CommonUtils().latLngCount("${parse[0]}");
           longitudeController.text = CommonUtils().latLngCount("${parse[1]}");
+          ///省市区
+          for(int i = 0; i < provinceList.length; i++){
+            dynamic model = provinceList[i];
+            if(model["name"] == event.province){
+              provinceIndex.value = i;
+              province.value = event.province;
+              copyProCity(model["areaCode"],event.city,event.district);
+              return;
+            }
+          }
+
         });
 
     getProvince(CommonData.china);
     getLandType();
+  }
+
+  Future<void> copyProCity(String provinceCode,String cityStr,String districtStr) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = provinceCode;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      cityList = result["data"];
+
+      for(int i = 0; i < cityList.length; i++){
+        dynamic model = cityList[i];
+        if(model["name"] == cityStr){
+          cityIndex.value = i;
+          city.value = cityStr;
+          copyProArea(model["areaCode"],districtStr);
+          return;
+        }
+      }
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
+
+  Future<void> copyProArea(String cityCode,String districtStr) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = cityCode;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      areaList = result["data"];
+
+      for(int i = 0; i < areaList.length; i++){
+        dynamic model = areaList[i];
+        if(model["name"] == districtStr){
+          areaIndex.value = i;
+          area.value = districtStr;
+          return;
+        }
+      }
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
   }
 
   Future<void> getLandType() async {
@@ -149,7 +204,7 @@ class UploadController extends GetxController {
   void uploadImage() async {
     var dio = dios.Dio();
     dios.FormData formData = dios.FormData.fromMap({
-      "file": await dios.MultipartFile.fromFile(pictureList[picturePostIndex].path,
+      "file": await dios.MultipartFile.fromFile(pictureList[picturePostIndex]["file"].path,
           filename: "fire.png"),
     });
 
@@ -167,7 +222,7 @@ class UploadController extends GetxController {
       pictureUrlList.add(response.data["data"]["url"]);
       if(picturePostIndex < pictureList.length-1){
         picturePostIndex++;
-        if(pictureList[picturePostIndex].path.contains("png")||pictureList[picturePostIndex].path.contains("jpg")){
+        if(pictureList[picturePostIndex]["file"].path.contains("png")||pictureList[picturePostIndex]["file"].path.contains("jpg")){
           uploadImage();
         }else{
           uploadVideo();
@@ -183,7 +238,7 @@ class UploadController extends GetxController {
   void uploadVideo() async {
     var dio = dios.Dio();
     dios.FormData formData = dios.FormData.fromMap({
-      "file": await dios.MultipartFile.fromFile(pictureList[picturePostIndex].path,
+      "file": await dios.MultipartFile.fromFile(pictureList[picturePostIndex]["file"].path,
           filename: "fire.mp4"),
     });
 
@@ -201,7 +256,7 @@ class UploadController extends GetxController {
       pictureUrlList.add(response.data["data"]["url"]);
       if(picturePostIndex < pictureList.length-1){
         picturePostIndex++;
-        if(pictureList[picturePostIndex].path.contains("png")||pictureList[picturePostIndex].path.contains("jpg")){
+        if(pictureList[picturePostIndex]["file"].path.contains("png")||pictureList[picturePostIndex]["file"].path.contains("jpg")){
           uploadImage();
         }else{
           uploadVideo();

@@ -294,13 +294,11 @@ class HomePage extends StatelessWidget {
         ),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(height: 5.w*3,),
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.6,
-                onPressed: (){
+              InkWell(
+                onTap: (){
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(minutes: 10)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
@@ -315,10 +313,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Container(width: 1.sw,height: 2.w,color: HhColors.line25Color,margin: EdgeInsets.fromLTRB(10.w*3, 0, 10.w*3, 0),),
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.6,
-                onPressed: (){
+              InkWell(
+                onTap: (){
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
@@ -333,10 +329,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Container(width: 1.sw,height: 2.w,color: HhColors.line25Color,margin: EdgeInsets.fromLTRB(10.w*3, 0, 10.w*3, 0),),
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.6,
-                onPressed: (){
+              InkWell(
+                onTap: (){
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
@@ -351,10 +345,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Container(width: 1.sw,height: 2.w,color: HhColors.line25Color,margin: EdgeInsets.fromLTRB(10.w*3, 0, 10.w*3, 0),),
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.6,
-                onPressed: (){
+              InkWell(
+                onTap: (){
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(days: 1)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
@@ -369,10 +361,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Container(width: 1.sw,height: 2.w,color: HhColors.line25Color,margin: EdgeInsets.fromLTRB(10.w*3, 0, 10.w*3, 0),),
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.6,
-                onPressed: (){
+              InkWell(
+                onTap: (){
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(days: 3)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
@@ -387,10 +377,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Container(width: 1.sw,height: 2.w,color: HhColors.line25Color,margin: EdgeInsets.fromLTRB(10.w*3, 0, 10.w*3, 0),),
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.6,
-                onPressed: (){
+              InkWell(
+                onTap: (){
                   Get.back();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(days: 5)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
@@ -405,10 +393,8 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Container(width: 1.sw,height: 2.w,color: HhColors.line25Color,margin: EdgeInsets.fromLTRB(10.w*3, 0, 10.w*3, 0),),
-              BouncingWidget(
-                duration: const Duration(milliseconds: 100),
-                scaleFactor: 0.6,
-                onPressed: (){
+              InkWell(
+                onTap: (){
                   Get.back();
                   showAdvancedFilterDialog();
                 },

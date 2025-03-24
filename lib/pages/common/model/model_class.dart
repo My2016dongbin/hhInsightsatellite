@@ -49,6 +49,9 @@ class LocationSearch{
   late String address;
   late double latitude;
   late double longitude;
+  late String province;
+  late String city;
+  late String district;
 
-  LocationSearch(this.address, this.latitude, this.longitude);
+  LocationSearch(this.address, this.latitude, this.longitude, this.province, this.city, this.district);
 }

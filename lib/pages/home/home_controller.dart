@@ -153,6 +153,7 @@ class HomeController extends GetxController {
   late List<dynamic> newItems = [];
   late List<dynamic> allFireList = [];
   late List<String> filterTimeList = [];
+  late List<String> filterNoList = [];
   late int postFireLong = 0;
 
   Future<void> requestNotificationPermission() async {
@@ -849,12 +850,22 @@ class HomeController extends GetxController {
                     firstPageProgressIndicatorBuilder: (context) => Container(),
                     itemBuilder: (context, item, index) {
                       bool hasTimeBefore = false;
-                      /*if(filterTimeList.contains("${item["observeTimestr"]}")){
-                        hasTimeBefore = true;
+                      bool hasNoBefore = false;
+                      if(fireTypeByTime.value){
+                        if(filterTimeList.contains("${item["observeTimestr"]}")){
+                          hasTimeBefore = true;
+                        }else{
+                          filterTimeList.clear();
+                          filterTimeList.add("${item["observeTimestr"]}");
+                        }
                       }else{
-                        filterTimeList.clear();
-                        filterTimeList.add("${item["observeTimestr"]}");
-                      }*/
+                        if(filterNoList.contains("${item["fireNo"]}")){
+                          hasNoBefore = true;
+                        }else{
+                          filterNoList.clear();
+                          filterNoList.add("${item["fireNo"]}");
+                        }
+                      }
                       return InkWell(
                         onTap: () async {
                           Get.back();
@@ -875,7 +886,7 @@ class HomeController extends GetxController {
                               width: 1.sw,
                               color: HhColors.line25Color,
                             ),
-                            hasTimeBefore?const SizedBox():SizedBox(height: 10.w*3,),
+                            hasTimeBefore || hasNoBefore?const SizedBox():SizedBox(height: 10.w*3,),
                             fireTypeByTime.value?(hasTimeBefore?const SizedBox():Row(
                               children: [
                                 SizedBox(width: 10.w*3,),
@@ -884,7 +895,7 @@ class HomeController extends GetxController {
                                 Text('${item["observeTimestr"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
                                 SizedBox(width: 10.w*3,),
                               ],
-                            )): Row(
+                            )): hasNoBefore?const SizedBox():Row(
                               children: [
                                 SizedBox(width: 10.w*3,),
                                 Icon(Icons.turned_in_not_rounded,color: HhColors.titleColor_55,size: 18.w*3,),
@@ -1088,7 +1099,7 @@ class HomeController extends GetxController {
                       child: Row(
                         children: [
                           Text('可信度：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["reliability"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          Text('${fireInfo["reliability"]}%',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
                         ],
                       ),
                     ),
@@ -1097,7 +1108,7 @@ class HomeController extends GetxController {
                       child: Row(
                         children: [
                           Text('明火面积：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["hotArea"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          Text('${fireInfo["hotArea"]}公顷',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
                         ],
                       ),
                     ),
@@ -1133,7 +1144,7 @@ class HomeController extends GetxController {
                       child: Row(
                         children: [
                           Text('土地类型：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Expanded(child: Text('林地（${fireInfo["woodland"]}）草地（${fireInfo["grassland"]}）农田（${fireInfo["farmland"]}）其他（${fireInfo["otherType"]}）',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3,),)),
+                          Expanded(child: Text('林地（${fireInfo["woodland"]}%）草地（${fireInfo["grassland"]}%）农田（${fireInfo["farmland"]}%）其他（${fireInfo["otherType"]}%）',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3,),)),
                         ],
                       ),
                     ),
