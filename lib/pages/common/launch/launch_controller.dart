@@ -84,31 +84,37 @@ class LaunchController extends GetxController {
     );
     HhLog.d("userInfo -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
-    if (result != null && result["code"]==200) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString(SPKeys().id, '${result["data"]["user"]["userId"]}');
-      prefs.setString(SPKeys().tenantId, '${result["data"]["user"]["tenantId"]}');
-      prefs.setString(SPKeys().username, '${result["data"]["user"]["userName"]}');
-      prefs.setString(SPKeys().nickname, '${result["data"]["user"]["nickName"]}');
-      prefs.setString(SPKeys().email, '${result["data"]["user"]["email"]}');
-      prefs.setString(SPKeys().sex, '${result["data"]["user"]["sex"]}');
-      prefs.setString(SPKeys().avatar, '${result["data"]["user"]["avatar"]}');
-      prefs.setString(SPKeys().remark, '${result["data"]["user"]["remark"]}');
-      prefs.setString(SPKeys().userType, '${result["data"]["user"]["userType"]}');
-      prefs.setString(SPKeys().deptName, '${result["data"]["user"]["deptName"]}');
-      prefs.setString(SPKeys().mobile, '${result["data"]["user"]["phonenumber"]}');
-      prefs.setBool(SPKeys().voice, true);
+    try{
+      if (result != null && result["code"]==200) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString(SPKeys().id, '${result["data"]["user"]["userId"]}');
+        prefs.setString(SPKeys().tenantId, '${result["data"]["user"]["tenantId"]}');
+        prefs.setString(SPKeys().username, '${result["data"]["user"]["userName"]}');
+        prefs.setString(SPKeys().nickname, '${result["data"]["user"]["nickName"]}');
+        prefs.setString(SPKeys().email, '${result["data"]["user"]["email"]}');
+        prefs.setString(SPKeys().sex, '${result["data"]["user"]["sex"]}');
+        prefs.setString(SPKeys().avatar, '${result["data"]["user"]["avatar"]}');
+        prefs.setString(SPKeys().remark, '${result["data"]["user"]["remark"]}');
+        prefs.setString(SPKeys().userType, '${result["data"]["user"]["userType"]}');
+        prefs.setString(SPKeys().deptName, '${result["data"]["user"]["deptName"]}');
+        prefs.setString(SPKeys().mobile, '${result["data"]["user"]["phonenumber"]}');
+        prefs.setBool(SPKeys().voice, true);
 
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.off(() => HomePage(), binding: HomeBinding(),
-            transition: Transition.fadeIn,
-            duration: const Duration(milliseconds: 1000));
-      });
+        Future.delayed(const Duration(seconds: 1), () {
+          Get.off(() => HomePage(), binding: HomeBinding(),
+              transition: Transition.fadeIn,
+              duration: const Duration(milliseconds: 1000));
+        });
 
-    } else {
+      } else {
         EventBusUtil.getInstance()
             .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
         CommonUtils().tokenDown();
+      }
+    }catch(e){
+      EventBusUtil.getInstance()
+          .fire(HhToast(title: CommonUtils().msgString('用户信息获取失败')));
+      CommonUtils().tokenDown();
     }
   }
 
@@ -122,7 +128,7 @@ class LaunchController extends GetxController {
     secondStatus.value = second == true;
     if (token != null) {
       //获取个人信息
-      CommonData.token = token;
+      CommonData.token = token+"2";
       CommonData.tenant = tenant;
       CommonData.tenantUserType = tenantUserType;
       CommonData.tenantName = tenantName;

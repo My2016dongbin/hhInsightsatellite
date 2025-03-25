@@ -1235,8 +1235,12 @@ class HomeController extends GetxController {
     map['landTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
     map['endTime'] = endTime.value;
-    map['bufferArea'] = otherCache.value?"1":"0";
-    map['overseasHeatSources'] = otherOut.value?"1":"0";
+    if(otherCacheShow.value){
+      map['bufferArea'] = otherCache.value?"1":"0";
+    }
+    if(otherOutShow.value){
+      map['overseasHeatSources'] = otherOut.value?"1":"0";
+    }
     var result = await HhHttp().request(RequestUtils.fireSearch,method: DioMethod.get,params:map);
     HhLog.d("fireSearch -- ${RequestUtils.fireSearch} -- $map ");
     HhLog.d("fireSearch -- $result");
@@ -1508,6 +1512,8 @@ class HomeController extends GetxController {
         HhLog.d("typePermission -- ${RequestUtils.satelliteTypeTenant} -- $dataT ");
         var resultT = await HhHttp().request(RequestUtils.satelliteTypeTenant,method: DioMethod.post,data: dataT);
         HhLog.d("typePermission -- $resultT");
+        otherOutShow.value = resultT["data"]["overseasHeatSources"] == 1;
+        otherCacheShow.value = resultT["data"]["bufferArea"] == 1;
         if(resultT["code"]==200 && resultT["data"] != null){
           List<dynamic> satelliteCodeList = resultT["data"]["satelliteSeriesList"];
           List<dynamic> arrayT = [];

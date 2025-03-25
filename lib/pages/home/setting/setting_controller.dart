@@ -80,6 +80,8 @@ class SettingController extends GetxController {
   ];
   final Rx<bool> otherOut = false.obs;
   final Rx<bool> otherCache = false.obs;
+  final Rx<bool> otherOutT = false.obs;
+  final Rx<bool> otherCacheT = false.obs;
 
   @override
   Future<void> onInit() async {
@@ -272,6 +274,8 @@ class SettingController extends GetxController {
         HhLog.d("typePermission -- ${RequestUtils.satelliteTypeTenant} -- $dataT ");
         var resultT = await HhHttp().request(RequestUtils.satelliteTypeTenant,method: DioMethod.post,data: dataT);
         HhLog.d("typePermission -- $resultT");
+        otherOutT.value = resultT["data"]["overseasHeatSources"] == 1;
+        otherCacheT.value = resultT["data"]["bufferArea"] == 1;
         if(resultT["code"]==200 && resultT["data"] != null){
           List<dynamic> satelliteCodeList = resultT["data"]["satelliteSeriesList"];
           List<dynamic> arrayT = [];

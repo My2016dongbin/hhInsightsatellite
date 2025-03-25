@@ -277,7 +277,7 @@ class SettingPage extends StatelessWidget {
               ),*/
               SizedBox(height: 15.w*3,),
               ///其他选项
-              Row(
+              (logic.otherOutT.value || logic.otherCacheT.value)?Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('其他选项：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
@@ -285,7 +285,7 @@ class SettingPage extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BouncingWidget(
+                      logic.otherOutT.value?BouncingWidget(
                         duration: const Duration(milliseconds: 100),
                         scaleFactor: 0.6,
                         onPressed: (){
@@ -300,8 +300,8 @@ class SettingPage extends StatelessWidget {
                           ),
                           child: Text("查询境外热源",style: TextStyle(color: logic.otherOut.value?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
                         ),
-                      ),
-                      BouncingWidget(
+                      ):const SizedBox(),
+                      logic.otherCacheT.value?BouncingWidget(
                         duration: const Duration(milliseconds: 100),
                         scaleFactor: 0.6,
                         onPressed: (){
@@ -316,12 +316,12 @@ class SettingPage extends StatelessWidget {
                           ),
                           child: Text("包含缓冲区",style: TextStyle(color: logic.otherCache.value?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
                         ),
-                      ),
-                      Text("（含权限外10公里范围数据，会延长查询时间）",style: TextStyle(color: HhColors.gray9TextColor,fontSize: 8.sp*3),)
+                      ):const SizedBox(),
+                      logic.otherCacheT.value?Text("（含权限外10公里范围数据，会延长查询时间）",style: TextStyle(color: HhColors.gray9TextColor,fontSize: 8.sp*3),):const SizedBox()
                     ],
                   ),
                 ],
-              ),
+              ):const SizedBox(),
               SizedBox(height: 30.w*3,),
               ///按钮
               Row(
