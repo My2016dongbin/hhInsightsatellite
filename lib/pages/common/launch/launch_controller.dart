@@ -128,7 +128,7 @@ class LaunchController extends GetxController {
     secondStatus.value = second == true;
     if (token != null) {
       //获取个人信息
-      CommonData.token = token+"2";
+      CommonData.token = token;
       CommonData.tenant = tenant;
       CommonData.tenantUserType = tenantUserType;
       CommonData.tenantName = tenantName;
