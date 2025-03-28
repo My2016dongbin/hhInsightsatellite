@@ -72,7 +72,7 @@ class FeedBackController extends GetxController {
       "fireDescription":descController.text,
       "longitude":longitudeController.text,
       "latitude":latitudeController.text,
-      "isRealFire":realState.value?"1":"0",
+      "isRealFire":realState.value,
     };
     if(pictureUrlList.isNotEmpty){
       data["image1"] = pictureUrlList[0];

@@ -243,10 +243,11 @@ class UploadPage extends StatelessWidget {
                         showTitleActions: true,
                         minTime: DateTime.now().subtract(const Duration(days: 365)),
                         maxTime:DateTime.now().add(const Duration(days: 365)), onConfirm: (date) {
+                          logic.time.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
                           DatePicker.showTimePicker(logic.context,
                               showTitleActions: true, onConfirm: (date) {
                                 logic.time.value = CommonUtils().parseLongTime("${date.millisecondsSinceEpoch}");
-                              }, currentTime: DateTime.now(), locale: LocaleType.zh);
+                              }, currentTime: date, locale: LocaleType.zh);
                         }, currentTime: DateTime.now(), locale: LocaleType.zh);
                   },
                   child: Container(
@@ -1120,7 +1121,7 @@ class UploadPage extends StatelessWidget {
         ),
       ), builder: (BuildContext context) {
         logic.scrollControllerT = FixedExtentScrollController(initialItem: logic.landTypeIndex.value);
-        int index = logic.areaIndex.value;
+        int index = logic.landTypeIndex.value;
         return Container(
           decoration: BoxDecoration(
               color: HhColors.whiteColor,

@@ -24,6 +24,7 @@ import 'package:insightsatellite/utils/HhColors.dart';
 import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
 import 'package:insightsatellite/utils/ParseLocation.dart';
+import 'package:insightsatellite/utils/Point.dart';
 import 'package:insightsatellite/utils/RequestUtils.dart';
 import 'package:insightsatellite/utils/SPKeys.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -43,6 +44,7 @@ class HomeController extends GetxController {
   final unreadMsgCount = 0.obs;
   final Rx<bool> viewStatus = true.obs;
   final Rx<bool> loading = false.obs;
+  final Rx<bool> pageStatus = true.obs;
   final Rx<int> versionStatus = 0.obs;
   final Rx<int> downloadStep = 0.obs;
   final unhandledFriendApplicationCount = 0.obs;
@@ -84,6 +86,7 @@ class HomeController extends GetxController {
   late int pageSize = 15;
   late EasyRefreshController easyController = EasyRefreshController();
   final PagingController<int, dynamic> fireController = PagingController(firstPageKey: 1);
+  final ScrollController fireScrollController = ScrollController();
 
   late dynamic fireInfo = {};
   final Rx<bool> satelliteStatus = true.obs;
@@ -155,6 +158,8 @@ class HomeController extends GetxController {
   late List<String> filterTimeList = [];
   late List<String> filterNoList = [];
   late int postFireLong = 0;
+  late List<dynamic> bridgeData = [];
+  late int bridgeTimes = 0;
 
   Future<void> requestNotificationPermission() async {
     // 检查是否已经获得通知权限
@@ -298,6 +303,7 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
+    postBridge();
     postType();
     Future.delayed(const Duration(milliseconds: 2000),(){
       getVersion();
@@ -821,7 +827,7 @@ class HomeController extends GetxController {
             ),
             SizedBox(height: 5.w*3,),
             Expanded(
-              child: EasyRefresh(
+              child: pageStatus.value?EasyRefresh(
                 onRefresh: (){
                   pageNum = 1;
                   postFire(false);
@@ -843,6 +849,7 @@ class HomeController extends GetxController {
                 child: PagedListView<int, dynamic>(
                   padding: EdgeInsets.zero,
                   pagingController: fireController,
+                  scrollController: fireScrollController,
                   builderDelegate: PagedChildBuilderDelegate<dynamic>(
                     noItemsFoundIndicatorBuilder: (context) => CommonUtils().noneWidget(image:'assets/images/common/icon_no_message.png',info: '暂无报警信息',mid: 10.w,top: 0.2.sw,
                       height: 0.3.sw,
@@ -922,7 +929,7 @@ class HomeController extends GetxController {
                     },
                   ),
                 ),
-              ),
+              ):const SizedBox(),
             )
           ],
         ),
@@ -1241,10 +1248,18 @@ class HomeController extends GetxController {
     if(otherOutShow.value){
       map['overseasHeatSources'] = otherOut.value?"1":"0";
     }
+    /*Future.delayed(const Duration(milliseconds: 5000),(){
+      easyController.finishLoad(IndicatorResult.success,true);
+      easyController.finishRefresh(IndicatorResult.success,true);
+      pageStatus.value = false;
+      pageStatus.value = true;
+      fireScrollController.jumpTo(100);
+    });*/
     var result = await HhHttp().request(RequestUtils.fireSearch,method: DioMethod.get,params:map);
     HhLog.d("fireSearch -- ${RequestUtils.fireSearch} -- $map ");
     HhLog.d("fireSearch -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
+    easyController.finishLoad(IndicatorResult.success,true);
     if(result["code"]==200){
       newItems = result["rows"];
       fireCount.value = result["total"];
@@ -1302,6 +1317,11 @@ class HomeController extends GetxController {
       myMapController.addMarker(marker);
       fireMarkerList.add(marker);
     }
+    /*if(bridgeData.isNotEmpty){
+      drawBridge();
+    }else{
+      bridgeTimes = 0;
+    }*/
     if(allFireList.isNotEmpty){
       ///跳到第一火点
       myMapController.setCenterCoordinate(
@@ -1309,6 +1329,21 @@ class HomeController extends GetxController {
           true,animateDurationMs: 200
       );
     }
+  }
+
+  ///获取区域边界
+  Future<void> postBridge() async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    var resultS = await HhHttp().request(RequestUtils.bridge,method: DioMethod.get);
+    HhLog.d("postBridge -- $resultS");
+    if(resultS["code"]==200 && resultS["data"] != null){
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+      bridgeData = resultS["data"];
+      drawBridge();
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
+    }
+
   }
 
   void mapLoading() {
@@ -1636,5 +1671,46 @@ class HomeController extends GetxController {
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
+  }
+
+  void drawBridge() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - bridgeTimes < 2000){
+      return;
+    }
+    bridgeTimes = now;
+    for(dynamic model in bridgeData){
+      List<dynamic> coordinates = model["areaPolygon"]["coordinates"];
+      for(int m = 0; m < coordinates.length; m++){
+        List<dynamic> mid = coordinates[m];
+        for(int i = 0; i < mid.length; i++){
+          List<dynamic> ins = mid[i];
+          Future.delayed(Duration(milliseconds: ins.length ~/ 2),(){
+            putDrawBridgeQueue(ins);
+          });
+        }
+      }
+    }
+  }
+
+  void putDrawBridgeQueue(List<dynamic> ins) {
+    List<BMFCoordinate> points = [];
+    for(int p = 0; p < ins.length; p++){
+      List<dynamic> point = ins[p];//[124.143026, 50.566138]
+      //1.转成 BMFCoordinate
+      points.add(BMFCoordinate(point[1], point[0]));
+    }
+    //简化多边形
+    List<BMFCoordinate> pointsOut = douglasPeucker(points, 0.00005);
+    points = pointsOut;
+    //2.创建多边形
+    BMFPolygon polygon = BMFPolygon(
+      coordinates: points,
+      strokeColor: Colors.blue,
+      fillColor: Colors.blue.withOpacity(0.1),
+      width: 2,
+    );
+    //3.添加到地图
+    myMapController.addPolygon(polygon);
   }
 }
