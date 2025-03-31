@@ -664,6 +664,9 @@ class HomePage extends StatelessWidget {
                       logic.city.value = "请选择市";
                       logic.cityCode = "";
                       logic.cityIndex.value = 0;
+                      logic.area.value = "请选择区";
+                      logic.areaCode = "";
+                      logic.areaIndex.value = 0;
                       logic.otherOut.value = true;
                       logic.otherCache.value = true;
                       EventBusUtil.getInstance().fire(HhToast(title: '已重置',type: 0));
@@ -848,7 +851,7 @@ class HomePage extends StatelessWidget {
                       children: getProvince(),
                       onSelectedItemChanged: (int value) {
                         index = value;
-                        logic.getCity(logic.provinceList[index]["areaCode"]);
+                        // logic.getCity(logic.provinceList[index]["areaCode"]);
                       },
 
                     ),
@@ -867,7 +870,7 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
-                      logic.provinceIndex.value = index;
+                      /*logic.provinceIndex.value = index;
                       logic.province.value = logic.provinceList[logic.provinceIndex.value]["name"];
                       logic.provinceCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];
                       ///更新市数据
@@ -878,7 +881,25 @@ class HomePage extends StatelessWidget {
                       logic.areaIndex.value = 0;
                       logic.area.value = "请选择区";
                       logic.areaCode = "";
+                      Navigator.pop(context);*/
+
+
+                      logic.getCity(logic.provinceList[index]["areaCode"]);
+
+                      logic.provinceIndex.value = index;
+                      logic.province.value = logic.provinceList[logic.provinceIndex.value]["name"];
+                      logic.provinceCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];
                       Navigator.pop(context);
+                      ///更新市区数据
+                      // logic.cityList.clear();
+                      logic.cityIndex.value = 0;
+                      logic.city.value = "请选择市";
+                      //getCityList();
+                      // logic.areaList.clear();
+                      logic.areaIndex.value = 0;
+                      logic.area.value = "请选择区";
+
+                      delayChooseCity();
                     },
                   ),
                 ],
@@ -930,7 +951,7 @@ class HomePage extends StatelessWidget {
                       children: getCity(),
                       onSelectedItemChanged: (int value) {
                         index = value;
-                        logic.getArea(logic.cityList[index]["areaCode"]);
+                        // logic.getArea(logic.cityList[index]["areaCode"]);
                       },
 
                     ),
@@ -949,14 +970,26 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
-                      logic.cityIndex.value = index;
+                      /*logic.cityIndex.value = index;
                       logic.city.value = logic.cityList[logic.cityIndex.value]["name"];
                       logic.cityCode = logic.cityList[logic.cityIndex.value]["areaCode"];
                       ///更新区数据
                       logic.areaIndex.value = 0;
                       logic.area.value = "请选择区";
                       logic.areaCode = "";
+                      Navigator.pop(context);*/
+
+                      logic.getArea(logic.cityList[index]["areaCode"]);
+
+                      logic.cityIndex.value = index;
+                      logic.city.value = logic.cityList[logic.cityIndex.value]["name"];
+                      logic.cityCode = logic.cityList[logic.cityIndex.value]["areaCode"];
                       Navigator.pop(context);
+                      ///更新区数据
+                      logic.areaIndex.value = 0;
+                      logic.area.value = "请选择区";
+
+                      delayChooseArea();
                     },
                   ),
                 ],
@@ -1077,5 +1110,25 @@ class HomePage extends StatelessWidget {
       );
     }
     return list;
+  }
+
+  void delayChooseCity() {
+    Future.delayed(const Duration(milliseconds: 1000),(){
+      if(logic.cityList.isNotEmpty){
+        chooseCity();
+      }else{
+        delayChooseCity();
+      }
+    });
+  }
+
+  void delayChooseArea() {
+    Future.delayed(const Duration(milliseconds: 1000),(){
+      if(logic.areaList.isNotEmpty){
+        chooseArea();
+      }else{
+        delayChooseArea();
+      }
+    });
   }
 }

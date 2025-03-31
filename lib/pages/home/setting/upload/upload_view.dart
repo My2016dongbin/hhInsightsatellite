@@ -306,7 +306,7 @@ class UploadPage extends StatelessWidget {
                           maxLength: 5,
                           cursorColor: HhColors.titleColor_99,
                           controller: logic.areaController,
-                          keyboardType: TextInputType.number,
+                          keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
                           decoration: InputDecoration(
                             contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                             border: const OutlineInputBorder(

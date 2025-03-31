@@ -1228,13 +1228,16 @@ class HomeController extends GetxController {
     map['pageNum'] = '$pageNum';
     map['pageSize'] = '$pageSize';
     if(areaCode.isNotEmpty){
-      map['countyCode'] = areaCode;
+      // map['countyCode'] = areaCode;
+      map['areaCode'] = areaCode;
     }else{
       if(cityCode.isNotEmpty){
-        map['cityCode'] = cityCode;
+        // map['cityCode'] = cityCode;
+        map['areaCode'] = cityCode;
       }else{
         if(provinceCode.isNotEmpty){
-          map['provinceCode'] = provinceCode;
+          // map['provinceCode'] = provinceCode;
+          map['areaCode'] = provinceCode;
         }
       }
     }
@@ -1273,6 +1276,9 @@ class HomeController extends GetxController {
         double pageAll = fireCount.value/pageSize;
         if(pageNum*1.0 > pageAll && (pageNum*1.0 - pageAll >= 1)){
           easyController.finishLoad(IndicatorResult.noMore,true);
+          if(showList){
+            fireListDialog();
+          }
           return;
         }
       }catch(e){
@@ -1361,7 +1367,7 @@ class HomeController extends GetxController {
             CommonData.longitude ?? 120.314037),
         zoomLevel: 6,
         showMapScaleBar:true,
-        mapScaleBarPosition:BMFPoint(40.w*3,160.h*3),
+        mapScaleBarPosition:BMFPoint(Platform.isIOS?20.h*3:40.w*3,Platform.isIOS?40.h*3:160.h*3),
         compassEnabled: true,
         showZoomControl: false,
         showDEMLayer: true,
