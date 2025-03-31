@@ -1245,6 +1245,7 @@ class HomeController extends GetxController {
     map['landTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
     map['endTime'] = endTime.value;
+    map['querySource'] = "alarmTimeFilter";
     if(otherCacheShow.value){
       map['bufferArea'] = otherCache.value?"1":"0";
     }

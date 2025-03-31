@@ -10,7 +10,7 @@ class RequestUtils{
   static const satelliteType = '$base/system/satelliteConfig/satelliteSeriesList';//'$base/system/satelliteConfig/satelliteCodeList';//卫星类型查询-
   static const satelliteTypeTenant = '$base/system/satelliteConfig/permissionSelectTenantId';//卫星类型查询-租户内类型查询-
   static const landType = '$base/system/satelliteConfig/landTypeList';//地址类型查询-
-  static const bridge = '$base/satellite/areaPolygon/queryUserAreaList';//获取区域边界-
+  static const bridge = '$base/system/areaPolygon/queryUserAreaList';//'$base/satellite/areaPolygon/queryUserAreaList';//获取区域边界-
   static const typePermission = '$base/system/satelliteConfig/permissionSelectUserId';//'$base/system/satelliteConfig/permissionSelect';//用户查询各类型权限-
   static const typePermissionEdit = '$base/system/satelliteConfig/permissionEditUserId';//'$base/system/satelliteConfig/permissionEdit';//用户修改各类型权限-
   static const fileUpload = '$base/resource/oss/upload';//文件上传-
