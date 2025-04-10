@@ -287,7 +287,7 @@ class CommonUtils {
     s = "$s";
     s = s.substring(s.indexOf(':') + 1, s.length);
     try{
-      s = s.substring(0, 20);
+      s = s.substring(0, 30);
     }catch(e){
       //
     }
