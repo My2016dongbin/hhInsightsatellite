@@ -316,6 +316,7 @@ class HomePage extends StatelessWidget {
               InkWell(
                 onTap: (){
                   Get.back();
+                  reset();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
                   logic.pageNum = 1;
@@ -332,6 +333,7 @@ class HomePage extends StatelessWidget {
               InkWell(
                 onTap: (){
                   Get.back();
+                  reset();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
                   logic.pageNum = 1;
@@ -364,6 +366,7 @@ class HomePage extends StatelessWidget {
               InkWell(
                 onTap: (){
                   Get.back();
+                  reset();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(days: 3)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
                   logic.pageNum = 1;
@@ -380,6 +383,7 @@ class HomePage extends StatelessWidget {
               InkWell(
                 onTap: (){
                   Get.back();
+                  reset();
                   logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(days: 5)).millisecondsSinceEpoch);
                   logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
                   logic.pageNum = 1;
@@ -650,25 +654,7 @@ class HomePage extends StatelessWidget {
                     scaleFactor: 0.6,
                     onPressed: (){
                       Get.back();
-                      for(dynamic model in logic.satelliteList){
-                        model["choose"] = true;
-                      }
-                      for(dynamic model in logic.landTypeList){
-                        model["choose"] = true;
-                      }
-                      logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
-                      logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-                      logic.province.value = "请选择省";
-                      logic.provinceCode = "";
-                      logic.provinceIndex.value = 0;
-                      logic.city.value = "请选择市";
-                      logic.cityCode = "";
-                      logic.cityIndex.value = 0;
-                      logic.area.value = "请选择区";
-                      logic.areaCode = "";
-                      logic.areaIndex.value = 0;
-                      logic.otherOut.value = true;
-                      logic.otherCache.value = true;
+                      reset();
                       EventBusUtil.getInstance().fire(HhToast(title: '已重置',type: 0));
                     },
                     child: Container(
@@ -1130,5 +1116,27 @@ class HomePage extends StatelessWidget {
         delayChooseArea();
       }
     });
+  }
+
+  void reset() {
+    for(dynamic model in logic.satelliteList){
+      model["choose"] = true;
+    }
+    for(dynamic model in logic.landTypeList){
+      model["choose"] = true;
+    }
+    logic.startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
+    logic.endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
+    logic.province.value = "请选择省";
+    logic.provinceCode = "";
+    logic.provinceIndex.value = 0;
+    logic.city.value = "请选择市";
+    logic.cityCode = "";
+    logic.cityIndex.value = 0;
+    logic.area.value = "请选择区";
+    logic.areaCode = "";
+    logic.areaIndex.value = 0;
+    logic.otherOut.value = true;
+    logic.otherCache.value = true;
   }
 }
