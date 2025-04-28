@@ -856,7 +856,7 @@ class HomeController extends GetxController {
                       width: 0.3.sw,),
                     firstPageProgressIndicatorBuilder: (context) => Container(),
                     itemBuilder: (context, item, index) {
-                      bool hasTimeBefore = false;
+                      /*bool hasTimeBefore = false;
                       bool hasNoBefore = false;
                       if(fireTypeByTime.value){
                         if(filterTimeList.contains("${item["observeTimestr"]}")){
@@ -872,7 +872,7 @@ class HomeController extends GetxController {
                           filterNoList.clear();
                           filterNoList.add("${item["fireNo"]}");
                         }
-                      }
+                      }*/
                       return InkWell(
                         onTap: () async {
                           Get.back();
@@ -888,13 +888,13 @@ class HomeController extends GetxController {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            hasTimeBefore||index==0?const SizedBox():Container(
+                            /*hasTimeBefore||*/index==0?const SizedBox():Container(
                               height: 1.w,
                               width: 1.sw,
                               color: HhColors.line25Color,
                             ),
-                            hasTimeBefore || hasNoBefore?const SizedBox():SizedBox(height: 10.w*3,),
-                            fireTypeByTime.value?(hasTimeBefore?const SizedBox():Row(
+                            !item["showTime"] || !item["showNo"]?const SizedBox():SizedBox(height: 10.w*3,),
+                            fireTypeByTime.value?(!item["showTime"]?const SizedBox():Row(
                               children: [
                                 SizedBox(width: 10.w*3,),
                                 Icon(Icons.access_time_rounded,color: HhColors.titleColor_55,size: 18.w*3,),
@@ -902,7 +902,7 @@ class HomeController extends GetxController {
                                 Text('${item["observeTimestr"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
                                 SizedBox(width: 10.w*3,),
                               ],
-                            )): hasNoBefore?const SizedBox():Row(
+                            )): !item["showNo"]?const SizedBox():Row(
                               children: [
                                 SizedBox(width: 10.w*3,),
                                 Icon(Icons.turned_in_not_rounded,color: HhColors.titleColor_55,size: 18.w*3,),
@@ -979,6 +979,7 @@ class HomeController extends GetxController {
                             ),
                             onTap: (){
                               fireTypeByTime.value = true;
+                              parseData();
                             },
                           ),
                           InkWell(
@@ -997,6 +998,7 @@ class HomeController extends GetxController {
                             ),
                             onTap: (){
                               fireTypeByTime.value = false;
+                              parseData();
                             },
                           ),
                         ],
@@ -1295,7 +1297,10 @@ class HomeController extends GetxController {
         }
       }
       allFireList.addAll(newItems);
-      fireController.appendLastPage(newItems);
+
+      //处理数据
+      parseData();
+
       if(showList){
         fireListDialog();
       }
@@ -1719,5 +1724,51 @@ class HomeController extends GetxController {
     );
     //3.添加到地图
     myMapController.addPolygon(polygon);
+  }
+
+  ///处理数据-分组排序by time or fireNo
+  void parseData() {
+    // 1. 分组
+    Map<String, List<dynamic>> groupedData = {};
+    for (var item in allFireList) {
+      String fireNo = fireTypeByTime.value?item["observeTimestr"]:item["fireNo"];
+      if (!groupedData.containsKey(fireNo)) {
+        groupedData[fireNo] = [];
+      }
+      groupedData[fireNo]!.add(item);
+    }
+    // 2. （可选）对分组后的 key 进行排序
+    List<String> sortedKeys = groupedData.keys.toList()
+      ..sort(); // 默认按字母升序，如果想自定义可以改这里
+    // 3. 遍历输出
+    List<dynamic> list = [];
+    for (var fireNo in sortedKeys) {
+      for (var item in groupedData[fireNo]!) {
+        list.add(item);
+      }
+    }
+    allFireList = list;
+
+    String lastTagTime = "";
+    String lastTagNo = "";
+    for(int i = 0; i < allFireList.length;i++){
+      dynamic model = allFireList[i];
+      if(lastTagTime==model["observeTimestr"]){//observeTimestr fireNo
+        model["showTime"] = false;
+      }else{
+        model["showTime"] = true;
+        lastTagTime = model["observeTimestr"];
+      }
+      if(lastTagNo==model["fireNo"]){//observeTimestr fireNo
+        model["showNo"] = false;
+      }else{
+        model["showNo"] = true;
+        lastTagNo = model["fireNo"];
+      }
+    }
+
+
+    fireController.itemList = allFireList;
+    fireController.appendLastPage([]);
   }
 }
