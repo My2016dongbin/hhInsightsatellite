@@ -116,10 +116,11 @@ class MyAppState extends State<HhApp> {
     XgFlutterPlugin().addEventHandler(
       xgPushClickAction: (Map<String, dynamic> msg) async {
         ///消息点击刷新
-        EventBusUtil.getInstance().fire(Message());
         HhLog.d("HomePage -> xgPushClickAction -> $msg");
         try{
           dynamic custom = jsonDecode(msg['customMessage']);
+          String id = custom["id"];
+          EventBusUtil.getInstance().fire(MessageClick(id: id));
         }catch(e){
           //
         }

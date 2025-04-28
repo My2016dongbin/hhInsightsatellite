@@ -39,7 +39,8 @@ class Message{
   Message();
 }
 class MessageClick{
-  MessageClick();
+  String id;
+  MessageClick({required this.id,});
 }
 class Move{
   int action;
