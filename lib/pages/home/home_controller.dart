@@ -1773,46 +1773,23 @@ class HomeController extends GetxController {
 
   Future<void> pushSearchInfo(String eventId) async {
     EventBusUtil.getInstance().fire(HhLoading(show: true));
-    List<String> satelliteStrList = [];
-    List<String> landTypeStrList = [];
-    for(dynamic model in satelliteList){
-      if("${model["code"]}"!="8888"){
-        satelliteStrList.add("${model["code"]}");
-      }
-    }
-    for(dynamic model in landTypeList){
-      if("${model["code"]}"!="8888"){
-        landTypeStrList.add("${model["code"]}");
-      }
-    }
     Map<String, dynamic> map = {};
-    map['pageNum'] = '1';
-    map['pageSize'] = '200';
-    map['satelliteSeriesList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
-    map['landTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
-    map['querySource'] = "monitoringWarning";
-    var result = await HhHttp().request(RequestUtils.fireSearch,method: DioMethod.get,params:map);
-    HhLog.d("fireSearch info -- ${RequestUtils.fireSearch} -- $map ");
+    map['id'] = eventId;
+    var result = await HhHttp().request(RequestUtils.fireSearchInfo,method: DioMethod.get,params:map);
+    HhLog.d("fireSearch info -- ${RequestUtils.fireSearchInfo} -- $map ");
     HhLog.d("fireSearch info -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     easyController.finishLoad(IndicatorResult.success,true);
     if(result["code"]==200){
-      List<dynamic> lists = result["rows"];
       int currentZoom = await myMapController.getZoomLevel() ?? 13;
-      for(int i = 0;i < lists.length;i++){
-        String id = lists[i]["id"];
-        if(id == eventId){
-          fireInfo = lists[i];
-          showFireInfo();
-          showFireInfo();
-          myMapController.setCenterCoordinate(
-            BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[1]),
-            false,
-          );
-          myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
-          return;
-        }
-      }
+      fireInfo = result["data"];
+      showFireInfo();
+      showFireInfo();
+      myMapController.setCenterCoordinate(
+        BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[1]),
+        false,
+      );
+      myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
     }

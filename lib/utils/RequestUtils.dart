@@ -7,6 +7,7 @@ class RequestUtils{
   static const login = '$base/auth/login';//密码登录-
   static const userInfo = '$base/system/user/getInfo/app';//个人信息查询-
   static const fireSearch = '$base/haohai-satellite/SatelliteFireAlarm/page';//火警分页查询-
+  static const fireSearchInfo = '$base/haohai-satellite/SatelliteFireAlarm/getById';//火警详情查询-
   static const satelliteType = '$base/system/satelliteConfig/satelliteSeriesList';//'$base/system/satelliteConfig/satelliteCodeList';//卫星类型查询-
   static const satelliteTypeTenant = '$base/system/satelliteConfig/permissionSelectTenantId';//卫星类型查询-租户内类型查询-
   static const landType = '$base/system/satelliteConfig/landTypeList';//地址类型查询-
