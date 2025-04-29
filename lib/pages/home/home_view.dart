@@ -886,6 +886,25 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
+                      if(logic.provinceList[index]["areaCode"] == "999"){
+                        logic.cityList = [];
+                        logic.areaList = [];
+                        logic.streetList = [];
+                        logic.province.value = "请选择省";
+                        logic.provinceCode = "";
+                        logic.provinceIndex.value = 0;
+                        logic.city.value = "请选择市";
+                        logic.cityCode = "";
+                        logic.cityIndex.value = 0;
+                        logic.area.value = "请选择区";
+                        logic.areaCode = "";
+                        logic.areaIndex.value = 0;
+                        logic.street.value = "请选择街道";
+                        logic.streetCode = "";
+                        logic.streetIndex.value = 0;
+                        Navigator.pop(context);
+                        return;
+                      }
                       logic.cityList = [];
                       logic.getCity(logic.provinceList[index]["areaCode"]);
 
@@ -986,6 +1005,21 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
+                      if(logic.cityList[index]["areaCode"] == "999"){
+                        logic.areaList = [];
+                        logic.streetList = [];
+                        logic.city.value = "请选择市";
+                        logic.cityCode = "";
+                        logic.cityIndex.value = 0;
+                        logic.area.value = "请选择区";
+                        logic.areaCode = "";
+                        logic.areaIndex.value = 0;
+                        logic.street.value = "请选择街道";
+                        logic.streetCode = "";
+                        logic.streetIndex.value = 0;
+                        Navigator.pop(context);
+                        return;
+                      }
                       logic.areaList = [];
                       logic.getArea(logic.cityList[index]["areaCode"]);
 
@@ -1080,6 +1114,17 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
+                      if(logic.areaList[index]["areaCode"] == "999"){
+                        logic.streetList = [];
+                        logic.area.value = "请选择区";
+                        logic.areaCode = "";
+                        logic.areaIndex.value = 0;
+                        logic.street.value = "请选择街道";
+                        logic.streetCode = "";
+                        logic.streetIndex.value = 0;
+                        Navigator.pop(context);
+                        return;
+                      }
                       logic.streetList = [];
                       logic.getStreet(logic.areaList[index]["areaCode"]);
 
@@ -1172,6 +1217,13 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
+                      if(logic.streetList[index]["areaCode"] == "999"){
+                        logic.street.value = "请选择街道";
+                        logic.streetCode = "";
+                        logic.streetIndex.value = 0;
+                        Navigator.pop(context);
+                        return;
+                      }
                       logic.streetIndex.value = index;
                       logic.street.value = logic.streetList[logic.streetIndex.value]["name"];
                       logic.streetCode = logic.streetList[logic.streetIndex.value]["areaCode"];

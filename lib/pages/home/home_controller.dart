@@ -1041,7 +1041,7 @@ class HomeController extends GetxController {
     showModalBottomSheet(context: Get.context!, builder: (a){
       return Container(
         width: 1.sw,
-        height: 0.6.sh,
+        height: 0.62.sh,
         decoration: BoxDecoration(
             color: HhColors.whiteColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(0.w))
@@ -1253,20 +1253,14 @@ class HomeController extends GetxController {
     map['landTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
     map['endTime'] = endTime.value;
-    map['querySource'] = "monitoringWarning";
+    map['sortField'] = "observeTimestr";
+    map['sortType'] = "desc";
     if(otherCacheShow.value){
       map['bufferArea'] = otherCache.value?"1":"0";
     }
     if(otherOutShow.value){
       map['overseasHeatSources'] = otherOut.value?"1":"0";
     }
-    /*Future.delayed(const Duration(milliseconds: 5000),(){
-      easyController.finishLoad(IndicatorResult.success,true);
-      easyController.finishRefresh(IndicatorResult.success,true);
-      pageStatus.value = false;
-      pageStatus.value = true;
-      fireScrollController.jumpTo(100);
-    });*/
     var result = await HhHttp().request(RequestUtils.fireSearch,method: DioMethod.get,params:map);
     HhLog.d("fireSearch -- ${RequestUtils.fireSearch} -- $map ");
     HhLog.d("fireSearch -- $result");
@@ -1686,7 +1680,12 @@ class HomeController extends GetxController {
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
-      provinceList = result["data"];
+      provinceList = [];
+      provinceList.add({
+        "areaCode":"999",
+        "name":"请选择省",
+      });
+      provinceList.addAll(result["data"]);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
@@ -1697,7 +1696,12 @@ class HomeController extends GetxController {
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
-      cityList = result["data"];
+      cityList = [];
+      cityList.add({
+        "areaCode":"999",
+        "name":"请选择市",
+      });
+      cityList.addAll(result["data"]);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
@@ -1708,7 +1712,12 @@ class HomeController extends GetxController {
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
-      areaList = result["data"];
+      areaList = [];
+      areaList.add({
+        "areaCode":"999",
+        "name":"请选择区",
+      });
+      areaList.addAll(result["data"]);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
@@ -1719,7 +1728,12 @@ class HomeController extends GetxController {
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
-      streetList = result["data"];
+      streetList = [];
+      streetList.add({
+        "areaCode":"999",
+        "name":"请选择街道",
+      });
+      streetList.addAll(result["data"]);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
@@ -1778,8 +1792,8 @@ class HomeController extends GetxController {
       groupedData[fireNo]!.add(item);
     }
     // 2. （可选）对分组后的 key 进行排序
-    List<String> sortedKeys = groupedData.keys.toList()
-      ..sort(); // 默认按字母升序，如果想自定义可以改这里
+    List<String> sortedKeys = groupedData.keys.toList();
+      // ..sort(); // 默认按字母升序，如果想自定义可以改这里
     // 3. 遍历输出
     List<dynamic> list = [];
     for (var fireNo in sortedKeys) {
