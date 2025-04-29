@@ -1384,7 +1384,7 @@ class CommonUtils {
       CommonData.time = now;
       toLogin();
       Future.delayed(const Duration(seconds: 1), () {
-        EventBusUtil.getInstance().fire(HhToast(title: '登录信息失效,请重新登录'));
+        EventBusUtil.getInstance().fire(HhToast(title: '登录已过期,请重新登录！'));
       });
     }
   }

@@ -538,59 +538,84 @@ class HomePage extends StatelessWidget {
               SizedBox(height: 10.w*3,),
               ///区域查询
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text('区域查询：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
-                  SizedBox(width: 10.w*3,),
-                  BouncingWidget(
-                    duration: const Duration(milliseconds: 100),
-                    scaleFactor: 0.6,
-                    onPressed: (){
-                      chooseProvince();
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 3.w*3),
+
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(logic.province.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
-                          SizedBox(width: 2.w*3,),
-                          Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10.w*3,),
-                  BouncingWidget(
-                    duration: const Duration(milliseconds: 100),
-                    scaleFactor: 0.6,
-                    onPressed: (){
-                      chooseCity();
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 3.w*3),
-                      child: Row(
-                        children: [
-                          Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
-                          SizedBox(width: 2.w*3,),
-                          Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10.w*3,),
-                  BouncingWidget(
-                    duration: const Duration(milliseconds: 100),
-                    scaleFactor: 0.6,
-                    onPressed: (){
-                      chooseArea();
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 3.w*3),
-                      child: Row(
-                        children: [
-                          Text(logic.area.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
-                          SizedBox(width: 2.w*3,),
-                          Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                          SizedBox(width: 10.w*3,),
+                          GestureDetector(
+                            onTap: (){
+                              chooseProvince();
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 3.w*3),
+                              height: 100.w,
+                              child: Row(
+                                children: [
+                                  Text(logic.province.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                                  SizedBox(width: 2.w*3,),
+                                  Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10.w*3,),
+                          GestureDetector(
+                            onTap: (){
+                              chooseCity();
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 3.w*3),
+                              height: 100.w,
+                              child: Row(
+                                children: [
+                                  Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                                  SizedBox(width: 2.w*3,),
+                                  Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10.w*3,),
+                          GestureDetector(
+                            onTap: (){
+                              chooseArea();
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 3.w*3),
+                              height: 100.w,
+                              child: Row(
+                                children: [
+                                  Text(logic.area.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                                  SizedBox(width: 2.w*3,),
+                                  Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10.w*3,),
+                          GestureDetector(
+                            onTap: (){
+                              chooseStreet();
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 3.w*3),
+                              height: 100.w,
+                              child: Row(
+                                children: [
+                                  Text(logic.street.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                                  SizedBox(width: 2.w*3,),
+                                  Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -797,6 +822,11 @@ class HomePage extends StatelessWidget {
 
 
   void chooseProvince() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - s <= 1200){
+      return;
+    }
+    s = now;
     if(logic.provinceList.isEmpty){
       EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
       return;
@@ -856,20 +886,7 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
-                      /*logic.provinceIndex.value = index;
-                      logic.province.value = logic.provinceList[logic.provinceIndex.value]["name"];
-                      logic.provinceCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];
-                      ///更新市数据
-                      logic.cityIndex.value = 0;
-                      logic.city.value = "请选择市";
-                      logic.cityCode = "";
-                      ///更新区数据
-                      logic.areaIndex.value = 0;
-                      logic.area.value = "请选择区";
-                      logic.areaCode = "";
-                      Navigator.pop(context);*/
-
-
+                      logic.cityList = [];
                       logic.getCity(logic.provinceList[index]["areaCode"]);
 
                       logic.provinceIndex.value = index;
@@ -880,10 +897,14 @@ class HomePage extends StatelessWidget {
                       // logic.cityList.clear();
                       logic.cityIndex.value = 0;
                       logic.city.value = "请选择市";
-                      //getCityList();
-                      // logic.areaList.clear();
+
                       logic.areaIndex.value = 0;
                       logic.area.value = "请选择区";
+                      logic.areaList = [];
+
+                      logic.streetIndex.value = 0;
+                      logic.street.value = "请选择街道";
+                      logic.streetList = [];
 
                       delayChooseCity();
                     },
@@ -897,8 +918,17 @@ class HomePage extends StatelessWidget {
   }
 
   void chooseCity() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - s <= 1200){
+      return;
+    }
+    s = now;
     if(logic.cityList.isEmpty){
-      EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
+      if(logic.province.value=="请选择省"){
+        EventBusUtil.getInstance().fire(HhToast(title: '请选择省',type: 0));
+      }else{
+        EventBusUtil.getInstance().fire(HhToast(title: '该网格下没有数据',type: 0));
+      }
       return;
     }
     showModalBottomSheet(context: Get.context!,
@@ -956,15 +986,7 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
-                      /*logic.cityIndex.value = index;
-                      logic.city.value = logic.cityList[logic.cityIndex.value]["name"];
-                      logic.cityCode = logic.cityList[logic.cityIndex.value]["areaCode"];
-                      ///更新区数据
-                      logic.areaIndex.value = 0;
-                      logic.area.value = "请选择区";
-                      logic.areaCode = "";
-                      Navigator.pop(context);*/
-
+                      logic.areaList = [];
                       logic.getArea(logic.cityList[index]["areaCode"]);
 
                       logic.cityIndex.value = index;
@@ -974,6 +996,10 @@ class HomePage extends StatelessWidget {
                       ///更新区数据
                       logic.areaIndex.value = 0;
                       logic.area.value = "请选择区";
+                      ///更新街道数据
+                      logic.streetIndex.value = 0;
+                      logic.street.value = "请选择街道";
+                      logic.streetList = [];
 
                       delayChooseArea();
                     },
@@ -987,8 +1013,17 @@ class HomePage extends StatelessWidget {
   }
 
   void chooseArea() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - s <= 1200){
+      return;
+    }
+    s = now;
     if(logic.areaList.isEmpty){
-      EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
+      if(logic.city.value=="请选择市"){
+        EventBusUtil.getInstance().fire(HhToast(title: '请选择市',type: 0));
+      }else{
+        EventBusUtil.getInstance().fire(HhToast(title: '该网格下没有数据',type: 0));
+      }
       return;
     }
     showModalBottomSheet(context: Get.context!,
@@ -998,7 +1033,7 @@ class HomePage extends StatelessWidget {
           topRight: Radius.circular(12.w*3),
         ),
       ), builder: (BuildContext context) {
-        logic.scrollControllerC = FixedExtentScrollController(initialItem: logic.areaIndex.value);
+        logic.scrollControllerA = FixedExtentScrollController(initialItem: logic.areaIndex.value);
         int index = logic.areaIndex.value;
         return Container(
           decoration: BoxDecoration(
@@ -1022,7 +1057,7 @@ class HomePage extends StatelessWidget {
                   child: ScrollConfiguration(
                     behavior: HhBehavior(),
                     child: CupertinoPicker(
-                      scrollController: logic.scrollControllerC,
+                      scrollController: logic.scrollControllerA,
                       itemExtent: 45,
                       children: getArea(),
                       onSelectedItemChanged: (int value) {
@@ -1045,9 +1080,101 @@ class HomePage extends StatelessWidget {
                   GestureDetector(
                     child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
                     onTap: (){
+                      logic.streetList = [];
+                      logic.getStreet(logic.areaList[index]["areaCode"]);
+
                       logic.areaIndex.value = index;
                       logic.area.value = logic.areaList[logic.areaIndex.value]["name"];
                       logic.areaCode = logic.areaList[logic.areaIndex.value]["areaCode"];
+                      Navigator.pop(context);
+
+                      ///更新街道数据
+                      logic.streetIndex.value = 0;
+                      logic.street.value = "请选择街道";
+
+                      delayChooseStreet();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },);
+  }
+
+  int s = 0;
+  void chooseStreet() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - s <= 1200){
+      return;
+    }
+    s = now;
+    if(logic.streetList.isEmpty){
+      if(logic.area.value=="请选择区"){
+        EventBusUtil.getInstance().fire(HhToast(title: '请选择区',type: 0));
+      }else{
+        EventBusUtil.getInstance().fire(HhToast(title: '该网格下没有数据',type: 0));
+      }
+      return;
+    }
+    showModalBottomSheet(context: Get.context!,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12.w*3),
+          topRight: Radius.circular(12.w*3),
+        ),
+      ), builder: (BuildContext context) {
+        logic.scrollControllerS = FixedExtentScrollController(initialItem: logic.streetIndex.value);
+        int index = logic.streetIndex.value;
+        return Container(
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.circular(16.w*3)
+          ),
+          height:200,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text("请选择街道",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                  )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: 20.w*3),
+                  child: ScrollConfiguration(
+                    behavior: HhBehavior(),
+                    child: CupertinoPicker(
+                      scrollController: logic.scrollControllerS,
+                      itemExtent: 45,
+                      children: getStreet(),
+                      onSelectedItemChanged: (int value) {
+                        index = value;
+                      },
+
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(15.w*3,10.w*3,0,15.w*3),child: Icon(Icons.clear,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      logic.streetIndex.value = index;
+                      logic.street.value = logic.streetList[logic.streetIndex.value]["name"];
+                      logic.streetCode = logic.streetList[logic.streetIndex.value]["areaCode"];
                       Navigator.pop(context);
                     },
                   ),
@@ -1097,6 +1224,18 @@ class HomePage extends StatelessWidget {
     }
     return list;
   }
+  getStreet() {
+    List<Widget> list = [];
+    for(int i = 0;i < logic.streetList.length;i++){
+      list.add(
+          Container(
+            color: HhColors.trans,
+            child: Center(child: Text(logic.streetList[i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.streetList[i]["name"].length>3?14.sp*3:15.sp*3),)),
+          )
+      );
+    }
+    return list;
+  }
 
   void delayChooseCity() {
     Future.delayed(const Duration(milliseconds: 1000),(){
@@ -1114,6 +1253,16 @@ class HomePage extends StatelessWidget {
         chooseArea();
       }else{
         delayChooseArea();
+      }
+    });
+  }
+
+  void delayChooseStreet() {
+    Future.delayed(const Duration(milliseconds: 1000),(){
+      if(logic.streetList.isNotEmpty){
+        chooseStreet();
+      }else{
+        delayChooseStreet();
       }
     });
   }
@@ -1136,6 +1285,9 @@ class HomePage extends StatelessWidget {
     logic.area.value = "请选择区";
     logic.areaCode = "";
     logic.areaIndex.value = 0;
+    logic.street.value = "请选择街道";
+    logic.streetCode = "";
+    logic.streetIndex.value = 0;
     logic.otherOut.value = true;
     logic.otherCache.value = true;
   }

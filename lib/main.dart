@@ -120,7 +120,9 @@ class MyAppState extends State<HhApp> {
         try{
           dynamic custom = jsonDecode(msg['customMessage']);
           String id = custom["id"];
-          EventBusUtil.getInstance().fire(MessageClick(id: id));
+          if(msg["actionType"]==0){
+            EventBusUtil.getInstance().fire(MessageClick(id: id));
+          }
         }catch(e){
           //
         }

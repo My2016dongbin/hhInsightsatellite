@@ -6,6 +6,7 @@ class RequestUtils{
 
   static const login = '$base/auth/login';//密码登录-
   static const userInfo = '$base/system/user/getInfo/app';//个人信息查询-
+  static const userDays = '$base/system/user/checkStatus';//个人期限查询-
   static const fireSearch = '$base/haohai-satellite/SatelliteFireAlarm/page';//火警分页查询-
   static const fireSearchInfo = '$base/haohai-satellite/SatelliteFireAlarm/getById';//火警详情查询-
   static const satelliteType = '$base/system/satelliteConfig/satelliteSeriesList';//'$base/system/satelliteConfig/satelliteCodeList';//卫星类型查询-

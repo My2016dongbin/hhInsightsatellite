@@ -139,15 +139,20 @@ class HomeController extends GetxController {
   late String cityCode = "";
   final Rx<String> area = "请选择区".obs;
   late String areaCode = "";
+  final Rx<String> street = "请选择街道".obs;
+  late String streetCode = "";
   late List<dynamic> provinceList = [];
   late List<dynamic> cityList = [];
   late List<dynamic> areaList = [];
+  late List<dynamic> streetList = [];
   late FixedExtentScrollController scrollControllerP;
   final Rx<int> provinceIndex = 0.obs;
   late FixedExtentScrollController scrollControllerC;
   final Rx<int> cityIndex = 0.obs;
   late FixedExtentScrollController scrollControllerA;
   final Rx<int> areaIndex = 0.obs;
+  late FixedExtentScrollController scrollControllerS;
+  final Rx<int> streetIndex = 0.obs;
   final Rx<bool> otherOut = false.obs;
   final Rx<bool> otherCache = false.obs;
   final Rx<bool> otherOutShow = true.obs;
@@ -302,7 +307,8 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-    postBridge();
+    // postBridge();//TODO区域边界
+    postDays();
     postType();
     Future.delayed(const Duration(milliseconds: 2000),(){
       getVersion();
@@ -1228,17 +1234,18 @@ class HomeController extends GetxController {
     Map<String, dynamic> map = {};
     map['pageNum'] = '$pageNum';
     map['pageSize'] = '$pageSize';
-    if(areaCode.isNotEmpty){
-      // map['countyCode'] = areaCode;
-      map['areaCode'] = areaCode;
+    if(streetCode.isNotEmpty){
+      map['areaCode'] = streetCode;
     }else{
-      if(cityCode.isNotEmpty){
-        // map['cityCode'] = cityCode;
-        map['areaCode'] = cityCode;
+      if(areaCode.isNotEmpty){
+        map['areaCode'] = areaCode;
       }else{
-        if(provinceCode.isNotEmpty){
-          // map['provinceCode'] = provinceCode;
-          map['areaCode'] = provinceCode;
+        if(cityCode.isNotEmpty){
+          map['areaCode'] = cityCode;
+        }else{
+          if(provinceCode.isNotEmpty){
+            map['areaCode'] = provinceCode;
+          }
         }
       }
     }
@@ -1650,6 +1657,29 @@ class HomeController extends GetxController {
   }
 
 
+  void postDays() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getString(SPKeys().id)??"";
+    dynamic data = {
+      "userId":userId
+    };
+    var result = await HhHttp().request(RequestUtils.userDays,method: DioMethod.post,data:data);
+    HhLog.d("postDays -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      try{
+        int days = int.parse("${result["data"]["extValue"]}");
+        if(days < 30){
+          Future.delayed(const Duration(milliseconds: 3000),(){
+            EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("该账号还有$days天到期，为了不影响使用，请及时续期！")));
+          });
+        }
+      }catch(e){
+        HhLog.e("postDays $e");
+      }
+    }else{
+      // EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
   void getProvince(String code) async {
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
@@ -1679,6 +1709,17 @@ class HomeController extends GetxController {
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
       areaList = result["data"];
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
+  void getStreet(String code) async {
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      streetList = result["data"];
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
@@ -1771,7 +1812,13 @@ class HomeController extends GetxController {
     fireController.appendLastPage([]);
   }
 
+  int time = 0;
   Future<void> pushSearchInfo(String eventId) async {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - time < 2000){
+      return;
+    }
+    time = now;
     EventBusUtil.getInstance().fire(HhLoading(show: true));
     Map<String, dynamic> map = {};
     map['id'] = eventId;
@@ -1783,7 +1830,6 @@ class HomeController extends GetxController {
     if(result["code"]==200){
       int currentZoom = await myMapController.getZoomLevel() ?? 13;
       fireInfo = result["data"];
-      showFireInfo();
       showFireInfo();
       myMapController.setCenterCoordinate(
         BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[1]),
