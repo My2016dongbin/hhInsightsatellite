@@ -307,7 +307,7 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-    // postBridge();//TODO区域边界
+    postBridge();//TODO区域边界
     postDays();
     postType();
     Future.delayed(const Duration(milliseconds: 2000),(){
