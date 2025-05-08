@@ -55,8 +55,8 @@ class UploadController extends GetxController {
   void getProvince(String code) async {
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
-    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
-    HhLog.d("gridSearch -- $result");
+    var result = await HhHttp().request(RequestUtils.gridSearchAll,method: DioMethod.get,params:map);
+    HhLog.d("gridSearchAll -- $result");
     if(result["code"]==200 && result["data"]!=null){
       provinceList = result["data"];
     }else{
@@ -66,8 +66,8 @@ class UploadController extends GetxController {
   void getCity(String code) async {
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
-    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
-    HhLog.d("gridSearch -- $result");
+    var result = await HhHttp().request(RequestUtils.gridSearchAll,method: DioMethod.get,params:map);
+    HhLog.d("gridSearchAll -- $result");
     if(result["code"]==200 && result["data"]!=null){
       cityList = result["data"];
     }else{
@@ -77,8 +77,8 @@ class UploadController extends GetxController {
   void getArea(String code) async {
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
-    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
-    HhLog.d("gridSearch -- $result");
+    var result = await HhHttp().request(RequestUtils.gridSearchAll,method: DioMethod.get,params:map);
+    HhLog.d("gridSearchAll -- $result");
     if(result["code"]==200 && result["data"]!=null){
       areaList = result["data"];
     }else{
