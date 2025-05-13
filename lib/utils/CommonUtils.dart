@@ -496,6 +496,7 @@ class CommonUtils {
                           },
                           child: Container(
                             margin: EdgeInsets.fromLTRB(15.w * 3, 0, 0, 0),
+                            padding: EdgeInsets.all(10.w*3),
                             color: HhColors.trans,
                             child: Image.asset(
                               "assets/images/common/ic_back.png",
@@ -580,6 +581,7 @@ class CommonUtils {
                           },
                           child: Container(
                             margin: EdgeInsets.fromLTRB(15.w * 3, 0, 0, 0),
+                            padding: EdgeInsets.all(10.w*3),
                             color: HhColors.trans,
                             child: Image.asset(
                               "assets/images/common/ic_back.png",

@@ -1273,6 +1273,7 @@ class HomeController extends GetxController {
         fireController.itemList = [];
         myMapController.cleanAllMarkers();
         fireMarkerList.clear();
+        allFireList = [];
       }
       //处理页数
       try{
