@@ -45,6 +45,7 @@ class HomeController extends GetxController {
   final Rx<bool> viewStatus = true.obs;
   final Rx<bool> loading = false.obs;
   final Rx<bool> pageStatus = true.obs;
+  final Rx<bool> feedBackStatus = false.obs;
   final Rx<int> versionStatus = 0.obs;
   final Rx<int> downloadStep = 0.obs;
   final unhandledFriendApplicationCount = 0.obs;
@@ -199,7 +200,7 @@ class HomeController extends GetxController {
   }
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     mapLoading();
     localVersion();
     Future.delayed(const Duration(seconds: 1), () {
@@ -307,13 +308,19 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-    postBridge();//TODO区域边界
+    // postBridge();//区域边界
+    // postBridgeBuffer();//缓冲区区域边界
     postDays();
     postType();
     Future.delayed(const Duration(milliseconds: 2000),(){
       getVersion();
     });
     getProvince(CommonData.china);
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //satellite:fireReport:add火情上报
+    //satellite:fireFeedback:add火情反馈
+    feedBackStatus.value = (prefs.getString(SPKeys().permissions)??"000000").contains("fireFeedback");
     super.onInit();
   }
 
@@ -756,27 +763,30 @@ class HomeController extends GetxController {
             //点击Marker详情
             fireInfo = allFireList[i];
             showFireInfo();
+            initMarker();
             myMapController.setCenterCoordinate(
               BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[1]),
               false,
             );
-            myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+            myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
+
             return;
           }
         }
       }
       if (Platform.isIOS) {
-        myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+        myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
         for(dynamic modelX in allFireList){
           if(marker.identifier!.contains(modelX["id"])){
             //点击Marker详情
             fireInfo = modelX;
             showFireInfo();
+            initMarker();
             myMapController.setCenterCoordinate(
               BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}"))[1]),
               false,
             );
-            myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+            myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
             break;
           }
         }
@@ -882,12 +892,13 @@ class HomeController extends GetxController {
                         onTap: () async {
                           Get.back();
                           fireInfo = item;
+                          initMarker();
                           myMapController.setCenterCoordinate(
                             BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[1]),
                             false,
                           );
                           int currentZoom = await myMapController.getZoomLevel() ?? 13;
-                          myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+                          myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
                           showFireInfo();
                         },
                         child: Column(
@@ -1055,7 +1066,7 @@ class HomeController extends GetxController {
                 SizedBox(width: 10.w*3,),
                 Text('火点详情',style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),),
                 SizedBox(width: 20.w*3,),
-                BouncingWidget(
+                feedBackStatus.value?BouncingWidget(
                     duration: const Duration(milliseconds: 100),
                     scaleFactor: 0.6,
                     onPressed: (){
@@ -1070,7 +1081,7 @@ class HomeController extends GetxController {
                             borderRadius: BorderRadius.circular(2.w*3)
                         ),
                         child: Text("反馈",style: TextStyle(color: HhColors.whiteColor,fontSize: 12.sp*3),))
-                ),
+                ):const SizedBox(),
                 SizedBox(width: 10.w*3,),
               ],
             ),
@@ -1318,14 +1329,28 @@ class HomeController extends GetxController {
     fireMarkerList.clear();
     for(dynamic model in allFireList){
       /// 创建BMFMarker
+      bool chose = model["id"] == fireInfo["id"];
+      BMFCoordinate location = BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse(model["latitude"]),double.parse(model["longitude"]))[0],ParseLocation.gps84_To_bd09(double.parse(model["latitude"]),double.parse(model["longitude"]))[1]);
       BMFMarker marker = BMFMarker.icon(
-          position: BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse(model["latitude"]),double.parse(model["longitude"]))[0],ParseLocation.gps84_To_bd09(double.parse(model["latitude"]),double.parse(model["longitude"]))[1]),
+          position: location,
+          anchorX: 0.5,
+          anchorY: 0.5,
           title: '${model["formattedAddress"]}',
           enabled: true,
           visible: true,
           identifier: '${model["id"]}',
-          icon: 'assets/images/common/ic_fires_red.png');
+          icon: chose?'assets/images/common/ic_fire.png':'assets/images/common/ic_fires_red.png');
 
+      ///画范围
+      myMapController.addCircle(
+        BMFCircle(
+          center: location,
+          radius: 1000,
+          strokeColor: HhColors.red2.withOpacity(0.6),
+          width: 2,
+          fillColor: HhColors.trans,
+        ),
+      );
       /// 添加Marker
       myMapController.addMarker(marker);
       fireMarkerList.add(marker);
@@ -1355,6 +1380,21 @@ class HomeController extends GetxController {
       drawBridge();
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
+    }
+
+  }
+
+  ///获取缓冲区边界
+  Future<void> postBridgeBuffer() async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    var resultS = await HhHttp().request(RequestUtils.bridgeBuffer,method: DioMethod.get);
+    HhLog.d("bridgeBuffer -- $resultS");
+    if(resultS["code"]==200 && resultS["data"] != null){
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+      bridgeData = resultS["data"];
+      drawBridgeBuffer();
+    }else{
+      postBridge();
     }
 
   }
@@ -1557,9 +1597,9 @@ class HomeController extends GetxController {
           "tenantId":tenantId,
           "userId":userId
         };
-        HhLog.d("typePermission -- ${RequestUtils.satelliteTypeTenant} -- $dataT ");
+        HhLog.d("typePermissionOut -- ${RequestUtils.satelliteTypeTenant} -- $dataT ");
         var resultT = await HhHttp().request(RequestUtils.satelliteTypeTenant,method: DioMethod.post,data: dataT);
-        HhLog.d("typePermission -- $resultT");
+        HhLog.d("typePermissionOut -- $resultT");
         otherOutShow.value = resultT["data"]["overseasHeatSources"] == 1;
         otherCacheShow.value = resultT["data"]["bufferArea"] == 1;
         if(resultT["code"]==200 && resultT["data"] != null){
@@ -1598,6 +1638,13 @@ class HomeController extends GetxController {
           if(resultS["code"]==200 && resultS["data"] != null){
             otherOut.value = resultS["data"]["overseasHeatSources"] == 1;
             otherCache.value = resultS["data"]["bufferArea"] == 1;
+
+            if(resultS["data"]["overseasHeatSources"] != 1){
+              otherOut.value = false;
+            }
+            if(resultS["data"]["bufferArea"] != 1){
+              otherCacheShow.value = false;
+            }
             // String satelliteCodes = resultS["data"]["satelliteSeriesList"];
             // List<String> satelliteCodeList = satelliteCodes.split(',');
             List<dynamic> satelliteCodeList = resultS["data"]["satelliteSeriesList"];
@@ -1677,8 +1724,15 @@ class HomeController extends GetxController {
   }
   void getProvince(String code) async {
     Map<String, dynamic> map = {};
-    map['parentCode'] = code;
+    map['parentCode'] = "";
+    map['level'] = 0;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
+    // map['level'] = 0;
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- ${RequestUtils.gridSearch}");
+    HhLog.d("gridSearch -- $map");
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
       provinceList = [];
@@ -1694,7 +1748,12 @@ class HomeController extends GetxController {
   void getCity(String code) async {
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- ${RequestUtils.gridSearch}");
+    HhLog.d("gridSearch -- $map");
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
       cityList = [];
@@ -1710,6 +1769,9 @@ class HomeController extends GetxController {
   void getArea(String code) async {
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
@@ -1726,6 +1788,9 @@ class HomeController extends GetxController {
   void getStreet(String code) async {
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
@@ -1740,7 +1805,7 @@ class HomeController extends GetxController {
     }
   }
 
-  void drawBridge() {
+  void drawBridge2() {
     int now = DateTime.now().millisecondsSinceEpoch;
     if(now - bridgeTimes < 2000){
       return;
@@ -1760,11 +1825,77 @@ class HomeController extends GetxController {
     }
   }
 
-  void putDrawBridgeQueue(List<dynamic> ins) {
+  void drawBridge() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - bridgeTimes < 2000){
+      return;
+    }
+    bridgeTimes = now;
+    for(dynamic model in bridgeData){
+      HhLog.d("buffer $model");
+      String type = model["areaPolygon"]["type"];
+      if(type == "MultiPolygon"){
+        List<dynamic> coordinates = model["areaPolygon"]["coordinates"];
+        for(int m = 0; m < coordinates.length; m++){
+          List<dynamic> mid = coordinates[m];
+          for(int i = 0; i < mid.length; i++){
+            List<dynamic> ins = mid[i];
+            Future.delayed(Duration(milliseconds: ins.length ~/ 2),(){
+              putDrawBridgeQueue(ins,lineColor:HhColors.yellow);
+            });
+          }
+        }
+      }
+      if(type == "Polygon"){
+        List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
+        for(int m = 0; m < coordinates.length; m++){
+          List<dynamic> mid = coordinates[m];
+          Future.delayed(Duration(milliseconds: mid.length ~/ 2),(){
+            putDrawBridgeQueue(mid,lineColor:HhColors.yellow);
+          });
+        }
+      }
+    }
+  }
+  void drawBridgeBuffer() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - bridgeTimes < 2000){
+      return;
+    }
+    bridgeTimes = now;
+    for(dynamic model in bridgeData){
+      HhLog.d("buffer $model");
+      String type = model["areaCodeBuffer"]["type"];
+      if(type == "MultiPolygon"){
+        List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
+        for(int m = 0; m < coordinates.length; m++){
+          List<dynamic> mid = coordinates[m];
+          for(int i = 0; i < mid.length; i++){
+            List<dynamic> ins = mid[i];
+            Future.delayed(Duration(milliseconds: ins.length ~/ 2),(){
+              putDrawBridgeQueue(ins,lineColor:HhColors.whiteColor);
+            });
+          }
+        }
+      }
+      if(type == "Polygon"){
+        List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
+        for(int m = 0; m < coordinates.length; m++){
+          List<dynamic> mid = coordinates[m];
+          Future.delayed(Duration(milliseconds: mid.length ~/ 2),(){
+            putDrawBridgeQueue(mid,lineColor:HhColors.whiteColor);
+          });
+        }
+      }
+    }
+  }
+
+  void putDrawBridgeQueue(List<dynamic> ins,{dynamic lineColor}) {
     List<BMFCoordinate> points = [];
     for(int p = 0; p < ins.length; p++){
       List<dynamic> point = ins[p];//[124.143026, 50.566138]
       //1.转成 BMFCoordinate
+      // points.add(BMFCoordinate(double.parse("${point[1]}"), double.parse("${point[0]}")));
       points.add(BMFCoordinate(point[1], point[0]));
     }
     //简化多边形
@@ -1773,9 +1904,9 @@ class HomeController extends GetxController {
     //2.创建多边形
     BMFPolygon polygon = BMFPolygon(
       coordinates: points,
-      strokeColor: Colors.blue,
-      fillColor: Colors.blue.withOpacity(0.1),
-      width: 2,
+      strokeColor: lineColor??Colors.blue,
+      fillColor: HhColors.trans,
+      width: 3,
     );
     //3.添加到地图
     myMapController.addPolygon(polygon);
@@ -1846,11 +1977,12 @@ class HomeController extends GetxController {
       int currentZoom = await myMapController.getZoomLevel() ?? 13;
       fireInfo = result["data"];
       showFireInfo();
+      initMarker();
       myMapController.setCenterCoordinate(
         BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[1]),
         false,
       );
-      myMapController.setZoomTo((currentZoom>13?currentZoom:13)*1.0);
+      myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
     }

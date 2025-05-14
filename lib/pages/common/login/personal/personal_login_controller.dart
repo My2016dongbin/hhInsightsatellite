@@ -27,8 +27,13 @@ class PersonalLoginController extends GetxController {
   final Rx<bool> passwordStatus = false.obs;
   final Rx<bool> passwordShowStatus = false.obs;
   final Rx<bool> confirmStatus = true.obs;
+  final Rx<bool> phoneMode = false.obs;
   TextEditingController? accountController = TextEditingController();
   TextEditingController? passwordController = TextEditingController();
+  final Rx<bool> phoneStatus = false.obs;
+  final Rx<bool> codeStatus = false.obs;
+  TextEditingController? phoneController = TextEditingController();
+  TextEditingController? codeController = TextEditingController();
   late StreamSubscription showToastSubscription;
   late StreamSubscription showLoadingSubscription;
   late String? account;
@@ -198,6 +203,7 @@ class PersonalLoginController extends GetxController {
       prefs.setString(SPKeys().userType, '${result["data"]["user"]["userType"]}');
       prefs.setString(SPKeys().deptName, '${result["data"]["user"]["deptName"]}');
       prefs.setString(SPKeys().mobile, '${result["data"]["user"]["phonenumber"]}');
+      prefs.setString(SPKeys().permissions, '${result["data"]["user"]["permissions"]}');
       prefs.setBool(SPKeys().voice, true);
 
       XgFlutterPlugin().deleteTags(['${result["data"]["user"]["userId"]}']);

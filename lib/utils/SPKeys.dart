@@ -14,6 +14,7 @@ class SPKeys{
   final String remark = 'remark';
   final String roles = 'roles';
   final String voice = 'voice';
+  final String permissions = 'permissions';
 
   final String companyName = 'CompanyName';
   final String provinceNo = 'ProvinceNo';

@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingController extends GetxController {
   final Rx<bool> testStatus = true.obs;
   final Rx<bool> voiceStatus = false.obs;
+  final Rx<bool> uploadStatus = false.obs;
   late BuildContext context;
   final Rx<bool> satelliteStatus = true.obs;
   final Rx<bool> skyStatus = true.obs;
@@ -90,6 +91,9 @@ class SettingController extends GetxController {
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     voiceStatus.value = prefs.getBool(SPKeys().voice)??false;
+    //satellite:fireReport:add火情上报
+    //satellite:fireFeedback:add火情反馈
+    uploadStatus.value = (prefs.getString(SPKeys().permissions)??"000000").contains("fireReport");
   }
 
 

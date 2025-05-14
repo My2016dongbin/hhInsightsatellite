@@ -144,7 +144,7 @@ class SettingPage extends StatelessWidget {
                         margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
                       ),
                       ///报警上报
-                      BouncingWidget(
+                      logic.uploadStatus.value?BouncingWidget(
                         duration: const Duration(milliseconds: 100),
                         scaleFactor: 0.2,
                         onPressed: (){
@@ -161,13 +161,13 @@ class SettingPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                      ),
-                      Container(
+                      ):const SizedBox(),
+                      logic.uploadStatus.value?Container(
                         color: HhColors.line25Color,
                         height: 1.w,
                         width: 1.sw,
                         margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                      ),
+                      ):const SizedBox(),
                     ],
                   ),
                 ),
