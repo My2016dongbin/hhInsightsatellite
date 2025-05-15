@@ -315,7 +315,7 @@ class HomeController extends GetxController {
     Future.delayed(const Duration(milliseconds: 2000),(){
       getVersion();
     });
-    getProvince(CommonData.china);
+    // getProvince(CommonData.china);
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     //satellite:fireReport:add火情上报
@@ -1722,15 +1722,44 @@ class HomeController extends GetxController {
       // EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
   }
+  void getCountry(String code) async {
+    provinceIndex.value = 0;
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    provinceList = [];
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
+    // map['level'] = 0;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    HhLog.d("gridSearch -- ${RequestUtils.gridSearch}");
+    HhLog.d("gridSearch -- $map");
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      provinceList = [];
+      provinceList.add({
+        "areaCode":"999",
+        "name":"请选择省",
+        "level":"1",
+      });
+      provinceList.addAll(result["data"]);
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
   void getProvince(String code) async {
+    provinceIndex.value = 0;
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
     Map<String, dynamic> map = {};
     map['parentCode'] = "";
     map['level'] = 0;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
     map['userId'] = prefs.getString(SPKeys().id)??"1";
-    // map['level'] = 0;
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
     HhLog.d("gridSearch -- ${RequestUtils.gridSearch}");
     HhLog.d("gridSearch -- $map");
     HhLog.d("gridSearch -- $result");
@@ -1747,12 +1776,14 @@ class HomeController extends GetxController {
     }
   }
   void getCity(String code) async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
     map['userId'] = prefs.getString(SPKeys().id)??"1";
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
     HhLog.d("gridSearch -- ${RequestUtils.gridSearch}");
     HhLog.d("gridSearch -- $map");
     HhLog.d("gridSearch -- $result");
@@ -1769,12 +1800,14 @@ class HomeController extends GetxController {
     }
   }
   void getArea(String code) async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
     map['userId'] = prefs.getString(SPKeys().id)??"1";
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
       areaList = [];
@@ -1789,12 +1822,14 @@ class HomeController extends GetxController {
     }
   }
   void getStreet(String code) async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
     map['userId'] = prefs.getString(SPKeys().id)??"1";
     var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
       streetList = [];

@@ -551,7 +551,8 @@ class HomePage extends StatelessWidget {
                           SizedBox(width: 10.w*3,),
                           GestureDetector(
                             onTap: (){
-                              chooseProvince();
+                              logic.getProvince(CommonData.china);
+                              delayChooseProvince();
                             },
                             child: Container(
                               margin: EdgeInsets.only(top: 3.w*3),
@@ -827,7 +828,7 @@ class HomePage extends StatelessWidget {
 
   void chooseProvince() {
     int now = DateTime.now().millisecondsSinceEpoch;
-    if(now - s <= 1200){
+    if(now - s <= 200){
       return;
     }
     s = now;
@@ -908,6 +909,12 @@ class HomePage extends StatelessWidget {
                         logic.streetIndex.value = 0;
                         Navigator.pop(context);
                         return;
+                      }
+                      ///选择了中国数据
+                      if(logic.provinceList[index]["level"]==0){
+                        logic.getCountry(logic.provinceList[index]["areaCode"]);
+                        Navigator.pop(context);
+                        delayChooseProvince();
                       }
                       ///选择了省数据
                       if(logic.provinceList[index]["level"]==1){
@@ -1011,7 +1018,7 @@ class HomePage extends StatelessWidget {
 
   void chooseCity() {
     int now = DateTime.now().millisecondsSinceEpoch;
-    if(now - s <= 1200){
+    if(now - s <= 200){
       return;
     }
     s = now;
@@ -1121,7 +1128,7 @@ class HomePage extends StatelessWidget {
 
   void chooseArea() {
     int now = DateTime.now().millisecondsSinceEpoch;
-    if(now - s <= 1200){
+    if(now - s <= 200){
       return;
     }
     s = now;
@@ -1224,7 +1231,7 @@ class HomePage extends StatelessWidget {
   int s = 0;
   void chooseStreet() {
     int now = DateTime.now().millisecondsSinceEpoch;
-    if(now - s <= 1200){
+    if(now - s <= 200){
       return;
     }
     s = now;
@@ -1362,8 +1369,18 @@ class HomePage extends StatelessWidget {
     return list;
   }
 
+  void delayChooseProvince() {
+    Future.delayed(const Duration(milliseconds: 200),(){
+      if(logic.provinceList.isNotEmpty){
+        chooseProvince();
+      }else{
+        delayChooseProvince();
+      }
+    });
+  }
+
   void delayChooseCity() {
-    Future.delayed(const Duration(milliseconds: 1000),(){
+    Future.delayed(const Duration(milliseconds: 200),(){
       if(logic.cityList.isNotEmpty){
         chooseCity();
       }else{
@@ -1373,7 +1390,7 @@ class HomePage extends StatelessWidget {
   }
 
   void delayChooseArea() {
-    Future.delayed(const Duration(milliseconds: 1000),(){
+    Future.delayed(const Duration(milliseconds: 200),(){
       if(logic.areaList.isNotEmpty){
         chooseArea();
       }else{
@@ -1383,7 +1400,7 @@ class HomePage extends StatelessWidget {
   }
 
   void delayChooseStreet() {
-    Future.delayed(const Duration(milliseconds: 1000),(){
+    Future.delayed(const Duration(milliseconds: 200),(){
       if(logic.streetList.isNotEmpty){
         chooseStreet();
       }else{
