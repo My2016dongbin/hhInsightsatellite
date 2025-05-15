@@ -148,7 +148,7 @@ class PersonalLoginController extends GetxController {
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     if (result != null && result["code"]==200) {
       EventBusUtil.getInstance().fire(HhToast(title: "发送成功",type: 1));
-      time.value = 60;
+      time.value = 180;
       runCode();
     } else {
 
