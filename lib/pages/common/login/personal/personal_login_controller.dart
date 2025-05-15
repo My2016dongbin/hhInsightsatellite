@@ -142,10 +142,12 @@ class PersonalLoginController extends GetxController {
       method: DioMethod.get,
       params: map,
     );
+    HhLog.d("sendCode ${RequestUtils.sendCode}");
+    HhLog.d("sendCode $map");
     HhLog.d("sendCode $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     if (result != null && result["code"]==200) {
-      EventBusUtil.getInstance().fire(HhToast(title: "发送成功"));
+      EventBusUtil.getInstance().fire(HhToast(title: "发送成功",type: 1));
       time.value = 60;
       runCode();
     } else {
@@ -153,7 +155,47 @@ class PersonalLoginController extends GetxController {
     }
   }
   Future<void> loginCode() async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    dynamic data = {
+      "clientId": CommonData.clientId,
+      "grantType": "sms",
+      "smsCode": codeController!.text,
+      "phonenumber": phoneController!.text,
+    };
+    final aesKey = CommonUtils().generateAesKey();
+    HhLog.d("key ${aesKey.base64}");
+    String encodedKey = CommonUtils().encryptRSA(base64Encode(aesKey.bytes)); // Base64 编码密钥
+    CommonData.encryptKey = encodedKey;
+    HhLog.d("key encode $encodedKey");
 
+    final jsonString = jsonEncode(data);
+    String afterEncode = CommonUtils().encryptWithAes(jsonString, aesKey);
+    HhLog.d("data $afterEncode");
+
+    dynamic headers = HhHttp().getLoginHeaders();
+    var result = await HhHttp().request(
+        RequestUtils.login,
+        data: afterEncode,
+        options: Options(
+            headers: headers,
+            method: "post"
+        )
+    );
+    HhLog.d("login -- $result");
+    if (result["code"] == 200 && result["data"] != null) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(SPKeys().token, result["data"]["access_token"]);
+      await prefs.setString(SPKeys().account, "");
+      await prefs.setString(SPKeys().password, "");
+      CommonData.token = result["data"]["access_token"];
+
+      info();
+    } else {
+      EventBusUtil.getInstance()
+          .fire(
+          HhToast(title: CommonUtils().msgString(result["msg"]), type: 2));
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+    }
   }
   void runCode() {
     Future.delayed(const Duration(seconds: 1),(){
@@ -187,9 +229,6 @@ class PersonalLoginController extends GetxController {
     String afterEncode = CommonUtils().encryptWithAes(jsonString, aesKey);
     HhLog.d("data $afterEncode");
 
-    Map<String, dynamic> map = {};
-    map['username'] = accountController?.text;
-    map['password'] = passwordController?.text;
     dynamic headers = HhHttp().getLoginHeaders();
     var result = await HhHttp().request(
         RequestUtils.login,

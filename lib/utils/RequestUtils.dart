@@ -26,7 +26,7 @@ class RequestUtils{
   static const logout = '$base/admin-api/system/auth/logout';//登出
   static const versionNew = '$base/system/androidUpgrade/getAndroidUpgradeVersionNew';//查询版本新版-
 
-  static const sendCode = '$base/resource/sms/code?phonenumber';//发送验证码-
+  static const sendCode = '$base/resource/sms/code';//发送验证码-
 
 
   static const codeSend = '$base/codeSend';//发短信

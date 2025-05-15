@@ -18,6 +18,9 @@ class SettingController extends GetxController {
   final Rx<bool> skyStatus = true.obs;
   final Rx<bool> landStatus = true.obs;
   final Rx<bool> landTypeStatus = true.obs;
+  final Rx<bool> warnFilterStatus = true.obs;
+  final Rx<double> warnFilterNumber = 1.0.obs;
+  late bool warnFilter = false;
   final Rx<bool> fireCountStatus = true.obs;
   late List<dynamic> satelliteList = [];
   late List<dynamic> skyList = [
@@ -343,6 +346,20 @@ class SettingController extends GetxController {
             int rowsCount = 0;
             for(int i = 0;i < landTypeList.length;i++){
               dynamic model = landTypeList[i];
+              //土地类型数值初始化
+              if("${model["code"]}"=="woodland"){
+                model["number"] = resultS["data"]["woodlandNumerical"]*1.0;
+              }
+              if("${model["code"]}"=="grassland"){
+                model["number"] = resultS["data"]["grasslandNumerical"]*1.0;
+              }
+              if("${model["code"]}"=="farmland"){
+                model["number"] = resultS["data"]["farmlandNumerical"]*1.0;
+              }
+              if("${model["code"]}"=="otherType"){
+                model["number"] = resultS["data"]["otherTypeNumerical"]*1.0;
+              }
+              //筛选选中状态
               if(landTypeCodeList.contains("${model["code"]}")){
                 model["choose"] = true;
                 rowsCount++;
@@ -350,6 +367,8 @@ class SettingController extends GetxController {
                 model["choose"] = false;
               }
             }
+            warnFilter = "${resultS["data"]["alarmTimeFilter"]}"=="1";
+            warnFilterNumber.value = resultS["data"]["alarmTimeFilterNumerical"]==0?1.0:resultS["data"]["alarmTimeFilterNumerical"]*1.0;
             rows.add({
               "name":"全部",
               "code":8888,
@@ -389,9 +408,27 @@ class SettingController extends GetxController {
       }
     }
     List<dynamic> listLandTypeStr = [];
+    double woodlandNumerical = 0;
+    double grasslandNumerical = 0;
+    double farmlandNumerical = 0;
+    double otherTypeNumerical = 0;
     for(dynamic model in landTypeList){
+      //类型选中状态
       if("${model['code']}" != "8888" && model["choose"] == true){
         listLandTypeStr.add("${model["code"]}");
+      }
+      //类型数值修改
+      if("${model["code"]}"=="woodland"){
+        woodlandNumerical = model["number"];
+      }
+      if("${model["code"]}"=="grassland"){
+        grasslandNumerical = model["number"];
+      }
+      if("${model["code"]}"=="farmland"){
+        farmlandNumerical = model["number"];
+      }
+      if("${model["code"]}"=="otherType"){
+        otherTypeNumerical = model["number"];
       }
     }
     if(listSatelliteStr.isEmpty){
@@ -410,7 +447,13 @@ class SettingController extends GetxController {
       "satelliteSeriesList":listSatelliteStr,
       "landTypeList":listLandTypeStr,
       "overseasHeatSources": otherOut.value?"1":"0",
-      "bufferArea": otherCache.value?"1":"0"
+      "bufferArea": otherCache.value?"1":"0",
+      "woodlandNumerical":woodlandNumerical,
+      "grasslandNumerical":grasslandNumerical,
+      "farmlandNumerical":farmlandNumerical,
+      "otherTypeNumerical":otherTypeNumerical,
+      "alarmTimeFilter":warnFilter?1:0,
+      "alarmTimeFilterNumerical":warnFilterNumber.value,
     };
     var result = await HhHttp().request(RequestUtils.typePermissionEdit,method: DioMethod.post,data: data);
     HhLog.d("typePermissionEdit -- ${RequestUtils.typePermissionEdit} $data");

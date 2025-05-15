@@ -215,7 +215,7 @@ class SettingPage extends StatelessWidget {
     showModalBottomSheet(context: logic.context, builder: (a){
       return Obx(() =>Container(
         width: 1.sw,
-        height: 0.6.sh,
+        height: 0.7.sh,
         padding: EdgeInsets.fromLTRB(15.w*3, 10.w*3, 15.w*3, 10.w*3),
         decoration: BoxDecoration(
             color: HhColors.whiteColor,
@@ -263,6 +263,74 @@ class SettingPage extends StatelessWidget {
                   Text('地貌类型：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
                   SizedBox(width: 5.w*3,),
                   logic.landTypeStatus.value?Expanded(child: Wrap(children: buildLandTypeItems(),)):const SizedBox()
+                ],
+              ),
+              SizedBox(height: 10.w*3,),
+              ///报警过滤
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: 5.w*3),
+                      child: Text('报警过滤：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),)
+                  ),
+                  SizedBox(width: 5.w*3,),
+                  logic.warnFilterStatus.value?Expanded(
+                    child: Row(
+                      children: [
+                        BouncingWidget(
+                          duration: const Duration(milliseconds: 100),
+                          scaleFactor: 0.6,
+                          onPressed: (){
+                            logic.warnFilter = !logic.warnFilter;
+                            logic.warnFilterStatus.value = false;
+                            logic.warnFilterStatus.value = true;
+                            //反选清零(1~12)
+                            if(!logic.warnFilter){
+                              logic.warnFilterNumber.value = 1.roundToDouble();
+                            }
+                          },
+                          child: Container(
+                            margin: EdgeInsets.fromLTRB(5.w*3, 0, 5.w*3, 0),
+                            padding: EdgeInsets.fromLTRB(8.w*3, 3.w*3, 8.w*3, 3.w*3),
+                            decoration: BoxDecoration(
+                                color: logic.warnFilter?HhColors.themeColor:HhColors.blueEAColor,
+                                borderRadius: BorderRadius.circular(12.w*3)
+                            ),
+                            child: Text("屏蔽",style: TextStyle(color: logic.warnFilter?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
+                          ),
+                        ),
+                        SliderTheme(
+                          data: SliderTheme.of(logic.context).copyWith(
+                            activeTrackColor: HhColors.themeColor,         // 已滑过轨道颜色
+                            inactiveTrackColor: Colors.blue[100],  // 未滑过轨道颜色
+                            thumbColor: HhColors.themeColor,               // 拖动点颜色
+                            overlayColor: HhColors.themeColor.withAlpha(32), // 拖动时的圆圈扩散
+                            valueIndicatorColor: HhColors.themeColor,      // 显示的值的背景颜色
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                            tickMarkShape: const RoundSliderTickMarkShape(),
+                            activeTickMarkColor: Colors.transparent,
+                            inactiveTickMarkColor: Colors.transparent,
+                            disabledActiveTickMarkColor: Colors.transparent,
+                            disabledInactiveTickMarkColor: Colors.transparent,
+                          ),
+                          child: Slider(
+                            value: logic.warnFilterNumber.value.roundToDouble(),
+                            min: 1,
+                            max: 12,
+                            divisions: 12,
+                            label: '${logic.warnFilterNumber.value.roundToDouble()}',
+                            onChanged: logic.warnFilter?(val) {
+                              logic.warnFilterNumber.value = val.roundToDouble();
+                              logic.warnFilterStatus.value = false;
+                              logic.warnFilterStatus.value = true;
+                            }:null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ):const SizedBox()
                 ],
               ),
               /*SizedBox(height: 15.w*3,),
@@ -452,21 +520,55 @@ class SettingPage extends StatelessWidget {
     for(int i = 0; i < logic.landTypeList.length; i++){
       dynamic model = logic.landTypeList[i];
       widgets.add(
-          BouncingWidget(
-            duration: const Duration(milliseconds: 100),
-            scaleFactor: 0.6,
-            onPressed: (){
-              model["choose"] = !model["choose"];
-              logic.parseLandTypeChoose(i);
-            },
-            child: Container(
-              margin: EdgeInsets.fromLTRB(5.w*3, 0, 5.w*3, 10.w*3),
-              padding: EdgeInsets.fromLTRB(8.w*3, 3.w*3, 8.w*3, 3.w*3),
-              decoration: BoxDecoration(
-                  color: model["choose"]?HhColors.themeColor:HhColors.blueEAColor,
-                  borderRadius: BorderRadius.circular(12.w*3)
-              ),
-              child: Text("${model['name']}",style: TextStyle(color: model["choose"]?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
+          Container(
+            margin: EdgeInsets.only(bottom: 5.w*3),
+            child: Row(
+              children: [
+                BouncingWidget(
+                  duration: const Duration(milliseconds: 100),
+                  scaleFactor: 0.6,
+                  onPressed: (){
+                    model["choose"] = !model["choose"];
+                    logic.parseLandTypeChoose(i);
+                    //反选清零
+                    if(!model["choose"]){
+                      model["number"] = 0.roundToDouble();
+                    }
+                  },
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(5.w*3, 0, 5.w*3, 0),
+                    padding: EdgeInsets.fromLTRB(8.w*3, 3.w*3, 8.w*3, 3.w*3),
+                    decoration: BoxDecoration(
+                        color: model["choose"]?HhColors.themeColor:HhColors.blueEAColor,
+                        borderRadius: BorderRadius.circular(12.w*3)
+                    ),
+                    child: Text("${model['name']}",style: TextStyle(color: model["choose"]?HhColors.whiteColor:HhColors.gray9TextColor,fontSize: 12.sp*3),),
+                  ),
+                ),
+                model["code"]==8888?const SizedBox():SliderTheme(
+                  data: SliderTheme.of(logic.context).copyWith(
+                    activeTrackColor: HhColors.themeColor,         // 已滑过轨道颜色
+                    inactiveTrackColor: Colors.blue[100],  // 未滑过轨道颜色
+                    thumbColor: HhColors.themeColor,               // 拖动点颜色
+                    overlayColor: HhColors.themeColor.withAlpha(32), // 拖动时的圆圈扩散
+                    valueIndicatorColor: HhColors.themeColor,      // 显示的值的背景颜色
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                  ),
+                  child: Slider(
+                    value: model["number"]!=null?model["number"].roundToDouble():0.0,
+                    min: 0,
+                    max: 100,
+                    divisions: 100,
+                    label: '${model["number"]??0.roundToDouble()}',
+                    onChanged: model["choose"]?(val) {
+                      model["number"] = val.roundToDouble();
+                      logic.landTypeStatus.value = false;
+                      logic.landTypeStatus.value = true;
+                    }:null,
+                  ),
+                ),
+              ],
             ),
           )
       );

@@ -396,17 +396,17 @@ class PersonalLoginPage extends StatelessWidget {
                         ),
                       ):const SizedBox(),
                       SizedBox(height: 30.w,),
-                      // InkWell(
-                      //   onTap: (){
-                      //     logic.phoneMode.value = !logic.phoneMode.value;
-                      //   },
-                      //   child: Container(
-                      //     padding: EdgeInsets.all(10.w*3),
-                      //       child: Text(logic.phoneMode.value?"密码登录":"手机号登录",
-                      //         style: TextStyle(color: HhColors.grayCCTextColor,
-                      //             fontSize: 13.sp*3),)
-                      //   ),
-                      // ),
+                      InkWell(
+                        onTap: (){
+                          logic.phoneMode.value = !logic.phoneMode.value;
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(10.w*3),
+                            child: Text(logic.phoneMode.value?"密码登录":"手机号登录",
+                              style: TextStyle(color: HhColors.grayCCTextColor,
+                                  fontSize: 13.sp*3),)
+                        ),
+                      ),
                     ],
                   ),
                 ),

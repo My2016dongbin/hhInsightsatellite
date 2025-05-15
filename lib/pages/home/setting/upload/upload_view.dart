@@ -446,7 +446,7 @@ class UploadPage extends StatelessWidget {
               duration: const Duration(milliseconds: 100),
               scaleFactor: 0.2,
               onPressed: (){
-                if(file.path.contains("jpg")||file.path.contains("png")){
+                if(file.path.contains("jpg")||file.path.contains("png")||file.path.contains("gif")){
                   CommonUtils().showPictureFileDialog(logic.context, file:File(file.path));
                 }else{
                   CommonUtils().showVideoFileDialog(logic.context, file:File(file.path));
@@ -468,7 +468,7 @@ class UploadPage extends StatelessWidget {
                           },
                           child: Image.asset('assets/images/common/ic_delete.png',width:16.w*3,height: 16.w*3,fit: BoxFit.fill,))
                       ),
-                      file.path.contains("jpg")||file.path.contains("png")?const SizedBox():Align(alignment: Alignment.center,child: Icon(Icons.play_circle,size: 26.w*3,color: HhColors.gray9TextColor,)
+                      file.path.contains("jpg")||file.path.contains("png")||file.path.contains("gif")?const SizedBox():Align(alignment: Alignment.center,child: Icon(Icons.play_circle,size: 26.w*3,color: HhColors.gray9TextColor,)
                       ),
                     ],
                   )
@@ -478,8 +478,10 @@ class UploadPage extends StatelessWidget {
       }
       if(logic.pictureList.length < logic.pictureMaxValue){
         listW.add(
-          InkWell(
-            onTap: (){
+          BouncingWidget(
+            duration: const Duration(milliseconds: 100),
+            scaleFactor: 0.2,
+            onPressed: (){
               showChooseTypeDialog();
             },
             child: Container(
@@ -491,8 +493,10 @@ class UploadPage extends StatelessWidget {
       }
     }else{
       listW.add(
-        InkWell(
-          onTap: (){
+        BouncingWidget(
+          duration: const Duration(milliseconds: 100),
+          scaleFactor: 0.2,
+          onPressed: (){
             showChooseTypeDialog();
           },
           child: Container(
