@@ -555,6 +555,7 @@ class HomePage extends StatelessWidget {
                             },
                             child: Container(
                               margin: EdgeInsets.only(top: 3.w*3),
+                              color: HhColors.trans,
                               height: 100.w,
                               child: Row(
                                 children: [
@@ -572,6 +573,7 @@ class HomePage extends StatelessWidget {
                             },
                             child: Container(
                               margin: EdgeInsets.only(top: 3.w*3),
+                              color: HhColors.trans,
                               height: 100.w,
                               child: Row(
                                 children: [
@@ -589,6 +591,7 @@ class HomePage extends StatelessWidget {
                             },
                             child: Container(
                               margin: EdgeInsets.only(top: 3.w*3),
+                              color: HhColors.trans,
                               height: 100.w,
                               child: Row(
                                 children: [
@@ -606,6 +609,7 @@ class HomePage extends StatelessWidget {
                             },
                             child: Container(
                               margin: EdgeInsets.only(top: 3.w*3),
+                              color: HhColors.trans,
                               height: 100.w,
                               child: Row(
                                 children: [
@@ -852,7 +856,7 @@ class HomePage extends StatelessWidget {
                   alignment: Alignment.topCenter,
                   child: Container(
                       margin: EdgeInsets.only(top: 10.w*3),
-                      child: Text("请选择省",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                      child: Text("请选择区域",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
                   )
               ),
               Align(
@@ -905,27 +909,96 @@ class HomePage extends StatelessWidget {
                         Navigator.pop(context);
                         return;
                       }
-                      logic.cityList = [];
-                      logic.getCity(logic.provinceList[index]["areaCode"]);
+                      ///选择了省数据
+                      if(logic.provinceList[index]["level"]==1){
+                        logic.cityList = [];
+                        logic.getCity(logic.provinceList[index]["areaCode"]);
 
-                      logic.provinceIndex.value = index;
-                      logic.province.value = logic.provinceList[logic.provinceIndex.value]["name"];
-                      logic.provinceCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];
-                      Navigator.pop(context);
-                      ///更新市区数据
-                      // logic.cityList.clear();
-                      logic.cityIndex.value = 0;
-                      logic.city.value = "请选择市";
+                        logic.provinceIndex.value = index;
+                        logic.province.value = logic.provinceList[logic.provinceIndex.value]["name"];
+                        logic.provinceCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];
+                        Navigator.pop(context);
+                        ///更新市区数据
+                        // logic.cityList.clear();
+                        logic.cityIndex.value = 0;
+                        logic.city.value = "请选择市";
 
-                      logic.areaIndex.value = 0;
-                      logic.area.value = "请选择区";
-                      logic.areaList = [];
+                        logic.areaIndex.value = 0;
+                        logic.area.value = "请选择区";
+                        logic.areaList = [];
 
-                      logic.streetIndex.value = 0;
-                      logic.street.value = "请选择街道";
-                      logic.streetList = [];
+                        logic.streetIndex.value = 0;
+                        logic.street.value = "请选择街道";
+                        logic.streetList = [];
 
-                      delayChooseCity();
+                        delayChooseCity();
+                      }
+                      ///选择了市数据
+                      if(logic.provinceList[index]["level"]==2){
+                        logic.province.value = "请选择省";//
+                        logic.provinceCode = "";//
+                        logic.cityList = [];
+                        logic.cityIndex.value = 0;
+
+                        logic.areaList = [];
+                        logic.getArea(logic.provinceList[index]["areaCode"]);//
+
+                        logic.provinceIndex.value = index;//
+                        logic.city.value = logic.provinceList[logic.provinceIndex.value]["name"];//
+                        logic.cityCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];//
+                        Navigator.pop(context);
+                        ///更新区数据
+                        logic.areaIndex.value = 0;
+                        logic.area.value = "请选择区";
+                        ///更新街道数据
+                        logic.streetIndex.value = 0;
+                        logic.street.value = "请选择街道";
+                        logic.streetList = [];
+
+                        delayChooseArea();
+                      }
+                      ///选择了区数据
+                      if(logic.provinceList[index]["level"]==3){
+                        logic.province.value = "请选择省";//
+                        logic.provinceCode = "";//
+                        logic.areaList = [];
+                        logic.areaIndex.value = 0;
+                        logic.cityList = [];
+                        logic.cityIndex.value = 0;
+                        logic.city.value = "请选择市";//
+
+                        logic.streetList = [];
+                        logic.getStreet(logic.provinceList[index]["areaCode"]);//
+
+                        logic.provinceIndex.value = index;//
+                        logic.area.value = logic.provinceList[logic.provinceIndex.value]["name"];//
+                        logic.areaCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];//
+                        Navigator.pop(context);
+
+                        ///更新街道数据
+                        logic.streetIndex.value = 0;
+                        logic.street.value = "请选择街道";
+
+                        delayChooseStreet();
+                      }
+                      ///选择了街道数据
+                      if(logic.provinceList[index]["level"]==4){
+                        logic.province.value = "请选择省";//
+                        logic.provinceCode = "";//
+                        logic.streetList = [];
+                        logic.streetIndex.value = 0;
+                        logic.areaList = [];
+                        logic.areaIndex.value = 0;
+                        logic.cityList = [];
+                        logic.cityIndex.value = 0;
+                        logic.city.value = "请选择市";//
+                        logic.area.value = "请选择区";//
+
+                        logic.provinceIndex.value = index;//
+                        logic.street.value = logic.provinceList[logic.provinceIndex.value]["name"];//
+                        logic.streetCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];//
+                        Navigator.pop(context);
+                      }
                     },
                   ),
                 ],

@@ -1,11 +1,13 @@
 
 class RequestUtils{
-  static const base = 'http://192.168.1.88:51158';//外网
-  // static const base = 'http://192.168.1.88:8011/api';//外网
+  static const base = 'http://192.168.1.88:51158';//app
+  // static const base = 'http://192.168.1.88:9528/api';//web
+  // static const base = 'http://192.168.1.88:8011/api';//out
   // static const base = 'http://192.168.1.103:9900';//debug
 
   static const login = '$base/auth/login';//密码登录-
   static const userInfo = '$base/system/user/getInfo/app';//个人信息查询-
+  // static const userInfo = '$base/system/user/getInfo';//web个人信息查询-
   static const userDays = '$base/system/user/checkStatus';//个人期限查询-
   static const fireSearch = '$base/haohai-satellite/SatelliteFireAlarm/page';//火警分页查询-
   static const fireSearchInfo = '$base/haohai-satellite/SatelliteFireAlarm/getById';//火警详情查询-
@@ -23,6 +25,8 @@ class RequestUtils{
   static const gridSearch = '$base/system/area/userList';//'$base/system/area/listAll';//省市区查询-用户权限
   static const logout = '$base/admin-api/system/auth/logout';//登出
   static const versionNew = '$base/system/androidUpgrade/getAndroidUpgradeVersionNew';//查询版本新版-
+
+  static const sendCode = '$base/resource/sms/code?phonenumber';//发送验证码-
 
 
   static const codeSend = '$base/codeSend';//发短信

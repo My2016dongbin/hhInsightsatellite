@@ -171,6 +171,8 @@ class UploadController extends GetxController {
     Map<String, dynamic> map = {};
     map['parentCode'] = code;
     var result = await HhHttp().request(RequestUtils.gridSearchAll,method: DioMethod.get,params:map);
+    HhLog.d("gridSearch -- ${RequestUtils.gridSearchAll}");
+    HhLog.d("gridSearch -- $map");
     HhLog.d("gridSearch -- $result");
     if(result["code"]==200 && result["data"]!=null){
       provinceList = result["data"];

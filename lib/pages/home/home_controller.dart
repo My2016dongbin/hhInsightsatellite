@@ -1739,6 +1739,7 @@ class HomeController extends GetxController {
       provinceList.add({
         "areaCode":"999",
         "name":"请选择省",
+        "level":"1",
       });
       provinceList.addAll(result["data"]);
     }else{
@@ -1760,6 +1761,7 @@ class HomeController extends GetxController {
       cityList.add({
         "areaCode":"999",
         "name":"请选择市",
+        "level":"2",
       });
       cityList.addAll(result["data"]);
     }else{
@@ -1779,6 +1781,7 @@ class HomeController extends GetxController {
       areaList.add({
         "areaCode":"999",
         "name":"请选择区",
+        "level":"3",
       });
       areaList.addAll(result["data"]);
     }else{
@@ -1798,6 +1801,7 @@ class HomeController extends GetxController {
       streetList.add({
         "areaCode":"999",
         "name":"请选择街道",
+        "level":"4",
       });
       streetList.addAll(result["data"]);
     }else{

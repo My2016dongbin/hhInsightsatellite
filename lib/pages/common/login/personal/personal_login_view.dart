@@ -133,10 +133,11 @@ class PersonalLoginPage extends StatelessWidget {
                                 child: TextField(
                                   textAlign: TextAlign.left,
                                   maxLines: 1,
-                                  maxLength: 20,
+                                  maxLength: 11,
                                   cursorColor: HhColors.titleColor_99,
                                   controller: logic.phoneController,
-                                  keyboardType: TextInputType.text,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.fromLTRB(20.w*3, 0, 0, 0),
                                     border: const OutlineInputBorder(
@@ -256,6 +257,7 @@ class PersonalLoginPage extends StatelessWidget {
                                   cursorColor: HhColors.titleColor_99,
                                   controller: logic.codeController,
                                   keyboardType: TextInputType.number,
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.fromLTRB(20.w*3, 0, 0, 0),
                                     border: const OutlineInputBorder(
@@ -282,11 +284,34 @@ class PersonalLoginPage extends StatelessWidget {
                                   logic.codeStatus.value = false;
                                 },
                                 child: Container(
-                                    padding: EdgeInsets.all(5.w*3),
+                                    padding: EdgeInsets.all(10.w*3),
                                     child: Image.asset('assets/images/common/ic_close_white.png',height:18.w*3,width: 18.w*3,fit: BoxFit.fill,)
                                 ),
                               ):const SizedBox(),
-                              SizedBox(width: 12.w*3,),
+                              ///发送验证码
+                              BouncingWidget(
+                                duration: const Duration(milliseconds: 100),
+                                scaleFactor: 1.2,
+                                onPressed: (){
+                                  if(logic.time.value>0){
+                                    return;
+                                  }
+                                  if(logic.phoneController!.text.length < 11){
+                                    EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的手机号"));
+                                    return;
+                                  }
+                                  logic.sendCode();
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.fromLTRB(0, 0, 5.w*3, 0),
+                                    padding: EdgeInsets.fromLTRB(10.w*3, 5.w*3, 20.w*3, 5.w*3),
+                                    color: HhColors.trans,
+                                    child: Text(
+                                        logic.codeStr.value,
+                                      style: TextStyle(color: HhColors.whiteColor,fontSize: 14.sp*3),
+                                    ),
+                                ),
+                              )
                             ],
                           ),
                         ),
@@ -340,19 +365,19 @@ class PersonalLoginPage extends StatelessWidget {
                           FocusScope.of(Get.context!).requestFocus(FocusNode());
 
                           ///登录点击
-                          if(logic.accountController!.text.isEmpty){
-                            EventBusUtil.getInstance().fire(HhToast(title: '账号不能为空'));
+                          if(logic.phoneController!.text.isEmpty){
+                            EventBusUtil.getInstance().fire(HhToast(title: '手机号不能为空'));
                             return;
                           }
-                          if(logic.passwordController!.text.isEmpty){
-                            EventBusUtil.getInstance().fire(HhToast(title: '密码不能为空'));
+                          if(logic.codeController!.text.isEmpty){
+                            EventBusUtil.getInstance().fire(HhToast(title: '验证码不能为空'));
                             return;
                           }
                           if (!logic.confirmStatus.value) {
                             showAgreeDialog();
                             return;
                           }
-                          logic.login();
+                          logic.loginCode();
                         },
                         child: Container(
                           width: 1.sw,

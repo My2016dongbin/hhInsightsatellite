@@ -27,6 +27,7 @@ class PersonalLoginController extends GetxController {
   final Rx<bool> passwordStatus = false.obs;
   final Rx<bool> passwordShowStatus = false.obs;
   final Rx<bool> confirmStatus = true.obs;
+  final Rx<String> codeStr = '发送验证码'.obs;
   final Rx<bool> phoneMode = false.obs;
   TextEditingController? accountController = TextEditingController();
   TextEditingController? passwordController = TextEditingController();
@@ -38,6 +39,7 @@ class PersonalLoginController extends GetxController {
   late StreamSubscription showLoadingSubscription;
   late String? account;
   late String? password;
+  final Rx<int> time = 0.obs;
 
   @override
   void onClose() {
@@ -131,6 +133,39 @@ class PersonalLoginController extends GetxController {
     super.onInit();
   }
 
+  Future<void> sendCode() async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    Map<String, dynamic> map = {};
+    map["phonenumber"] = phoneController!.text;
+    var result = await HhHttp().request(
+      RequestUtils.sendCode,
+      method: DioMethod.get,
+      params: map,
+    );
+    HhLog.d("sendCode $result");
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    if (result != null && result["code"]==200) {
+      EventBusUtil.getInstance().fire(HhToast(title: "发送成功"));
+      time.value = 60;
+      runCode();
+    } else {
+
+    }
+  }
+  Future<void> loginCode() async {
+
+  }
+  void runCode() {
+    Future.delayed(const Duration(seconds: 1),(){
+      time.value--;
+      if(time.value > 0){
+        codeStr.value = "${time.value}秒后重试";
+        runCode();
+      }else{
+        codeStr.value = "发送验证码";
+      }
+    });
+  }
   Future<void> login() async {
     EventBusUtil.getInstance().fire(HhLoading(show: true));
     dynamic data = {
@@ -188,6 +223,7 @@ class PersonalLoginController extends GetxController {
       method: DioMethod.get,
       params: map,
     );
+    HhLog.d("userInfo -- ${RequestUtils.userInfo}");
     HhLog.d("userInfo -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     if (result != null) {
@@ -203,7 +239,7 @@ class PersonalLoginController extends GetxController {
       prefs.setString(SPKeys().userType, '${result["data"]["user"]["userType"]}');
       prefs.setString(SPKeys().deptName, '${result["data"]["user"]["deptName"]}');
       prefs.setString(SPKeys().mobile, '${result["data"]["user"]["phonenumber"]}');
-      prefs.setString(SPKeys().permissions, '${result["data"]["user"]["permissions"]}');
+      prefs.setString(SPKeys().permissions, '${result["data"]["permissions"]}');
       prefs.setBool(SPKeys().voice, true);
 
       XgFlutterPlugin().deleteTags(['${result["data"]["user"]["userId"]}']);
