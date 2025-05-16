@@ -308,7 +308,7 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-    // postBridgeBuffer();//缓冲区区域边界
+    postBridgeBuffer();//缓冲区区域边界
     postDays();
     postType();
     Future.delayed(const Duration(milliseconds: 2000),(){
@@ -1304,18 +1304,18 @@ class HomeController extends GetxController {
         }
 
         initMarker();
-        // ✅ 最终成功状态
+        // 最终成功状态
         // easyController.finishLoad(IndicatorResult.success, true);
         return 1;
       }else{
         EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
-        // easyController.finishLoad(IndicatorResult.success, true); // ❗失败状态
+        // easyController.finishLoad(IndicatorResult.success, true); //失败状态
         return 0;
       }
     }catch(e){
       HhLog.e("postFire error: $e");
       EventBusUtil.getInstance().fire(HhToast(title: "加载失败"));
-      // easyController.finishLoad(IndicatorResult.success, true); // ❗异常时也要关闭动画
+      // easyController.finishLoad(IndicatorResult.success, true); //异常时也要关闭动画
       return 0;
     }
   }
@@ -2033,7 +2033,7 @@ class HomeController extends GetxController {
           case 2:
             easyController.finishLoad(IndicatorResult.noMore, true);
 
-            /// 🔽 滚动触发 UI 重建（避免 noMore 卡菊花）
+            ///滚动触发 UI 重建（避免 noMore 卡菊花）
             if (scrollController.hasClients) {
               try {
                 scrollController.animateTo(
