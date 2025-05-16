@@ -308,8 +308,7 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-    // postBridge();//区域边界
-    postBridgeBuffer();//缓冲区区域边界
+    // postBridgeBuffer();//缓冲区区域边界
     postDays();
     postType();
     Future.delayed(const Duration(milliseconds: 2000),(){
@@ -847,14 +846,15 @@ class HomeController extends GetxController {
                   pageNum = 1;
                   postFire(false);
                 },
-                onLoad: (){
+                onLoad: () async {
                   int now = DateTime.now().millisecondsSinceEpoch;
                   HhLog.d("loadMore now ${now - postFireLong}");
-                  if(now - postFireLong > 2000){
+                  if(now - postFireLong > 500){
                     postFireLong = now;
                     pageNum++;
-                    postFire(false);
                     HhLog.d(" loadMore load $pageNum");
+                    int success = await postFire(false);
+                    safeFinishLoad(success, fireScrollController);
                   }else{
                     HhLog.d(" loadMore wait");
                     easyController.finishLoad(IndicatorResult.none,true);
@@ -871,23 +871,6 @@ class HomeController extends GetxController {
                       width: 0.3.sw,),
                     firstPageProgressIndicatorBuilder: (context) => Container(),
                     itemBuilder: (context, item, index) {
-                      /*bool hasTimeBefore = false;
-                      bool hasNoBefore = false;
-                      if(fireTypeByTime.value){
-                        if(filterTimeList.contains("${item["observeTimestr"]}")){
-                          hasTimeBefore = true;
-                        }else{
-                          filterTimeList.clear();
-                          filterTimeList.add("${item["observeTimestr"]}");
-                        }
-                      }else{
-                        if(filterNoList.contains("${item["fireNo"]}")){
-                          hasNoBefore = true;
-                        }else{
-                          filterNoList.clear();
-                          filterNoList.add("${item["fireNo"]}");
-                        }
-                      }*/
                       return InkWell(
                         onTap: () async {
                           Get.back();
@@ -904,7 +887,7 @@ class HomeController extends GetxController {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            /*hasTimeBefore||*/index==0?const SizedBox():Container(
+                            index==0?const SizedBox():Container(
                               height: 1.w,
                               width: 1.sw,
                               color: HhColors.line25Color,
@@ -1225,7 +1208,7 @@ class HomeController extends GetxController {
     },isDismissible: true,enableDrag: false,isScrollControlled: true);
   }
 
-  Future<void> postFire(bool showList) async {
+  Future<int> postFire(bool showList) async {
     if(!isFromPush){
       EventBusUtil.getInstance().fire(HhLoading(show: true));
     }
@@ -1272,54 +1255,68 @@ class HomeController extends GetxController {
     if(otherOutShow.value){
       map['overseasHeatSources'] = otherOut.value?"1":"0";
     }
-    var result = await HhHttp().request(RequestUtils.fireSearch,method: DioMethod.get,params:map);
-    HhLog.d("fireSearch -- ${RequestUtils.fireSearch} -- $map ");
-    HhLog.d("fireSearch -- $result");
-    EventBusUtil.getInstance().fire(HhLoading(show: false));
-    easyController.finishLoad(IndicatorResult.success,true);
-    if(result["code"]==200){
-      newItems = result["rows"];
-      fireCount.value = result["total"];
-      if(newItems.isEmpty && pageNum == 1){
-        fireController.itemList = [];
-        myMapController.cleanAllMarkers();
-        fireMarkerList.clear();
-        allFireList = [];
-      }
-      //处理页数
-      try{
-        double pageAll = fireCount.value/pageSize;
-        if(pageNum*1.0 > pageAll && (pageNum*1.0 - pageAll >= 1)){
-          easyController.finishLoad(IndicatorResult.noMore,true);
-          if(showList){
-            fireListDialog();
+    try{
+      var result = await HhHttp().request(RequestUtils.fireSearch,method: DioMethod.get,params:map);
+      HhLog.d("fireSearch -- ${RequestUtils.fireSearch} -- $map ");
+      HhLog.d("fireSearch -- $result");
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+      // easyController.finishLoad(IndicatorResult.success,true);
+      if(result["code"]==200){
+        newItems = result["rows"];
+        fireCount.value = result["total"];
+        if(newItems.isEmpty && pageNum == 1){
+          fireController.itemList = [];
+          myMapController.cleanAllMarkers();
+          fireMarkerList.clear();
+          allFireList = [];
+        }
+        //处理页数
+        try{
+          double pageAll = fireCount.value/pageSize;
+          bool isLastPage = (pageNum * 1.0) >= pageAll;
+          if(isLastPage && newItems.isNotEmpty){
+            // easyController.finishLoad(IndicatorResult.noMore,true);
+            if(showList){
+              fireListDialog();
+            }
+            return 2;
           }
-          return;
+        }catch(e){
+          HhLog.d("fireSearch catch -- $result");
         }
-      }catch(e){
-        HhLog.d("fireSearch catch -- $result");
-      }
 
-      if (pageNum == 1) {
-        fireController.itemList = [];
-        allFireList = [];
+        if (pageNum == 1) {
+          fireController.itemList = [];
+          allFireList = [];
+        }else{
+          if(newItems.isEmpty){
+            // easyController.finishLoad(IndicatorResult.noMore,true);
+            return 2;
+          }
+        }
+        allFireList.addAll(newItems);
+
+        //处理数据
+        parseData();
+
+        if(showList){
+          fireListDialog();
+        }
+
+        initMarker();
+        // ✅ 最终成功状态
+        // easyController.finishLoad(IndicatorResult.success, true);
+        return 1;
       }else{
-        if(newItems.isEmpty){
-          easyController.finishLoad(IndicatorResult.noMore,true);
-        }
+        EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
+        // easyController.finishLoad(IndicatorResult.success, true); // ❗失败状态
+        return 0;
       }
-      allFireList.addAll(newItems);
-
-      //处理数据
-      parseData();
-
-      if(showList){
-        fireListDialog();
-      }
-
-      initMarker();
-    }else{
-      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
+    }catch(e){
+      HhLog.e("postFire error: $e");
+      EventBusUtil.getInstance().fire(HhToast(title: "加载失败"));
+      // easyController.finishLoad(IndicatorResult.success, true); // ❗异常时也要关闭动画
+      return 0;
     }
   }
 
@@ -2026,4 +2023,33 @@ class HomeController extends GetxController {
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
     }
   }
+  void safeFinishLoad(int result, ScrollController scrollController) {
+    Future.delayed(const Duration(milliseconds: 50), () {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        switch (result) {
+          case 1:
+            easyController.finishLoad(IndicatorResult.success, true);
+            break;
+          case 2:
+            easyController.finishLoad(IndicatorResult.noMore, true);
+
+            /// 🔽 滚动触发 UI 重建（避免 noMore 卡菊花）
+            if (scrollController.hasClients) {
+              try {
+                scrollController.animateTo(
+                  scrollController.offset - 10, // 滚动极小距离
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.linear,
+                );
+              } catch (_) {}
+            }
+            break;
+          default:
+            easyController.finishLoad(IndicatorResult.fail, true);
+        }
+      });
+    });
+  }
+
+
 }
