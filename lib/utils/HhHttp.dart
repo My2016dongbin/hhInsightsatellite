@@ -134,7 +134,15 @@ class HhHttp {
         CommonUtils().tokenDown();
       }
       if(parse500('${response.data}')){
-        EventBusUtil.getInstance().fire(HhToast(title: "服务异常请稍后重试"));
+        try{
+          if(response.data["msg"]!=null){
+            EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${response.data["msg"]}"), type: 2));
+          }else{
+            EventBusUtil.getInstance().fire(HhToast(title: "服务异常请稍后重试"));
+          }
+        }catch(e){
+          EventBusUtil.getInstance().fire(HhToast(title: "服务异常请稍后重试"));
+        }
       }
       return response.data;
     } on DioException catch (e) {

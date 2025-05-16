@@ -12,6 +12,7 @@ import 'package:insightsatellite/pages/common/login/personal/personal_login_cont
 import 'package:insightsatellite/pages/common/web/WebViewPage.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
+import 'package:insightsatellite/utils/RegexUtils.dart';
 
 class PersonalLoginPage extends StatelessWidget {
   final logic = Get.find<PersonalLoginController>();
@@ -152,6 +153,7 @@ class PersonalLoginPage extends StatelessWidget {
                                   TextStyle(color: HhColors.whiteColor, fontSize: 15.sp*3,fontWeight: FontWeight.bold),
                                   onChanged: (s){
                                     logic.phoneStatus.value = s.isNotEmpty;
+                                    logic.codeSend.value = false;
                                   },
                                 ),
                               ),
@@ -296,8 +298,12 @@ class PersonalLoginPage extends StatelessWidget {
                                   if(logic.time.value>0){
                                     return;
                                   }
+                                  if(!RegexUtils.isMobile(logic.phoneController!.text)){
+                                    EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的手机号！"));
+                                    return;
+                                  }
                                   if(logic.phoneController!.text.length < 11){
-                                    EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的手机号"));
+                                    EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的手机号！"));
                                     return;
                                   }
                                   logic.sendCode();
@@ -369,8 +375,12 @@ class PersonalLoginPage extends StatelessWidget {
                             EventBusUtil.getInstance().fire(HhToast(title: '手机号不能为空'));
                             return;
                           }
+                          if(!logic.codeSend.value){
+                            EventBusUtil.getInstance().fire(HhToast(title: '请进行手机发送验证码操作！'));
+                            return;
+                          }
                           if(logic.codeController!.text.isEmpty){
-                            EventBusUtil.getInstance().fire(HhToast(title: '验证码不能为空'));
+                            EventBusUtil.getInstance().fire(HhToast(title: '请输入正确的验证码！'));
                             return;
                           }
                           if (!logic.confirmStatus.value) {

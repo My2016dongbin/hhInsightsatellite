@@ -39,6 +39,7 @@ class PersonalLoginController extends GetxController {
   late StreamSubscription showLoadingSubscription;
   late String? account;
   late String? password;
+  final Rx<bool> codeSend = false.obs;
   final Rx<int> time = 0.obs;
 
   @override
@@ -147,11 +148,12 @@ class PersonalLoginController extends GetxController {
     HhLog.d("sendCode $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     if (result != null && result["code"]==200) {
+      codeSend.value = true;
       EventBusUtil.getInstance().fire(HhToast(title: "发送成功",type: 1));
       time.value = 180;
       runCode();
     } else {
-
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}"), type: 2));
     }
   }
   Future<void> loginCode() async {
@@ -191,9 +193,7 @@ class PersonalLoginController extends GetxController {
 
       info();
     } else {
-      EventBusUtil.getInstance()
-          .fire(
-          HhToast(title: CommonUtils().msgString(result["msg"]), type: 2));
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("请输入正确的验证码！"), type: 2));
       EventBusUtil.getInstance().fire(HhLoading(show: false));
     }
   }
