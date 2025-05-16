@@ -94,6 +94,7 @@ class HomeController extends GetxController {
   final Rx<bool> skyStatus = true.obs;
   final Rx<bool> landStatus = true.obs;
   final Rx<bool> landTypeStatus = true.obs;
+  final Rx<bool> gridMoreStatus = true.obs;
   late List<dynamic> satelliteList = [];
   late List<dynamic> skyList = [
     {
@@ -166,6 +167,10 @@ class HomeController extends GetxController {
   late int postFireLong = 0;
   late List<dynamic> bridgeData = [];
   late int bridgeTimes = 0;
+
+  //多区域选择（第一条固定，后面的为列表数据）
+  late RxList<dynamic> gridSearchList = [].obs;
+  late Rx<int> gridSearchIndex = 0.obs;
 
   Future<void> requestNotificationPermission() async {
     // 检查是否已经获得通知权限
@@ -308,7 +313,7 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-    postBridgeBuffer();//缓冲区区域边界
+    // postBridgeBuffer();//缓冲区区域边界
     postDays();
     postType();
     Future.delayed(const Duration(milliseconds: 2000),(){
@@ -1243,6 +1248,40 @@ class HomeController extends GetxController {
         }
       }
     }
+    for(int i = 0; i < gridSearchList.length; i++){
+      dynamic gridModel = gridSearchList[i];
+      if(gridModel["streetCode"].isNotEmpty){
+        if(map['areaCode']==null||map['areaCode']==""){
+          map['areaCode'] = gridModel["streetCode"];
+        }else{
+          map['areaCode'] += ",${gridModel["streetCode"]}";
+        }
+      }else{
+        if(gridModel["areaCode"].isNotEmpty){
+          if(map['areaCode']==null||map['areaCode']==""){
+            map['areaCode'] = gridModel["areaCode"];
+          }else{
+            map['areaCode'] += ",${gridModel["areaCode"]}";
+          }
+        }else{
+          if(gridModel["cityCode"].isNotEmpty){
+            if(map['areaCode']==null||map['areaCode']==""){
+              map['areaCode'] = gridModel["cityCode"];
+            }else{
+              map['areaCode'] += ",${gridModel["cityCode"]}";
+            }
+          }else{
+            if(gridModel["provinceCode"].isNotEmpty){
+              if(map['areaCode']==null||map['areaCode']==""){
+                map['areaCode'] = gridModel["provinceCode"];
+              }else{
+                map['areaCode'] += ",${gridModel["provinceCode"]}";
+              }
+            }
+          }
+        }
+      }
+    }
     map['satelliteSeriesList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['landTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
@@ -1275,6 +1314,11 @@ class HomeController extends GetxController {
           double pageAll = fireCount.value/pageSize;
           bool isLastPage = (pageNum * 1.0) >= pageAll;
           if(isLastPage && newItems.isNotEmpty){
+            if(pageNum ==1){
+              allFireList.addAll(newItems);
+              //处理数据
+              parseData();
+            }
             // easyController.finishLoad(IndicatorResult.noMore,true);
             if(showList){
               fireListDialog();
@@ -1746,6 +1790,33 @@ class HomeController extends GetxController {
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
   }
+  void getCountryMore(String code,int indexMore) async {
+    gridSearchList[indexMore]["provinceIndex"] = 0;
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    gridSearchList[indexMore]["provinceList"] = [];
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
+    // map['level'] = 0;
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    HhLog.d("gridSearch -- ${RequestUtils.gridSearch}");
+    HhLog.d("gridSearch -- $map");
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      gridSearchList[indexMore]["provinceList"] = [];
+      gridSearchList[indexMore]["provinceList"].add({
+        "areaCode":"999",
+        "name":"请选择省",
+        "level":"1",
+      });
+      gridSearchList[indexMore]["provinceList"].addAll(result["data"]);
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
   void getProvince(String code) async {
     provinceIndex.value = 0;
     EventBusUtil.getInstance().fire(HhLoading(show: true));
@@ -1768,6 +1839,32 @@ class HomeController extends GetxController {
         "level":"1",
       });
       provinceList.addAll(result["data"]);
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
+  void getProvinceMore(String code, int indexMore) async {
+    gridSearchList[indexMore]["provinceIndex"] = 0;
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    Map<String, dynamic> map = {};
+    map['parentCode'] = "";
+    map['level'] = 0;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    HhLog.d("gridSearch -- ${RequestUtils.gridSearch}");
+    HhLog.d("gridSearch -- $map");
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      gridSearchList[indexMore]["provinceList"] = [];
+      gridSearchList[indexMore]["provinceList"].add({
+        "areaCode":"999",
+        "name":"请选择省",
+        "level":"1",
+      });
+      gridSearchList[indexMore]["provinceList"].addAll(result["data"]);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
@@ -1796,6 +1893,30 @@ class HomeController extends GetxController {
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
   }
+  void getCityMore(String code,int indexMore) async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    HhLog.d("gridSearch -- ${RequestUtils.gridSearch}");
+    HhLog.d("gridSearch -- $map");
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      gridSearchList[indexMore]["cityList"] = [];
+      gridSearchList[indexMore]["cityList"].add({
+        "areaCode":"999",
+        "name":"请选择市",
+        "level":"2",
+      });
+      gridSearchList[indexMore]["cityList"].addAll(result["data"]);
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
   void getArea(String code) async {
     EventBusUtil.getInstance().fire(HhLoading(show: true));
     Map<String, dynamic> map = {};
@@ -1818,6 +1939,28 @@ class HomeController extends GetxController {
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }
   }
+  void getAreaMore(String code,int indexMore) async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      gridSearchList[indexMore]["areaList"] = [];
+      gridSearchList[indexMore]["areaList"].add({
+        "areaCode":"999",
+        "name":"请选择区",
+        "level":"3",
+      });
+      gridSearchList[indexMore]["areaList"].addAll(result["data"]);
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
   void getStreet(String code) async {
     EventBusUtil.getInstance().fire(HhLoading(show: true));
     Map<String, dynamic> map = {};
@@ -1836,6 +1979,28 @@ class HomeController extends GetxController {
         "level":"4",
       });
       streetList.addAll(result["data"]);
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
+  }
+  void getStreetMore(String code,int indexMore) async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    Map<String, dynamic> map = {};
+    map['parentCode'] = code;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['tenantId'] = prefs.getString(SPKeys().tenantId)??"000000";
+    map['userId'] = prefs.getString(SPKeys().id)??"1";
+    var result = await HhHttp().request(RequestUtils.gridSearch,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    HhLog.d("gridSearch -- $result");
+    if(result["code"]==200 && result["data"]!=null){
+      gridSearchList[indexMore]["streetList"] = [];
+      gridSearchList[indexMore]["streetList"].add({
+        "areaCode":"999",
+        "name":"请选择街道",
+        "level":"4",
+      });
+      gridSearchList[indexMore]["streetList"].addAll(result["data"]);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
     }

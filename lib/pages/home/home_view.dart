@@ -538,92 +538,150 @@ class HomePage extends StatelessWidget {
               SizedBox(height: 10.w*3,),
               ///区域查询
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('区域查询：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
+                  Container(
+                    margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text('区域查询：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),)
+                  ),
 
                   Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(width: 10.w*3,),
-                          GestureDetector(
-                            onTap: (){
-                              logic.getProvince(CommonData.china);
-                              delayChooseProvince();
-                            },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10.w*3,),
+                              GestureDetector(
+                                onTap: (){
+                                  logic.getProvince(CommonData.china);
+                                  delayChooseProvince();
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 3.w*3),
+                                  color: HhColors.trans,
+                                  height: 100.w,
+                                  child: Row(
+                                    children: [
+                                      Text(logic.province.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                                      SizedBox(width: 2.w*3,),
+                                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10.w*3,),
+                              GestureDetector(
+                                onTap: (){
+                                  chooseCity();
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 3.w*3),
+                                  color: HhColors.trans,
+                                  height: 100.w,
+                                  child: Row(
+                                    children: [
+                                      Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                                      SizedBox(width: 2.w*3,),
+                                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10.w*3,),
+                              GestureDetector(
+                                onTap: (){
+                                  chooseArea();
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 3.w*3),
+                                  color: HhColors.trans,
+                                  height: 100.w,
+                                  child: Row(
+                                    children: [
+                                      Text(logic.area.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                                      SizedBox(width: 2.w*3,),
+                                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10.w*3,),
+                              GestureDetector(
+                                onTap: (){
+                                  chooseStreet();
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 3.w*3),
+                                  color: HhColors.trans,
+                                  height: 100.w,
+                                  child: Row(
+                                    children: [
+                                      Text(logic.street.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                                      SizedBox(width: 2.w*3,),
+                                      Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        logic.gridMoreStatus.value?Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: buildGridChildren(),
+                        ):const SizedBox(),
+                        ///添加按钮
+                        BouncingWidget(
+                          duration: const Duration(milliseconds: 100),
+                          scaleFactor: 0.6,
+                          onPressed: (){
+                            logic.gridSearchList.add({
+                              "province":"请选择省",
+                              "provinceCode":"",
+                              "provinceIndex":0,
+                              "provinceList":[],
+                              "city":"请选择市",
+                              "cityCode":"",
+                              "cityIndex":0,
+                              "cityList":[],
+                              "area":"请选择区",
+                              "areaCode":"",
+                              "areaIndex":0,
+                              "areaList":[],
+                              "street":"请选择街道",
+                              "streetCode":"",
+                              "streetIndex":0,
+                              "streetList":[],
+                            });
+                          },
+                          child: Container(
+                            color: HhColors.trans,
+                            padding: EdgeInsets.fromLTRB(12.w*3, 10.w*3, 10.w*3, 10.w*3),
                             child: Container(
-                              margin: EdgeInsets.only(top: 3.w*3),
-                              color: HhColors.trans,
-                              height: 100.w,
-                              child: Row(
-                                children: [
-                                  Text(logic.province.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
-                                  SizedBox(width: 2.w*3,),
-                                  Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
-                                ],
+                              width:20.w*3,
+                              height:20.w*3,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: HhColors.trans,
+                                border:Border.all(color: HhColors.grayAATextColor,width: 1.w),
+                              ),
+                              child: Text(
+                                "+",style: TextStyle(color: HhColors.grayAATextColor,fontSize: 16.sp*3,fontWeight: FontWeight.w300),
+                                textHeightBehavior: const TextHeightBehavior(
+                                  applyHeightToFirstAscent: false,
+                                  applyHeightToLastDescent: false,
+                                ),
                               ),
                             ),
                           ),
-                          SizedBox(width: 10.w*3,),
-                          GestureDetector(
-                            onTap: (){
-                              chooseCity();
-                            },
-                            child: Container(
-                              margin: EdgeInsets.only(top: 3.w*3),
-                              color: HhColors.trans,
-                              height: 100.w,
-                              child: Row(
-                                children: [
-                                  Text(logic.city.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
-                                  SizedBox(width: 2.w*3,),
-                                  Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10.w*3,),
-                          GestureDetector(
-                            onTap: (){
-                              chooseArea();
-                            },
-                            child: Container(
-                              margin: EdgeInsets.only(top: 3.w*3),
-                              color: HhColors.trans,
-                              height: 100.w,
-                              child: Row(
-                                children: [
-                                  Text(logic.area.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
-                                  SizedBox(width: 2.w*3,),
-                                  Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10.w*3,),
-                          GestureDetector(
-                            onTap: (){
-                              chooseStreet();
-                            },
-                            child: Container(
-                              margin: EdgeInsets.only(top: 3.w*3),
-                              color: HhColors.trans,
-                              height: 100.w,
-                              child: Row(
-                                children: [
-                                  Text(logic.street.value,style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
-                                  SizedBox(width: 2.w*3,),
-                                  Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+
+                    ],),
                   ),
                 ],
               ),
@@ -1016,6 +1074,201 @@ class HomePage extends StatelessWidget {
       },);
   }
 
+  void chooseProvinceMore(int indexMore) {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - s <= 200){
+      return;
+    }
+    s = now;
+    if(logic.gridSearchList[indexMore]["provinceList"].isEmpty){
+      EventBusUtil.getInstance().fire(HhToast(title: '网格数据加载中,请稍后重试',type: 0));
+      return;
+    }
+    showModalBottomSheet(context: Get.context!,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12.w*3),
+          topRight: Radius.circular(12.w*3),
+        ),
+      ), builder: (BuildContext context) {
+        logic.gridSearchList[indexMore]["scrollControllerP"] = FixedExtentScrollController(initialItem: logic.gridSearchList[indexMore]["provinceIndex"]);
+        int index = logic.gridSearchList[indexMore]["provinceIndex"];
+        return Container(
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.circular(16.w*3)
+          ),
+          height:200,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text("请选择区域",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                  )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: 20.w*3),
+                  child: ScrollConfiguration(
+                    behavior: HhBehavior(),
+                    child: CupertinoPicker(
+                      scrollController: logic.gridSearchList[indexMore]["scrollControllerP"],
+                      itemExtent: 45,
+                      children: getProvinceMore(indexMore),
+                      onSelectedItemChanged: (int value) {
+                        index = value;
+                        // logic.getCity(logic.provinceList[index]["areaCode"]);
+                      },
+
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(15.w*3,10.w*3,0,15.w*3),child: Icon(Icons.clear,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      if(logic.gridSearchList[indexMore]["provinceList"][index]["areaCode"] == "999"){
+                        logic.gridSearchList[indexMore]["cityList"] = [];
+                        logic.gridSearchList[indexMore]["areaList"] = [];
+                        logic.gridSearchList[indexMore]["streetList"] = [];
+                        logic.gridSearchList[indexMore]["province"] = "请选择省";
+                        logic.gridSearchList[indexMore]["provinceCode"] = "";
+                        logic.gridSearchList[indexMore]["provinceIndex"] = 0;
+                        logic.gridSearchList[indexMore]["city"] = "请选择市";
+                        logic.gridSearchList[indexMore]["cityCode"] = "";
+                        logic.gridSearchList[indexMore]["cityIndex"] = 0;
+                        logic.gridSearchList[indexMore]["area"] = "请选择区";
+                        logic.gridSearchList[indexMore]["areaCode"] = "";
+                        logic.gridSearchList[indexMore]["areaIndex"] = 0;
+                        logic.gridSearchList[indexMore]["street"] = "请选择街道";
+                        logic.gridSearchList[indexMore]["streetCode"] = "";
+                        logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                        Navigator.pop(context);
+                        logic.gridMoreStatus.value = false;
+                        logic.gridMoreStatus.value = true;
+                        return;
+                      }
+                      ///选择了中国数据
+                      if(logic.gridSearchList[indexMore]["provinceList"][index]["level"]==0){
+                        logic.getCountryMore(logic.gridSearchList[indexMore]["provinceList"][index]["areaCode"],indexMore);
+                        Navigator.pop(context);
+                        delayChooseProvinceMore(indexMore);
+                      }
+                      ///选择了省数据
+                      if(logic.gridSearchList[indexMore]["provinceList"][index]["level"]==1){
+                        logic.gridSearchList[indexMore]["cityList"] = [];
+                        logic.getCityMore(logic.gridSearchList[indexMore]["provinceList"][index]["areaCode"],indexMore);
+
+                        logic.gridSearchList[indexMore]["provinceIndex"] = index;
+                        logic.gridSearchList[indexMore]["province"] = logic.gridSearchList[indexMore]["provinceList"][logic.gridSearchList[indexMore]["provinceIndex"]]["name"];
+                        logic.gridSearchList[indexMore]["provinceCode"] = logic.gridSearchList[indexMore]["provinceList"][logic.gridSearchList[indexMore]["provinceIndex"]]["areaCode"];
+                        Navigator.pop(context);
+                        ///更新市区数据
+                        // logic.cityList.clear();
+                        logic.gridSearchList[indexMore]["cityIndex"] = 0;
+                        logic.gridSearchList[indexMore]["city"] = "请选择市";
+
+                        logic.gridSearchList[indexMore]["areaIndex"] = 0;
+                        logic.gridSearchList[indexMore]["area"] = "请选择区";
+                        logic.gridSearchList[indexMore]["areaList"] = [];
+
+                        logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                        logic.gridSearchList[indexMore]["street"] = "请选择街道";
+                        logic.gridSearchList[indexMore]["streetList"] = [];
+
+                        delayChooseCityMore(indexMore);
+                      }
+                      ///选择了市数据
+                      if(logic.gridSearchList[indexMore]["provinceList"][index]["level"]==2){
+                        logic.gridSearchList[indexMore]["province"] = "请选择省";//
+                        logic.gridSearchList[indexMore]["provinceCode"] = "";//
+                        logic.gridSearchList[indexMore]["cityList"] = [];
+                        logic.gridSearchList[indexMore]["cityIndex"] = 0;
+
+                        logic.gridSearchList[indexMore]["areaList"] = [];
+                        logic.getAreaMore(logic.gridSearchList[indexMore]["provinceList"][index]["areaCode"],indexMore);//
+
+                        logic.gridSearchList[indexMore]["provinceIndex"] = index;//
+                        logic.gridSearchList[indexMore]["city"] = logic.gridSearchList[indexMore]["provinceList"][logic.gridSearchList[indexMore]["provinceIndex"]]["name"];//
+                        logic.gridSearchList[indexMore]["cityCode"] = logic.gridSearchList[indexMore]["provinceList"][logic.gridSearchList[indexMore]["provinceIndex"]]["areaCode"];//
+                        Navigator.pop(context);
+                        ///更新区数据
+                        logic.gridSearchList[indexMore]["areaIndex"] = 0;
+                        logic.gridSearchList[indexMore]["area"] = "请选择区";
+                        ///更新街道数据
+                        logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                        logic.gridSearchList[indexMore]["street"] = "请选择街道";
+                        logic.gridSearchList[indexMore]["streetList"] = [];
+
+                        delayChooseAreaMore(indexMore);
+                      }
+                      ///选择了区数据
+                      if(logic.gridSearchList[indexMore]["provinceList"][index]["level"]==3){
+                        logic.gridSearchList[indexMore]["province"] = "请选择省";//
+                        logic.gridSearchList[indexMore]["provinceCode"] = "";//
+                        logic.gridSearchList[indexMore]["areaList"] = [];
+                        logic.gridSearchList[indexMore]["areaIndex"] = 0;
+                        logic.gridSearchList[indexMore]["cityList"] = [];
+                        logic.gridSearchList[indexMore]["cityIndex"] = 0;
+                        logic.gridSearchList[indexMore]["city"] = "请选择市";//
+
+                        logic.gridSearchList[indexMore]["streetList"] = [];
+                        logic.getStreetMore(logic.gridSearchList[indexMore]["provinceList"][index]["areaCode"],indexMore);//
+
+                        logic.gridSearchList[indexMore]["provinceIndex"] = index;//
+                        logic.gridSearchList[indexMore]["area"] = logic.gridSearchList[indexMore]["provinceList"][logic.gridSearchList[indexMore]["provinceIndex"]]["name"];//
+                        logic.gridSearchList[indexMore]["areaCode"] = logic.gridSearchList[indexMore]["provinceList"][logic.gridSearchList[indexMore]["provinceIndex"]]["areaCode"];//
+                        Navigator.pop(context);
+
+                        ///更新街道数据
+                        logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                        logic.gridSearchList[indexMore]["street"] = "请选择街道";
+
+                        delayChooseStreetMore(indexMore);
+                      }
+                      ///选择了街道数据
+                      if(logic.gridSearchList[indexMore]["provinceList"][index]["level"]==4){
+                        logic.gridSearchList[indexMore]["province"] = "请选择省";//
+                        logic.gridSearchList[indexMore]["provinceCode"] = "";//
+                        logic.gridSearchList[indexMore]["streetList"] = [];
+                        logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                        logic.gridSearchList[indexMore]["areaList"] = [];
+                        logic.gridSearchList[indexMore]["areaIndex"] = 0;
+                        logic.gridSearchList[indexMore]["cityList"] = [];
+                        logic.gridSearchList[indexMore]["cityIndex"] = 0;
+                        logic.gridSearchList[indexMore]["city"] = "请选择市";//
+                        logic.gridSearchList[indexMore]["area"] = "请选择区";//
+
+                        logic.gridSearchList[indexMore]["provinceIndex"] = index;//
+                        logic.gridSearchList[indexMore]["street"] = logic.gridSearchList[indexMore]["provinceList"][logic.gridSearchList[indexMore]["provinceIndex"]]["name"];//
+                        logic.gridSearchList[indexMore]["streetCode"] = logic.gridSearchList[indexMore]["provinceList"][logic.gridSearchList[indexMore]["provinceIndex"]]["areaCode"];//
+                        Navigator.pop(context);
+                      }
+
+                      logic.gridMoreStatus.value = false;
+                      logic.gridMoreStatus.value = true;
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },);
+  }
+
   void chooseCity() {
     int now = DateTime.now().millisecondsSinceEpoch;
     if(now - s <= 200){
@@ -1116,6 +1369,121 @@ class HomePage extends StatelessWidget {
                       logic.streetList = [];
 
                       delayChooseArea();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },);
+  }
+
+  void chooseCityMore(int indexMore) {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - s <= 200){
+      return;
+    }
+    s = now;
+    if(logic.gridSearchList[indexMore]["cityList"].isEmpty){
+      if(logic.gridSearchList[indexMore]["province"]=="请选择省"){
+        EventBusUtil.getInstance().fire(HhToast(title: '请选择省',type: 0));
+      }else{
+        EventBusUtil.getInstance().fire(HhToast(title: '该网格下没有数据',type: 0));
+      }
+      return;
+    }
+    showModalBottomSheet(context: Get.context!,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12.w*3),
+          topRight: Radius.circular(12.w*3),
+        ),
+      ), builder: (BuildContext context) {
+        logic.gridSearchList[indexMore]["scrollControllerC"] = FixedExtentScrollController(initialItem: logic.gridSearchList[indexMore]["cityIndex"]);
+        int index = logic.gridSearchList[indexMore]["cityIndex"];
+        return Container(
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.circular(16.w*3)
+          ),
+          height:200,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text("请选择市",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                  )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: 20.w*3),
+                  child: ScrollConfiguration(
+                    behavior: HhBehavior(),
+                    child: CupertinoPicker(
+                      scrollController: logic.gridSearchList[indexMore]["scrollControllerC"],
+                      itemExtent: 45,
+                      children: getCityMore(indexMore),
+                      onSelectedItemChanged: (int value) {
+                        index = value;
+                        // logic.getArea(logic.cityList[index]["areaCode"]);
+                      },
+
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(15.w*3,10.w*3,0,15.w*3),child: Icon(Icons.clear,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      if(logic.gridSearchList[indexMore]["cityList"][index]["areaCode"] == "999"){
+                        logic.gridSearchList[indexMore]["areaList"] = [];
+                        logic.gridSearchList[indexMore]["streetList"] = [];
+                        logic.gridSearchList[indexMore]["city"] = "请选择市";
+                        logic.gridSearchList[indexMore]["cityCode"] = "";
+                        logic.gridSearchList[indexMore]["cityIndex"] = 0;
+                        logic.gridSearchList[indexMore]["area"] = "请选择区";
+                        logic.gridSearchList[indexMore]["areaCode"] = "";
+                        logic.gridSearchList[indexMore]["areaIndex"] = 0;
+                        logic.gridSearchList[indexMore]["street"] = "请选择街道";
+                        logic.gridSearchList[indexMore]["streetCode"] = "";
+                        logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                        Navigator.pop(context);
+                        logic.gridMoreStatus.value = false;
+                        logic.gridMoreStatus.value = true;
+                        return;
+                      }
+                      logic.gridSearchList[indexMore]["areaList"] = [];
+                      logic.getAreaMore(logic.gridSearchList[indexMore]["cityList"][index]["areaCode"],indexMore);
+
+                      logic.gridSearchList[indexMore]["cityIndex"] = index;
+                      logic.gridSearchList[indexMore]["city"] = logic.gridSearchList[indexMore]["cityList"][logic.gridSearchList[indexMore]["cityIndex"]]["name"];
+                      logic.gridSearchList[indexMore]["cityCode"] = logic.gridSearchList[indexMore]["cityList"][logic.gridSearchList[indexMore]["cityIndex"]]["areaCode"];
+                      Navigator.pop(context);
+                      ///更新区数据
+                      logic.gridSearchList[indexMore]["areaIndex"] = 0;
+                      logic.gridSearchList[indexMore]["area"] = "请选择区";
+                      ///更新街道数据
+                      logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                      logic.gridSearchList[indexMore]["street"] = "请选择街道";
+                      logic.gridSearchList[indexMore]["streetList"] = [];
+
+                      delayChooseAreaMore(indexMore);
+
+                      logic.gridMoreStatus.value = false;
+                      logic.gridMoreStatus.value = true;
                     },
                   ),
                 ],
@@ -1227,6 +1595,112 @@ class HomePage extends StatelessWidget {
         );
       },);
   }
+  void chooseAreaMore(int indexMore) {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - s <= 200){
+      return;
+    }
+    s = now;
+    if(logic.gridSearchList[indexMore]["areaList"].isEmpty){
+      if(logic.gridSearchList[indexMore]["city"]=="请选择市"){
+        EventBusUtil.getInstance().fire(HhToast(title: '请选择市',type: 0));
+      }else{
+        EventBusUtil.getInstance().fire(HhToast(title: '该网格下没有数据',type: 0));
+      }
+      return;
+    }
+    showModalBottomSheet(context: Get.context!,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12.w*3),
+          topRight: Radius.circular(12.w*3),
+        ),
+      ), builder: (BuildContext context) {
+        logic.gridSearchList[indexMore]["scrollControllerA"] = FixedExtentScrollController(initialItem: logic.gridSearchList[indexMore]["areaIndex"]);
+        int index = logic.gridSearchList[indexMore]["areaIndex"];
+        return Container(
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.circular(16.w*3)
+          ),
+          height:200,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text("请选择区",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                  )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: 20.w*3),
+                  child: ScrollConfiguration(
+                    behavior: HhBehavior(),
+                    child: CupertinoPicker(
+                      scrollController: logic.gridSearchList[indexMore]["scrollControllerA"],
+                      itemExtent: 45,
+                      children: getAreaMore(indexMore),
+                      onSelectedItemChanged: (int value) {
+                        index = value;
+                      },
+
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(15.w*3,10.w*3,0,15.w*3),child: Icon(Icons.clear,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      if(logic.gridSearchList[indexMore]["areaList"][index]["areaCode"] == "999"){
+                        logic.gridSearchList[indexMore]["streetList"] = [];
+                        logic.gridSearchList[indexMore]["area"] = "请选择区";
+                        logic.gridSearchList[indexMore]["areaCode"] = "";
+                        logic.gridSearchList[indexMore]["areaIndex"] = 0;
+                        logic.gridSearchList[indexMore]["street"] = "请选择街道";
+                        logic.gridSearchList[indexMore]["streetCode"] = "";
+                        logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                        Navigator.pop(context);
+                        logic.gridMoreStatus.value = false;
+                        logic.gridMoreStatus.value = true;
+                        return;
+                      }
+                      logic.gridSearchList[indexMore]["streetList"] = [];
+                      logic.getStreetMore(logic.gridSearchList[indexMore]["areaList"][index]["areaCode"],indexMore);
+
+                      logic.gridSearchList[indexMore]["areaIndex"] = index;
+                      logic.gridSearchList[indexMore]["area"] = logic.gridSearchList[indexMore]["areaList"][logic.gridSearchList[indexMore]["areaIndex"]]["name"];
+                      logic.gridSearchList[indexMore]["areaCode"] = logic.gridSearchList[indexMore]["areaList"][logic.gridSearchList[indexMore]["areaIndex"]]["areaCode"];
+                      Navigator.pop(context);
+
+                      ///更新街道数据
+                      logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                      logic.gridSearchList[indexMore]["street"] = "请选择街道";
+
+                      delayChooseStreetMore(indexMore);
+
+                      logic.gridMoreStatus.value = false;
+                      logic.gridMoreStatus.value = true;
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },);
+  }
 
   int s = 0;
   void chooseStreet() {
@@ -1317,6 +1791,99 @@ class HomePage extends StatelessWidget {
         );
       },);
   }
+  void chooseStreetMore(int indexMore) {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if(now - s <= 200){
+      return;
+    }
+    s = now;
+    if(logic.gridSearchList[indexMore]["streetList"].isEmpty){
+      if(logic.gridSearchList[indexMore]["area"]=="请选择区"){
+        EventBusUtil.getInstance().fire(HhToast(title: '请选择区',type: 0));
+      }else{
+        EventBusUtil.getInstance().fire(HhToast(title: '该网格下没有数据',type: 0));
+      }
+      return;
+    }
+    showModalBottomSheet(context: Get.context!,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12.w*3),
+          topRight: Radius.circular(12.w*3),
+        ),
+      ), builder: (BuildContext context) {
+        logic.gridSearchList[indexMore]["scrollControllerS"] = FixedExtentScrollController(initialItem: logic.gridSearchList[indexMore]["streetIndex"]);
+        int index = logic.gridSearchList[indexMore]["streetIndex"];
+        return Container(
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.circular(16.w*3)
+          ),
+          height:200,
+          child: Stack(
+            children: <Widget>[
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: Container(
+                      margin: EdgeInsets.only(top: 10.w*3),
+                      child: Text("请选择街道",style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),)
+                  )
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  margin: EdgeInsets.only(top: 20.w*3),
+                  child: ScrollConfiguration(
+                    behavior: HhBehavior(),
+                    child: CupertinoPicker(
+                      scrollController: logic.gridSearchList[indexMore]["scrollControllerS"],
+                      itemExtent: 45,
+                      children: getStreetMore(indexMore),
+                      onSelectedItemChanged: (int value) {
+                        index = value;
+                      },
+
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(15.w*3,10.w*3,0,15.w*3),child: Icon(Icons.clear,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      Navigator.pop(context);
+                    },
+                  ),
+                  GestureDetector(
+                    child: Container(padding:EdgeInsets.fromLTRB(0,10.w*3,15.w*3,15.w*3),child: Icon(Icons.check,color: HhColors.titleColor_99,size: 20.w*3,)),
+                    onTap: (){
+                      if(logic.gridSearchList[indexMore]["streetList"][index]["areaCode"] == "999"){
+                        logic.gridSearchList[indexMore]["street"] = "请选择街道";
+                        logic.gridSearchList[indexMore]["streetCode"] = "";
+                        logic.gridSearchList[indexMore]["streetIndex"] = 0;
+                        Navigator.pop(context);
+                        logic.gridMoreStatus.value = false;
+                        logic.gridMoreStatus.value = true;
+                        return;
+                      }
+                      logic.gridSearchList[indexMore]["streetIndex"] = index;
+                      logic.gridSearchList[indexMore]["street"] = logic.gridSearchList[indexMore]["streetList"][logic.gridSearchList[indexMore]["streetIndex"]]["name"];
+                      logic.gridSearchList[indexMore]["streetCode"] = logic.gridSearchList[indexMore]["streetList"][logic.gridSearchList[indexMore]["streetIndex"]]["areaCode"];
+                      Navigator.pop(context);
+
+                      logic.gridMoreStatus.value = false;
+                      logic.gridMoreStatus.value = true;
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },);
+  }
 
   getProvince() {
     List<Widget> list = [];
@@ -1325,6 +1892,19 @@ class HomePage extends StatelessWidget {
           Container(
             color: HhColors.trans,
             child: Center(child: Text(logic.provinceList[i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.provinceList[i]["name"].length>3?14.sp*3:15.sp*3),)),
+          )
+      );
+    }
+    return list;
+  }
+
+  getProvinceMore(int indexMore) {
+    List<Widget> list = [];
+    for(int i = 0;i < logic.gridSearchList[indexMore]["provinceList"].length;i++){
+      list.add(
+          Container(
+            color: HhColors.trans,
+            child: Center(child: Text(logic.gridSearchList[indexMore]["provinceList"][i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.gridSearchList[indexMore]["provinceList"][i]["name"].length>3?14.sp*3:15.sp*3),)),
           )
       );
     }
@@ -1344,6 +1924,19 @@ class HomePage extends StatelessWidget {
     return list;
   }
 
+  getCityMore(int indexMore) {
+    List<Widget> list = [];
+    for(int i = 0;i < logic.gridSearchList[indexMore]["cityList"].length;i++){
+      list.add(
+          Container(
+            color: HhColors.trans,
+            child: Center(child: Text(logic.gridSearchList[indexMore]["cityList"][i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.gridSearchList[indexMore]["cityList"][i]["name"].length>3?14.sp*3:15.sp*3),)),
+          )
+      );
+    }
+    return list;
+  }
+
   getArea() {
     List<Widget> list = [];
     for(int i = 0;i < logic.areaList.length;i++){
@@ -1351,6 +1944,19 @@ class HomePage extends StatelessWidget {
           Container(
             color: HhColors.trans,
             child: Center(child: Text(logic.areaList[i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.areaList[i]["name"].length>3?14.sp*3:15.sp*3),)),
+          )
+      );
+    }
+    return list;
+  }
+
+  getAreaMore(int indexMore) {
+    List<Widget> list = [];
+    for(int i = 0;i < logic.gridSearchList[indexMore]["areaList"].length;i++){
+      list.add(
+          Container(
+            color: HhColors.trans,
+            child: Center(child: Text(logic.gridSearchList[indexMore]["areaList"][i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.gridSearchList[indexMore]["areaList"][i]["name"].length>3?14.sp*3:15.sp*3),)),
           )
       );
     }
@@ -1368,6 +1974,18 @@ class HomePage extends StatelessWidget {
     }
     return list;
   }
+  getStreetMore(int indexMore) {
+    List<Widget> list = [];
+    for(int i = 0;i < logic.gridSearchList[indexMore]["streetList"].length;i++){
+      list.add(
+          Container(
+            color: HhColors.trans,
+            child: Center(child: Text(logic.gridSearchList[indexMore]["streetList"][i]["name"],style: TextStyle(color: HhColors.blackColor,fontSize: logic.gridSearchList[indexMore]["streetList"][i]["name"].length>3?14.sp*3:15.sp*3),)),
+          )
+      );
+    }
+    return list;
+  }
 
   void delayChooseProvince() {
     Future.delayed(const Duration(milliseconds: 200),(){
@@ -1375,6 +1993,16 @@ class HomePage extends StatelessWidget {
         chooseProvince();
       }else{
         delayChooseProvince();
+      }
+    });
+  }
+
+  void delayChooseProvinceMore(int indexMore) {
+    Future.delayed(const Duration(milliseconds: 200),(){
+      if(logic.gridSearchList[indexMore]["provinceList"].isNotEmpty){
+        chooseProvinceMore(indexMore);
+      }else{
+        delayChooseProvinceMore(indexMore);
       }
     });
   }
@@ -1388,6 +2016,15 @@ class HomePage extends StatelessWidget {
       }
     });
   }
+  void delayChooseCityMore(int indexMore) {
+    Future.delayed(const Duration(milliseconds: 200),(){
+      if(logic.gridSearchList[indexMore]["cityList"].isNotEmpty){
+        chooseCityMore(indexMore);
+      }else{
+        delayChooseCityMore(indexMore);
+      }
+    });
+  }
 
   void delayChooseArea() {
     Future.delayed(const Duration(milliseconds: 200),(){
@@ -1398,6 +2035,15 @@ class HomePage extends StatelessWidget {
       }
     });
   }
+  void delayChooseAreaMore(int indexMore) {
+    Future.delayed(const Duration(milliseconds: 200),(){
+      if(logic.gridSearchList[indexMore]["areaList"].isNotEmpty){
+        chooseAreaMore(indexMore);
+      }else{
+        delayChooseAreaMore(indexMore);
+      }
+    });
+  }
 
   void delayChooseStreet() {
     Future.delayed(const Duration(milliseconds: 200),(){
@@ -1405,6 +2051,16 @@ class HomePage extends StatelessWidget {
         chooseStreet();
       }else{
         delayChooseStreet();
+      }
+    });
+  }
+
+  void delayChooseStreetMore(int indexMore) {
+    Future.delayed(const Duration(milliseconds: 200),(){
+      if(logic.gridSearchList[indexMore]["streetList"].isNotEmpty){
+        chooseStreetMore(indexMore);
+      }else{
+        delayChooseStreetMore(indexMore);
       }
     });
   }
@@ -1432,5 +2088,127 @@ class HomePage extends StatelessWidget {
     logic.streetIndex.value = 0;
     logic.otherOut.value = true;
     logic.otherCache.value = true;
+    logic.gridSearchList.clear();
+  }
+
+  buildGridChildren() {
+    List<Widget> list = [];
+    for(int i = 0; i < logic.gridSearchList.length;i++){
+      dynamic model = logic.gridSearchList[i];
+      list.add(
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(width: 10.w*3,),
+                GestureDetector(
+                  onTap: (){
+                    logic.getProvinceMore(CommonData.china,i);
+                    delayChooseProvinceMore(i);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 3.w*3),
+                    color: HhColors.trans,
+                    height: 100.w,
+                    child: Row(
+                      children: [
+                        Text(model["province"],style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                        SizedBox(width: 2.w*3,),
+                        Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10.w*3,),
+                GestureDetector(
+                  onTap: (){
+                    chooseCityMore(i);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 3.w*3),
+                    color: HhColors.trans,
+                    height: 100.w,
+                    child: Row(
+                      children: [
+                        Text(model["city"],style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                        SizedBox(width: 2.w*3,),
+                        Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10.w*3,),
+                GestureDetector(
+                  onTap: (){
+                    chooseAreaMore(i);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 3.w*3),
+                    color: HhColors.trans,
+                    height: 100.w,
+                    child: Row(
+                      children: [
+                        Text(model["area"],style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                        SizedBox(width: 2.w*3,),
+                        Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10.w*3,),
+                GestureDetector(
+                  onTap: (){
+                    chooseStreetMore(i);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 3.w*3),
+                    color: HhColors.trans,
+                    height: 100.w,
+                    child: Row(
+                      children: [
+                        Text(model["street"],style: TextStyle(color: HhColors.gray9TextColor,fontSize: 12.sp*3,height: 1.2),),
+                        SizedBox(width: 2.w*3,),
+                        Image.asset('assets/images/common/ic_down.png',width:6.w*3,height: 6.w*3,fit: BoxFit.fill,)
+                      ],
+                    ),
+                  ),
+                ),
+
+                ///移除按钮
+                BouncingWidget(
+                  duration: const Duration(milliseconds: 100),
+                  scaleFactor: 0.6,
+                  onPressed: (){
+                    logic.gridSearchList.removeAt(i);
+                  },
+                  child: Container(
+                    color: HhColors.trans,
+                    margin: EdgeInsets.only(top: 5.w*3),
+                    padding: EdgeInsets.fromLTRB(15.w*3, 10.w*3, 10.w*3, 10.w*3),
+                    child: Container(
+                      width:16.w*3,
+                      height:16.w*3,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: HhColors.trans,
+                        border:Border.all(color: HhColors.red2,width: 1.w),
+                      ),
+                      child: Text(
+                        "—",style: TextStyle(color: HhColors.red2,fontSize: 12.sp*3,fontWeight: FontWeight.w300),
+                        textHeightBehavior: const TextHeightBehavior(
+                          applyHeightToFirstAscent: false,
+                          applyHeightToLastDescent: false,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )
+      );
+    }
+    return list;
   }
 }
