@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:bouncing_widget/bouncing_widget.dart';
@@ -1250,6 +1251,19 @@ class HomeController extends GetxController {
     }
     for(int i = 0; i < gridSearchList.length; i++){
       dynamic gridModel = gridSearchList[i];
+      HhLog.d("gridTest $gridModel");
+      HhLog.d("gridTest province ${gridModel["province"]}");
+      HhLog.d("gridTest ${gridModel["provinceCode"]}");
+      HhLog.d("gridTest ${gridModel["provinceList"]}");
+      HhLog.d("gridTest city ${gridModel["city"]}");
+      HhLog.d("gridTest ${gridModel["cityCode"]}");
+      HhLog.d("gridTest ${gridModel["cityList"]}");
+      HhLog.d("gridTest area ${gridModel["area"]}");
+      HhLog.d("gridTest ${gridModel["areaCode"]}");
+      HhLog.d("gridTest ${gridModel["areaList"]}");
+      HhLog.d("gridTest street ${gridModel["street"]}");
+      HhLog.d("gridTest ${gridModel["streetCode"]}");
+      HhLog.d("gridTest ${gridModel["streetList"]}");
       if(gridModel["streetCode"].isNotEmpty){
         if(map['areaCode']==null||map['areaCode']==""){
           map['areaCode'] = gridModel["streetCode"];
@@ -1282,6 +1296,8 @@ class HomeController extends GetxController {
         }
       }
     }
+
+    HhLog.d("gridTest map ${map['areaCode']}");
     map['satelliteSeriesList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['landTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
@@ -1303,9 +1319,10 @@ class HomeController extends GetxController {
       if(result["code"]==200){
         newItems = result["rows"];
         fireCount.value = result["total"];
-        if(newItems.isEmpty && pageNum == 1){
+        if(/*newItems.isEmpty && */pageNum == 1){
           fireController.itemList = [];
           myMapController.cleanAllMarkers();
+          clearAllCircles();
           fireMarkerList.clear();
           allFireList = [];
         }
@@ -1318,6 +1335,7 @@ class HomeController extends GetxController {
               allFireList.addAll(newItems);
               //处理数据
               parseData();
+              initMarker();
             }
             // easyController.finishLoad(IndicatorResult.noMore,true);
             if(showList){
@@ -1364,9 +1382,11 @@ class HomeController extends GetxController {
     }
   }
 
+  final List<String> circleIds = [];
   ///火警打点
   initMarker() async {
     myMapController.cleanAllMarkers();
+    clearAllCircles();
     fireMarkerList.clear();
     for(dynamic model in allFireList){
       /// 创建BMFMarker
@@ -1381,32 +1401,38 @@ class HomeController extends GetxController {
           visible: true,
           identifier: '${model["id"]}',
           icon: chose?'assets/images/common/ic_fire.png':'assets/images/common/ic_fires_red.png');
-
-      ///画范围
-      myMapController.addCircle(
-        BMFCircle(
-          center: location,
-          radius: 1000,
-          strokeColor: HhColors.red2.withOpacity(0.6),
-          width: 2,
-          fillColor: HhColors.trans,
-        ),
-      );
       /// 添加Marker
       myMapController.addMarker(marker);
       fireMarkerList.add(marker);
+
+      ///画范围
+      BMFCircle circle = BMFCircle(
+        center: location,
+        radius: 1000,
+        strokeColor: HhColors.red2.withOpacity(0.6),
+        width: 2,
+        fillColor: HhColors.trans,
+      );
+      myMapController.addCircle(circle);
+      // 存储id
+      circleIds.add(circle.id);
     }
-    /*if(bridgeData.isNotEmpty){
-      drawBridge();
-    }else{
-      bridgeTimes = 0;
-    }*/
     if(allFireList.isNotEmpty){
       ///跳到第一火点
       myMapController.setCenterCoordinate(
           BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[0],ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[1]),
           true,animateDurationMs: 200
       );
+    }
+  }
+
+  /// 清除所有圆形
+  void clearAllCircles() {
+    if(circleIds.isNotEmpty){
+      for (final circleId in circleIds) {
+        myMapController.removeOverlay(circleId);
+      }
+      circleIds.clear();
     }
   }
 
