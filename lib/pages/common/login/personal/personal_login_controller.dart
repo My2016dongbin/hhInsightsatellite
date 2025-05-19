@@ -193,7 +193,7 @@ class PersonalLoginController extends GetxController {
 
       info();
     } else {
-      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("请输入正确的验证码！"), type: 2));
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}"), type: 2));
       EventBusUtil.getInstance().fire(HhLoading(show: false));
     }
   }

@@ -371,8 +371,12 @@ class PersonalLoginPage extends StatelessWidget {
                           FocusScope.of(Get.context!).requestFocus(FocusNode());
 
                           ///登录点击
-                          if(logic.phoneController!.text.isEmpty){
-                            EventBusUtil.getInstance().fire(HhToast(title: '手机号不能为空'));
+                          if(!RegexUtils.isMobile(logic.phoneController!.text)){
+                            EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的手机号！"));
+                            return;
+                          }
+                          if(logic.phoneController!.text.length < 11){
+                            EventBusUtil.getInstance().fire(HhToast(title: "请输入正确的手机号！"));
                             return;
                           }
                           if(!logic.codeSend.value){
