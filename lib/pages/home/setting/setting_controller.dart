@@ -96,7 +96,7 @@ class SettingController extends GetxController {
     voiceStatus.value = prefs.getBool(SPKeys().voice)??false;
     //satellite:fireReport:add火情上报
     //satellite:fireFeedback:add火情反馈
-    uploadStatus.value = (prefs.getString(SPKeys().permissions)??"000000").contains("fireReport");
+    uploadStatus.value = await CommonUtils().hasPermission("fireReport");
   }
 
 

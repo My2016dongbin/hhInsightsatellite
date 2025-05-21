@@ -65,6 +65,11 @@ class CommonUtils {
     return gradientColors;
   }
 
+  Future<bool> hasPermission(String permission) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return (prefs.getString(SPKeys().permissions)??"").contains(permission) || (prefs.getString(SPKeys().permissions)??"").contains("*:*:*");
+  }
+
   ///百度转高德
   Map<String, double> bdToGd(double bdLng, double bdLat) {
     const xPi = pi * 3000.0 / 180.0;

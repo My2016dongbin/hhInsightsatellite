@@ -348,7 +348,7 @@ class HomeController extends GetxController {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     //satellite:fireReport:add火情上报
     //satellite:fireFeedback:add火情反馈
-    feedBackStatus.value = (prefs.getString(SPKeys().permissions)??"000000").contains("fireFeedback");
+    feedBackStatus.value = await CommonUtils().hasPermission("fireFeedback");
     super.onInit();
   }
 
