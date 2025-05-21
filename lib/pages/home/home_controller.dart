@@ -173,21 +173,44 @@ class HomeController extends GetxController {
   late RxList<dynamic> gridSearchList = [].obs;
   late Rx<int> gridSearchIndex = 0.obs;
 
+  // Future<void> requestNotificationPermission() async {
+  //   // 检查是否已经获得通知权限
+  //   var status = await Permission.notification.status;
+  //   if (status.isDenied) {
+  //     // 申请权限
+  //     status = await Permission.notification.request();
+  //   }
+  //
+  //   if (status.isGranted) {
+  //   } else if (status.isPermanentlyDenied) {
+  //     openAppSettings(); // 引导用户前往设置开启通知权限
+  //   } else if (status.isDenied) {
+  //     EventBusUtil.getInstance().fire(HhToast(title: '请开启通知权限', type: 0));
+  //     Future.delayed(const Duration(milliseconds: 2000), () {
+  //       openAppSettings(); // 引导用户前往设置开启通知权限
+  //     });
+  //   }
+  // }
   Future<void> requestNotificationPermission() async {
-    // 检查是否已经获得通知权限
     var status = await Permission.notification.status;
+
     if (status.isDenied) {
-      // 申请权限
       status = await Permission.notification.request();
     }
 
     if (status.isGranted) {
-    } else if (status.isPermanentlyDenied) {
-      openAppSettings(); // 引导用户前往设置开启通知权限
-    } else if (status.isDenied) {
+      return;
+    }
+
+    // 是否首次提示标记
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasPrompted = prefs.getBool("hasPromptedNotificationPermission") ?? false;
+
+    if (!hasPrompted) {
+      prefs.setBool("hasPromptedNotificationPermission", true);
       EventBusUtil.getInstance().fire(HhToast(title: '请开启通知权限', type: 0));
       Future.delayed(const Duration(milliseconds: 2000), () {
-        openAppSettings(); // 引导用户前往设置开启通知权限
+        openAppSettings();
       });
     }
   }
