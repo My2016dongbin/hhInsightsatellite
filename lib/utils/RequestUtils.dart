@@ -21,7 +21,7 @@ class RequestUtils{
   static const fileUpload = '$base/resource/oss/upload';//文件上传-
   static const fireFeedback = '$base/satellite/fireFeedback';//火警反馈-
   static const fireReport = '$base/satellite/fireReport';//火警上报-
-  static const gridSearchAll = '$base/system/area/listAll';//省市区查询-全部
+  static const gridSearchAll = '$base/satellite/fireReport/getListForManage';//'$base/system/area/listAll';//省市区查询-全部
   static const gridSearch = '$base/system/area/userList';//'$base/system/area/listAll';//省市区查询-用户权限
   static const logout = '$base/admin-api/system/auth/logout';//登出
   static const versionNew = '$base/system/androidUpgrade/getAndroidUpgradeVersionNew';//查询版本新版-
