@@ -3,7 +3,8 @@ class RequestUtils{
   // static const base = 'http://192.168.1.88:51158';//app
   // static const base = 'http://192.168.1.88:9528/api';//web
   // static const base = 'http://192.168.1.88:8011/api';//out
-  static const base = 'http://192.168.1.102:9900';//release
+  // static const base = 'http://192.168.1.102:9900';//release
+  static const base = 'http://wechattestfront.ehaohai.com/api';//域名外网
 
   static const login = '$base/auth/login';//密码登录-
   static const userInfo = '$base/system/user/getInfo/app';//个人信息查询-
