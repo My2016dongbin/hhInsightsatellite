@@ -13,7 +13,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="A7mAKaxN4qVLc99lSTX7IwzQYGI8e1CA" />
+            android:value="dczmYwySpWROOOhYcVUBt5ALv27vV2uv" />
         <activity
             android:name="com.ehaohai.insightsatellite.MainActivity"
             android:exported="true"
