@@ -969,10 +969,29 @@ class HomePage extends StatelessWidget {
                         return;
                       }
                       ///选择了中国数据
-                      if(logic.provinceList[index]["level"]==0){
+                      if(logic.provinceList[index]["level"]==0 && logic.provinceList[index]["name"]=="中国"){
                         logic.getCountry(logic.provinceList[index]["areaCode"]);
                         Navigator.pop(context);
                         delayChooseProvince();
+                      }
+                      ///选择了境外数据
+                      if(logic.provinceList[index]["level"]==0 && logic.provinceList[index]["name"]=="境外"){
+                        logic.provinceIndex.value = index;
+                        logic.province.value = logic.provinceList[logic.provinceIndex.value]["name"];
+                        logic.provinceCode = logic.provinceList[logic.provinceIndex.value]["areaCode"];
+                        Navigator.pop(context);
+                        ///更新市区数据
+                        logic.cityList = [];
+                        logic.cityIndex.value = 0;
+                        logic.city.value = "请选择市";
+
+                        logic.areaIndex.value = 0;
+                        logic.area.value = "请选择区";
+                        logic.areaList = [];
+
+                        logic.streetIndex.value = 0;
+                        logic.street.value = "请选择街道";
+                        logic.streetList = [];
                       }
                       ///选择了省数据
                       if(logic.provinceList[index]["level"]==1){
