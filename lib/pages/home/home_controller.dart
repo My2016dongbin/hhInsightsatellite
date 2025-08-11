@@ -159,7 +159,6 @@ class HomeController extends GetxController {
   final Rx<bool> otherCache = false.obs;
   final Rx<bool> otherOutShow = true.obs;
   final Rx<bool> otherCacheShow = true.obs;
-  late List<BMFMarker> fireMarkerList = [];
   late List<dynamic> newItems = [];
   late List<dynamic> allFireList = [];
   late List<String> filterTimeList = [];
@@ -760,63 +759,12 @@ class HomeController extends GetxController {
     await OpenFile.open(savePath,
         type: "application/vnd.android.package-archive");
   }
-/*
-  /// 创建完成回调
-  void onBMFMapCreated(BMFMapController controller) {
-    gdMapController = controller;
-
-    /// 地图marker点击回调 (Android端SDK存在bug,现区分两端分别设置)
-    gdMapController.setMapClickedMarkerCallback(
-        callback: (BMFMarker marker) async {
-      int currentZoom = await gdMapController.getZoomLevel() ?? 13;
-      if (Platform.isAndroid) {
-        HhLog.d("click Android ${marker.id}");
-        for(int i = 0; i < fireMarkerList.length;i++){
-          if(fireMarkerList[i].id == marker.id){
-            //点击Marker详情
-            fireInfo = allFireList[i];
-            showFireInfo();
-            initMarker();
-            gdMapController.setCenterCoordinate(
-              BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[1]),
-              false,
-            );
-            gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
-
-            return;
-          }
-        }
-      }
-      if (Platform.isIOS) {
-        gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
-        for(dynamic modelX in allFireList){
-          if(marker.identifier!.contains(modelX["id"])){
-            //点击Marker详情
-            fireInfo = modelX;
-            showFireInfo();
-            initMarker();
-            gdMapController.setCenterCoordinate(
-              BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}"))[1]),
-              false,
-            );
-            gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
-            break;
-          }
-        }
-      }
-    });
-
-    ///地图边界
-    // if(areaPointsList!=null && areaPointsList.length!=0){
-    //   drawAreaLines();
-    // }
-  }*/
 
   /// 创建完成回调
   void onGDMapCreated(AMapController controller) {
     gdMapController = controller;
 
-    aMapMarkers.add(Marker(position: const LatLng(35.66,126.88),icon: BitmapDescriptor.fromIconPath('assets/images/common/ic_fires_red.png')));
+    //aMapMarkers.add(Marker(position: const LatLng(35.66,126.88),icon: BitmapDescriptor.fromIconPath('assets/images/common/ic_fires_red.png')));
   }
 
   void fireListDialog() {
@@ -897,12 +845,11 @@ class HomeController extends GetxController {
                           Get.back();
                           fireInfo = item;
                           initMarker();
-                          // gdMapController.setCenterCoordinate( TODO
-                          //   BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[1]),
-                          //   false,
-                          // );
-                          // int currentZoom = await gdMapController.getZoomLevel() ?? 13;
-                          // gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
+                          final gcj = ParseLocation.gps84_To_Gcj02(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"));
+                          LatLng latLng = LatLng(gcj[0],gcj[1]);
+                          gdMapController.moveCamera(
+                              CameraUpdate.newLatLngZoom(latLng,15.0)
+                          );
                           showFireInfo();
                         },
                         child: Column(
@@ -1267,18 +1214,6 @@ class HomeController extends GetxController {
     for(int i = 0; i < gridSearchList.length; i++){
       dynamic gridModel = gridSearchList[i];
       HhLog.d("gridTest $gridModel");
-      HhLog.d("gridTest province ${gridModel["province"]}");
-      HhLog.d("gridTest ${gridModel["provinceCode"]}");
-      HhLog.d("gridTest ${gridModel["provinceList"]}");
-      HhLog.d("gridTest city ${gridModel["city"]}");
-      HhLog.d("gridTest ${gridModel["cityCode"]}");
-      HhLog.d("gridTest ${gridModel["cityList"]}");
-      HhLog.d("gridTest area ${gridModel["area"]}");
-      HhLog.d("gridTest ${gridModel["areaCode"]}");
-      HhLog.d("gridTest ${gridModel["areaList"]}");
-      HhLog.d("gridTest street ${gridModel["street"]}");
-      HhLog.d("gridTest ${gridModel["streetCode"]}");
-      HhLog.d("gridTest ${gridModel["streetList"]}");
       if(gridModel["streetCode"].isNotEmpty){
         if(map['areaCode']==null||map['areaCode']==""){
           map['areaCode'] = gridModel["streetCode"];
@@ -1330,15 +1265,12 @@ class HomeController extends GetxController {
       HhLog.d("fireSearch -- ${RequestUtils.fireSearch} -- $map ");
       HhLog.d("fireSearch -- $result");
       EventBusUtil.getInstance().fire(HhLoading(show: false));
-      // easyController.finishLoad(IndicatorResult.success,true);
       if(result["code"]==200){
         newItems = result["rows"];
         fireCount.value = result["total"];
         if(/*newItems.isEmpty && */pageNum == 1){
           fireController.itemList = [];
-          //gdMapController.cleanAllMarkers(); TODO
           clearAllCircles();
-          fireMarkerList.clear();
           allFireList = [];
         }
         //处理页数
@@ -1350,9 +1282,9 @@ class HomeController extends GetxController {
               allFireList.addAll(newItems);
               //处理数据
               parseData();
+              fireInfo = {};
               initMarker();
             }
-            // easyController.finishLoad(IndicatorResult.noMore,true);
             if(showList){
               fireListDialog();
             }
@@ -1367,7 +1299,6 @@ class HomeController extends GetxController {
           allFireList = [];
         }else{
           if(newItems.isEmpty){
-            // easyController.finishLoad(IndicatorResult.noMore,true);
             return 2;
           }
         }
@@ -1380,64 +1311,100 @@ class HomeController extends GetxController {
           fireListDialog();
         }
 
+        fireInfo = {};
         initMarker();
-        // 最终成功状态
-        // easyController.finishLoad(IndicatorResult.success, true);
         return 1;
       }else{
         EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
-        // easyController.finishLoad(IndicatorResult.success, true); //失败状态
         return 0;
       }
     }catch(e){
       HhLog.e("postFire error: $e");
       EventBusUtil.getInstance().fire(HhToast(title: "加载失败"));
-      // easyController.finishLoad(IndicatorResult.success, true); //异常时也要关闭动画
       return 0;
     }
+  }
+
+
+  /// 把圆(半径: 米)近似成多边形顶点
+  List<LatLng> _circleAsPolygon(LatLng center,
+      {double radiusMeter = 5000, int segments = 72}) {
+    const double R = 6378137.0; // 地球半径
+    final double lat = center.latitude * pi / 180;
+    final double lng = center.longitude * pi / 180;
+    final double d = radiusMeter / R;
+
+    final pts = <LatLng>[];
+    for (int i = 0; i <= segments; i++) {
+      final brng = 2 * pi * i / segments;
+      final lat2 = asin(sin(lat) * cos(d) + cos(lat) * sin(d) * cos(brng));
+      final lng2 = lng +
+          atan2(sin(brng) * sin(d) * cos(lat), cos(d) - sin(lat) * sin(lat2));
+      pts.add(LatLng(lat2 * 180 / pi, lng2 * 180 / pi));
+    }
+    return pts;
+  }
+
+  /// 以 center 为圆心新增一个圆(用Polygon拟合)
+  void addCirclePolygon({
+    required LatLng center,
+    double radiusMeter = 5000,
+    Color strokeColor = Colors.red,
+    double strokeWidth = 1.5,
+    Color fillColor = const Color(0x00000000),
+  }) {
+    final polygon = Polygon(
+      points: _circleAsPolygon(center, radiusMeter: radiusMeter),
+      strokeColor: strokeColor,
+      strokeWidth: strokeWidth,
+      fillColor: fillColor,
+    );
+
+    final s = {...aMapPolygons.value};
+    s.add(polygon);
+
+    aMapPolygons.value = s; // 用新Set赋值，确保地图刷新
   }
 
   final List<String> circleIds = [];
   ///火警打点
   initMarker() async {
-    //gdMapController.cleanAllMarkers(); TODO
+    aMapMarkers.clear();
+    aMapPolygons.removeWhere((element){
+      return !element.id.contains("bridge");
+    });
     clearAllCircles();
-    fireMarkerList.clear();
+    ///刷新地图
+    viewStatus.value = false;
+    viewStatus.value = true;
     for(dynamic model in allFireList){
       /// 创建BMFMarker
-      bool chose = model["id"] == fireInfo["id"];
-      BMFCoordinate location = BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse(model["latitude"]),double.parse(model["longitude"]))[0],ParseLocation.gps84_To_bd09(double.parse(model["latitude"]),double.parse(model["longitude"]))[1]);
-      BMFMarker marker = BMFMarker.icon(
-          position: location,
-          anchorX: 0.5,
-          anchorY: 0.5,
-          title: '${model["formattedAddress"]}',
-          enabled: true,
-          visible: true,
-          identifier: '${model["id"]}',
-          icon: chose?'assets/images/common/ic_fire.png':'assets/images/common/ic_fires_red.png');
-      /// 添加Marker
-      //gdMapController.addMarker(marker); TODO
-      fireMarkerList.add(marker);
+      final gcj = ParseLocation.gps84_To_Gcj02(double.parse("${model["latitude"]}"),double.parse("${model["longitude"]}"));
+      LatLng position = LatLng(gcj[0],gcj[1]);
+      Marker mk = Marker(
+        anchor: const Offset(0.5,0.5),
+          position: position,
+          icon: ("${fireInfo["id"]}" == "${model["id"]}")?BitmapDescriptor.fromIconPath('assets/images/common/ic_fire.png'):BitmapDescriptor.fromIconPath('assets/images/common/ic_fires_red.png'),
+          onTap: (v){
+            ///点击Marker详情
+            fireInfo = model;
+            showFireInfo();
+            initMarker();
 
-      ///画范围
-      BMFCircle circle = BMFCircle(
-        center: location,
-        radius: 1000,
-        strokeColor: HhColors.red2.withOpacity(0.6),
-        width: 2,
-        fillColor: HhColors.trans,
+            gdMapController.moveCamera(
+                CameraUpdate.newLatLngZoom(position,15.0)
+            );
+          }
       );
-      //gdMapController.addCircle(circle); TODO
-      // 存储id
-      circleIds.add(circle.id);
+      ///画范围以该 marker 为中心画 1km 圆
+      addCirclePolygon(center: position, radiusMeter: 1000);
+      aMapMarkers.add(mk);
     }
-    if(allFireList.isNotEmpty){
+    if(allFireList.isNotEmpty && (fireInfo==null || fireInfo["latitude"]==null)){
       ///跳到第一火点
-      // gdMapController.setCenterCoordinate( TODO
-      //     BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[0],ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[1]),
-      //     true,animateDurationMs: 200
-      // );
+      final gcj = ParseLocation.gps84_To_Gcj02(double.parse("${allFireList[0]["latitude"]}"),double.parse("${allFireList[0]["longitude"]}"));
+      LatLng position = LatLng(gcj[0],gcj[1]);
+      gdMapController.moveCamera(CameraUpdate.newLatLng(position));
     }
   }
 
@@ -2144,8 +2111,8 @@ class HomeController extends GetxController {
     //简化多边形
     List<LatLng> pointsOut = douglasPeucker(points, 0.00005);
     points = pointsOut;
-    //2.创建多边形添加到地图
-    final id = 'pg_${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(1000)}';
+    ///2.创建多边形添加到地图 && 添加id标记
+    final id = 'bridge_${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(1000)}';
     aMapPolygons.add(Polygon(points: points,
       visible:true,
       joinType:JoinType.bevel,
@@ -2216,15 +2183,14 @@ class HomeController extends GetxController {
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     easyController.finishLoad(IndicatorResult.success,true);
     if(result["code"]==200){
-      //int currentZoom = await gdMapController.getZoomLevel() ?? 13; TODO
       fireInfo = result["data"];
       showFireInfo();
       initMarker();
-      // gdMapController.setCenterCoordinate( TODO
-      //   BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[1]),
-      //   false,
-      // );
-      // gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
+      final gcj = ParseLocation.gps84_To_Gcj02(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"));
+      LatLng position = LatLng(gcj[0],gcj[1]);
+      gdMapController.moveCamera(
+          CameraUpdate.newLatLngZoom(position,15.0)
+      );
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
     }

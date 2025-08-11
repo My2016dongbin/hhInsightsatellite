@@ -11,9 +11,12 @@
         xmlns:tools="http://schemas.android.com/tools"
         tools:replace="android:icon"
         tools:ignore="GoogleAppIndexingWarning">
+        <!--<meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="dczmYwySpWROOOhYcVUBt5ALv27vV2uv" />-->
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="dczmYwySpWROOOhYcVUBt5ALv27vV2uv" />
+            android:value="A7mAKaxN4qVLc99lSTX7IwzQYGI8e1CA" />
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="7812f86d49fc35fc3702fe1b2fe8fae2"/>
