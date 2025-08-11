@@ -19,6 +19,14 @@
 		<string>zh-Hans</string>
 		<string>en</string>
 	</array>
+	<key>AMapPrivacyShow</key>
+    <true/>
+    <key>AMapPrivacyAgree</key>
+    <true/>
+	<key>io.flutter.embedded_views_preview</key>
+    <string>YES</string>
+    <key>AMapApiKey</key>
+    <string>72e1128c23436206d31ee09897c3dd3c</string>
 	<key>CFBundleName</key>
 	<string>insightsatellite</string>
 	<key>CFBundlePackageType</key>

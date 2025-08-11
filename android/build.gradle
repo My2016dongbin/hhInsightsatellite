@@ -3,6 +3,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://repo.amap.com/repository/android' }
     }
 
     dependencies {
@@ -15,6 +16,8 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://repo.amap.com/repository/android' }
+        maven { url "https://a.amap.com/repository/release" }
     }
 }
 

@@ -17,6 +17,8 @@ import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhBehavior.dart';
 import 'package:insightsatellite/utils/HhColors.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
+import 'package:amap_flutter_map/amap_flutter_map.dart';
+import 'package:amap_flutter_base/amap_flutter_base.dart';
 class HomePage extends StatelessWidget {
   final logic = Get.find<HomeController>();
 
@@ -74,19 +76,19 @@ class HomePage extends StatelessWidget {
           height: statusBarHeight,
           width: 1.sw,
         ),
+        ///高德地图
         Container(
           margin: EdgeInsets.only(top: statusBarHeight),
-          child: SingleChildScrollView(
-            physics: const NeverScrollableScrollPhysics(),//禁用滑动
-            child: SizedBox(
-              height: 1.1.sh-statusBarHeight,//遮盖水印 1.2.sh
-              width: 1.sw,
-              child: BMFMapWidget(
-                onBMFMapCreated: (controller) {
-                  logic.onBMFMapCreated(controller);
-                },
-                mapOptions: logic.mapOptions(),
-              ),
+          child: SizedBox(
+            height: 1.0.sh-statusBarHeight,//遮盖水印 1.2.sh
+            width: 1.sw,
+            child: AMapWidget(
+              apiKey: CommonData.aMapApiKey,
+              privacyStatement: const AMapPrivacyStatement(hasContains: true, hasShow: true, hasAgree: true),
+              onMapCreated: logic.onGDMapCreated,
+              mapType: logic.mapTypeTag.value==3?MapType.normal:MapType.satellite,
+              markers: logic.aMapMarkers.toSet(),
+              polygons: logic.aMapPolygons.toSet(),
             ),
           ),
         ),
@@ -180,7 +182,7 @@ class HomePage extends StatelessWidget {
                   onTap: (){
                     Navigator.pop(Get.context!);
                     logic.mapTypeTag.value = 3;
-                    logic.myMapController.updateMapOptions(logic.mapOptions());
+                    //logic.gdMapController.updateMapOptions(logic.mapOptions());
                     logic.mapLoading();
                   },
                   child: Container(
@@ -201,7 +203,7 @@ class HomePage extends StatelessWidget {
                   onTap: (){
                     Navigator.pop(Get.context!);
                     logic.mapTypeTag.value = 4;
-                    logic.myMapController.updateMapOptions(logic.mapOptions());
+                    //logic.gdMapController.updateMapOptions(logic.mapOptions());
                     logic.mapLoading();
                   },
                   child: Container(
@@ -233,7 +235,7 @@ class HomePage extends StatelessWidget {
                     logic.mapChangeTag.value = 2;
                     logic.mapLoading();
                     Future.delayed(const Duration(milliseconds: 2300),(){
-                      logic.myMapController.updateMapOptions(logic.mapOptions());
+                      //logic.gdMapController.updateMapOptions(logic.mapOptions());
                     });
                   },
                   child: Container(
@@ -256,7 +258,7 @@ class HomePage extends StatelessWidget {
                     logic.mapChangeTag.value = 3;
                     logic.mapLoading();
                     Future.delayed(const Duration(milliseconds: 2300),(){
-                      logic.myMapController.updateMapOptions(logic.mapOptions());
+                      //logic.gdMapController.updateMapOptions(logic.mapOptions());
                     });
                   },
                   child: Container(

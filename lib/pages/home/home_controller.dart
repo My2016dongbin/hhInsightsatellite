@@ -1,8 +1,7 @@
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:math';
 import 'dart:ui';
-
+import 'package:amap_flutter_map/amap_flutter_map.dart';
 import 'package:bouncing_widget/bouncing_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -10,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
-import 'package:flutter_baidu_mapapi_map/src/map/bmf_map_controller.dart';
 import 'package:flutter_bmflocation/flutter_bmflocation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
@@ -36,6 +34,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
+import 'package:amap_flutter_base/amap_flutter_base.dart';
 
 import '../../bus/event_class.dart';
 import '../../utils/EventBusUtils.dart';
@@ -74,7 +73,7 @@ class HomeController extends GetxController {
   late String savePath = '';
   late bool isFromPush = false;
 
-  late BMFMapController myMapController;
+  late AMapController gdMapController;
 
   ///图层类型 1谷歌影像 2谷歌高程 3天地图矢量 4天地图影像
   final Rx<int> mapTypeTag = 4.obs;
@@ -170,27 +169,13 @@ class HomeController extends GetxController {
   late int bridgeTimes = 0;
 
   //多区域选择（第一条固定，后面的为列表数据）
-  late RxList<dynamic> gridSearchList = [].obs;
-  late Rx<int> gridSearchIndex = 0.obs;
+  final RxList<dynamic> gridSearchList = [].obs;
+  final Rx<int> gridSearchIndex = 0.obs;
+  final Rx<int> mapTypeIndex = 0.obs;//0：卫星图；1：矢量图
 
-  // Future<void> requestNotificationPermission() async {
-  //   // 检查是否已经获得通知权限
-  //   var status = await Permission.notification.status;
-  //   if (status.isDenied) {
-  //     // 申请权限
-  //     status = await Permission.notification.request();
-  //   }
-  //
-  //   if (status.isGranted) {
-  //   } else if (status.isPermanentlyDenied) {
-  //     openAppSettings(); // 引导用户前往设置开启通知权限
-  //   } else if (status.isDenied) {
-  //     EventBusUtil.getInstance().fire(HhToast(title: '请开启通知权限', type: 0));
-  //     Future.delayed(const Duration(milliseconds: 2000), () {
-  //       openAppSettings(); // 引导用户前往设置开启通知权限
-  //     });
-  //   }
-  // }
+  final RxSet<Marker> aMapMarkers = <Marker>{}.obs;
+  final RxSet<Polygon> aMapPolygons = <Polygon>{}.obs;
+
   Future<void> requestNotificationPermission() async {
     var status = await Permission.notification.status;
 
@@ -775,15 +760,15 @@ class HomeController extends GetxController {
     await OpenFile.open(savePath,
         type: "application/vnd.android.package-archive");
   }
-
+/*
   /// 创建完成回调
   void onBMFMapCreated(BMFMapController controller) {
-    myMapController = controller;
+    gdMapController = controller;
 
     /// 地图marker点击回调 (Android端SDK存在bug,现区分两端分别设置)
-    myMapController.setMapClickedMarkerCallback(
+    gdMapController.setMapClickedMarkerCallback(
         callback: (BMFMarker marker) async {
-      int currentZoom = await myMapController.getZoomLevel() ?? 13;
+      int currentZoom = await gdMapController.getZoomLevel() ?? 13;
       if (Platform.isAndroid) {
         HhLog.d("click Android ${marker.id}");
         for(int i = 0; i < fireMarkerList.length;i++){
@@ -792,29 +777,29 @@ class HomeController extends GetxController {
             fireInfo = allFireList[i];
             showFireInfo();
             initMarker();
-            myMapController.setCenterCoordinate(
+            gdMapController.setCenterCoordinate(
               BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${allFireList[i]["latitude"]}"),double.parse("${allFireList[i]["longitude"]}"))[1]),
               false,
             );
-            myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
+            gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
 
             return;
           }
         }
       }
       if (Platform.isIOS) {
-        myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
+        gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
         for(dynamic modelX in allFireList){
           if(marker.identifier!.contains(modelX["id"])){
             //点击Marker详情
             fireInfo = modelX;
             showFireInfo();
             initMarker();
-            myMapController.setCenterCoordinate(
+            gdMapController.setCenterCoordinate(
               BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${modelX["latitude"]}"),double.parse("${modelX["longitude"]}"))[1]),
               false,
             );
-            myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
+            gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
             break;
           }
         }
@@ -825,6 +810,13 @@ class HomeController extends GetxController {
     // if(areaPointsList!=null && areaPointsList.length!=0){
     //   drawAreaLines();
     // }
+  }*/
+
+  /// 创建完成回调
+  void onGDMapCreated(AMapController controller) {
+    gdMapController = controller;
+
+    aMapMarkers.add(Marker(position: const LatLng(35.66,126.88),icon: BitmapDescriptor.fromIconPath('assets/images/common/ic_fires_red.png')));
   }
 
   void fireListDialog() {
@@ -905,12 +897,12 @@ class HomeController extends GetxController {
                           Get.back();
                           fireInfo = item;
                           initMarker();
-                          myMapController.setCenterCoordinate(
-                            BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[1]),
-                            false,
-                          );
-                          int currentZoom = await myMapController.getZoomLevel() ?? 13;
-                          myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
+                          // gdMapController.setCenterCoordinate( TODO
+                          //   BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"))[1]),
+                          //   false,
+                          // );
+                          // int currentZoom = await gdMapController.getZoomLevel() ?? 13;
+                          // gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
                           showFireInfo();
                         },
                         child: Column(
@@ -1344,7 +1336,7 @@ class HomeController extends GetxController {
         fireCount.value = result["total"];
         if(/*newItems.isEmpty && */pageNum == 1){
           fireController.itemList = [];
-          myMapController.cleanAllMarkers();
+          //gdMapController.cleanAllMarkers(); TODO
           clearAllCircles();
           fireMarkerList.clear();
           allFireList = [];
@@ -1408,7 +1400,7 @@ class HomeController extends GetxController {
   final List<String> circleIds = [];
   ///火警打点
   initMarker() async {
-    myMapController.cleanAllMarkers();
+    //gdMapController.cleanAllMarkers(); TODO
     clearAllCircles();
     fireMarkerList.clear();
     for(dynamic model in allFireList){
@@ -1425,7 +1417,7 @@ class HomeController extends GetxController {
           identifier: '${model["id"]}',
           icon: chose?'assets/images/common/ic_fire.png':'assets/images/common/ic_fires_red.png');
       /// 添加Marker
-      myMapController.addMarker(marker);
+      //gdMapController.addMarker(marker); TODO
       fireMarkerList.add(marker);
 
       ///画范围
@@ -1436,16 +1428,16 @@ class HomeController extends GetxController {
         width: 2,
         fillColor: HhColors.trans,
       );
-      myMapController.addCircle(circle);
+      //gdMapController.addCircle(circle); TODO
       // 存储id
       circleIds.add(circle.id);
     }
     if(allFireList.isNotEmpty){
       ///跳到第一火点
-      myMapController.setCenterCoordinate(
-          BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[0],ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[1]),
-          true,animateDurationMs: 200
-      );
+      // gdMapController.setCenterCoordinate( TODO
+      //     BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[0],ParseLocation.gps84_To_bd09(double.parse(allFireList[0]["latitude"]),double.parse(allFireList[0]["longitude"]))[1]),
+      //     true,animateDurationMs: 200
+      // );
     }
   }
 
@@ -1453,7 +1445,7 @@ class HomeController extends GetxController {
   void clearAllCircles() {
     if(circleIds.isNotEmpty){
       for (final circleId in circleIds) {
-        myMapController.removeOverlay(circleId);
+        //gdMapController.removeOverlay(circleId); TODO
       }
       circleIds.clear();
     }
@@ -2076,6 +2068,7 @@ class HomeController extends GetxController {
   }
 
   void drawBridge() {
+    aMapPolygons.clear();
     int now = DateTime.now().millisecondsSinceEpoch;
     if(now - bridgeTimes < 2000){
       return;
@@ -2108,6 +2101,7 @@ class HomeController extends GetxController {
     }
   }
   void drawBridgeBuffer() {
+    aMapPolygons.clear();
     int now = DateTime.now().millisecondsSinceEpoch;
     if(now - bridgeTimes < 2000){
       return;
@@ -2141,25 +2135,23 @@ class HomeController extends GetxController {
   }
 
   void putDrawBridgeQueue(List<dynamic> ins,{dynamic lineColor}) {
-    List<BMFCoordinate> points = [];
+    List<LatLng> points = [];
     for(int p = 0; p < ins.length; p++){
       List<dynamic> point = ins[p];//[124.143026, 50.566138]
-      //1.转成 BMFCoordinate
-      // points.add(BMFCoordinate(double.parse("${point[1]}"), double.parse("${point[0]}")));
-      points.add(BMFCoordinate(point[1], point[0]));
+      //1.转成 LatLng
+      points.add(LatLng(point[1], point[0]));
     }
     //简化多边形
-    List<BMFCoordinate> pointsOut = douglasPeucker(points, 0.00005);
+    List<LatLng> pointsOut = douglasPeucker(points, 0.00005);
     points = pointsOut;
-    //2.创建多边形
-    BMFPolygon polygon = BMFPolygon(
-      coordinates: points,
+    //2.创建多边形添加到地图
+    final id = 'pg_${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(1000)}';
+    aMapPolygons.add(Polygon(points: points,
+      visible:true,
+      joinType:JoinType.bevel,
+      strokeWidth: 3,
       strokeColor: lineColor??Colors.blue,
-      fillColor: HhColors.trans,
-      width: 3,
-    );
-    //3.添加到地图
-    myMapController.addPolygon(polygon);
+      fillColor: HhColors.trans,)..setIdForCopy(id));
   }
 
   ///处理数据-分组排序by time or fireNo
@@ -2224,15 +2216,15 @@ class HomeController extends GetxController {
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     easyController.finishLoad(IndicatorResult.success,true);
     if(result["code"]==200){
-      int currentZoom = await myMapController.getZoomLevel() ?? 13;
+      //int currentZoom = await gdMapController.getZoomLevel() ?? 13; TODO
       fireInfo = result["data"];
       showFireInfo();
       initMarker();
-      myMapController.setCenterCoordinate(
-        BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[1]),
-        false,
-      );
-      myMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
+      // gdMapController.setCenterCoordinate( TODO
+      //   BMFCoordinate(ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[0],ParseLocation.gps84_To_bd09(double.parse("${result["data"]["latitude"]}"),double.parse("${result["data"]["longitude"]}"))[1]),
+      //   false,
+      // );
+      // gdMapController.setZoomTo((currentZoom>16?currentZoom:16)*1.0);
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString("${result["msg"]}")));
     }

@@ -1,7 +1,7 @@
 import 'dart:math';
-import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
+import 'package:amap_flutter_base/amap_flutter_base.dart';
 
-double _getPerpendicularDistance(BMFCoordinate point, BMFCoordinate lineStart, BMFCoordinate lineEnd) {
+double _getPerpendicularDistance(LatLng point, LatLng lineStart, LatLng lineEnd) {
   double dx = lineEnd.latitude - lineStart.latitude;
   double dy = lineEnd.longitude - lineStart.longitude;
 
@@ -30,7 +30,7 @@ double _getPerpendicularDistance(BMFCoordinate point, BMFCoordinate lineStart, B
   return sqrt(dx * dx + dy * dy);
 }
 
-List<BMFCoordinate> douglasPeucker(List<BMFCoordinate> points, double tolerance) {
+List<LatLng> douglasPeucker(List<LatLng> points, double tolerance) {
   if (points.length < 3) return points;
 
   double maxDistance = 0.0;
@@ -45,9 +45,9 @@ List<BMFCoordinate> douglasPeucker(List<BMFCoordinate> points, double tolerance)
   }
 
   if (maxDistance > tolerance) {
-    List<BMFCoordinate> result1 =
+    List<LatLng> result1 =
         douglasPeucker(points.sublist(0, index + 1), tolerance);
-    List<BMFCoordinate> result2 =
+    List<LatLng> result2 =
         douglasPeucker(points.sublist(index, points.length), tolerance);
 
     return result1.sublist(0, result1.length - 1) + result2;
