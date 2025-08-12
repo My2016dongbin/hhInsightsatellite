@@ -1,7 +1,7 @@
 import UIKit
 import Flutter
 import AMapFoundationKit
-import AMapLocationKit  // ← 一定要加这一行
+import AMapLocationKit
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -9,10 +9,14 @@ import AMapLocationKit  // ← 一定要加这一行
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // 通知高德 SDK：隐私弹窗已展示 & 用户已同意
-//      AMapLocationClient.updatePrivacyShow(true, privacyInfo: true)
-      // 2. 通知定位 SDK：用户已经同意隐私协议
-//      AMapLocationClient.updatePrivacyAgree(true)
+      
+        // 地图 SDK 隐私合规
+        MAMapView.updatePrivacyShow(.didShow, privacyInfo: .didContain)
+        MAMapView.updatePrivacyAgree(.didAgree)
+
+        // 定位 SDK 隐私合规
+        AMapLocationManager.updatePrivacyShow(.didShow, privacyInfo: .didContain)
+        AMapLocationManager.updatePrivacyAgree(.didAgree)
 
       // 再去设置地图 key
       AMapServices.shared().apiKey = "72e1128c23436206d31ee09897c3dd3c"
