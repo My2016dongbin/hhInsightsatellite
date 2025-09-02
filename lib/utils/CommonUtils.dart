@@ -24,6 +24,8 @@ import 'package:encrypt/encrypt.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:video_player/video_player.dart';
+import 'dart:math' as math;
+import 'package:amap_flutter_base/amap_flutter_base.dart';
 
 class CommonUtils {
   List<Color> gradientColors() {
@@ -68,6 +70,98 @@ class CommonUtils {
   Future<bool> hasPermission(String permission) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return (prefs.getString(SPKeys().permissions)??"").contains(permission) || (prefs.getString(SPKeys().permissions)??"").contains("*:*:*");
+  }
+
+  void closeAllOverlays() {
+    Get.closeAllSnackbars(); //先清掉SnackBar
+
+    //逐个关掉 overlay（对话框、BottomSheet）
+    while ((Get.isDialogOpen ?? false) || (Get.isBottomSheetOpen ?? false)) {
+      Get.back(); // closeOverlays: true 的效果就是优先关 overlay
+    }
+
+    //再Navigator 方案（覆盖用原生 API 打开的弹窗）
+    final ctx = Get.context;
+    if (ctx != null) {
+      Navigator.of(ctx).popUntil((r) => r is PageRoute);
+      Navigator.of(ctx, rootNavigator: true).popUntil((r) => r is PageRoute);
+    }
+  }
+
+// 1) 简单平均（小范围够用，处理跨180°经线）
+  LatLng midpointSimple(LatLng a, LatLng b) {
+    double dLon = ((b.longitude - a.longitude + 540) % 360) - 180;
+    double lon = a.longitude + dLon / 2;
+    if (lon > 180) lon -= 360;
+    if (lon < -180) lon += 360;
+    double lat = (a.latitude + b.latitude) / 2;
+    return LatLng(lat, lon);
+  }
+
+// 2) 球面大圆中点（更精确）
+  LatLng midpointGreatCircle(LatLng a, LatLng b) {
+    double rad(double d) => d * math.pi / 180.0;
+    double deg(double r) => r * 180.0 / math.pi;
+
+    final phi1 = rad(a.latitude);
+    final lam1 = rad(a.longitude);
+    final phi2 = rad(b.latitude);
+    final lam2 = rad(b.longitude);
+    final dLam = lam2 - lam1;
+
+    final x = math.cos(phi2) * math.cos(dLam);
+    final y = math.cos(phi2) * math.sin(dLam);
+
+    final phi3 = math.atan2(
+      math.sin(phi1) + math.sin(phi2),
+      math.sqrt(math.pow(math.cos(phi1) + x, 2) + y * y),
+    );
+    final lam3 = lam1 + math.atan2(y, math.cos(phi1) + x);
+
+    double lon = ((deg(lam3) + 540) % 360) - 180; // 归一化到 [-180,180]
+    double lat = deg(phi3);
+    return LatLng(lat, lon);
+  }
+
+
+  double zoomForSquareByDiagonal(
+      LatLng a,
+      LatLng b, {
+        required double sidePx,   // 地图可视区域的正方形边长(像素)
+        double paddingPx = 16.0,  // 四周留白(像素)
+      }) {
+    // 中心经纬与经度差(处理跨180°)
+    final centerLat = (a.latitude + b.latitude) / 2.0;
+    final dLon = ((b.longitude - a.longitude + 540) % 360) - 180;
+
+    // 经纬度跨度(度)
+    final latSpanDeg = (a.latitude - b.latitude).abs();
+    final lonSpanDeg = dLon.abs();
+
+    // 度→米（经度按纬度缩放）
+    const R = 6378137.0;
+    const deg2m = math.pi / 180.0 * R;
+    final latMeters = latSpanDeg * deg2m;
+    final lonMeters = lonSpanDeg * deg2m * math.cos(centerLat * math.pi / 180.0);
+
+    // 需要容纳的最大边(米) + 安全系数
+    final needMeters = math.max(latMeters, lonMeters) * 1.02;
+
+    // 可用像素
+    final innerPx = math.max(1.0, sidePx - 2 * paddingPx);
+
+    // 需要的 meters-per-pixel
+    final mpp = needMeters / innerPx;
+
+    // 反推高德缩放：mpp = cos(lat)*2πR / (256*2^z)
+    final numerator = math.cos(centerLat * math.pi / 180.0) * 2 * math.pi * R;
+    double z = math.log(numerator / (256.0 * mpp)) / math.ln2;
+
+    // 略降一点并限制到常见范围 3–20
+    z -= 0.001;
+    if (z < 3.0) z = 3.0;
+    if (z > 20.0) z = 20.0;
+    return z;
   }
 
   ///百度转高德

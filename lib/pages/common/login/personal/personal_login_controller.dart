@@ -282,7 +282,7 @@ class PersonalLoginController extends GetxController {
       prefs.setBool(SPKeys().voice, true);
 
       XgFlutterPlugin().deleteTags(['${result["data"]["user"]["userId"]}']);
-      XgFlutterPlugin().setTags(['${result["data"]["user"]["userId"]}']);
+      XgFlutterPlugin().setTags(['${result["data"]["user"]["userId"]}','20250902']);
       EventBusUtil.getInstance().fire(HhToast(title: '登录成功', type: 1));
       Future.delayed(const Duration(seconds: 1), () {
         Get.offAll(() => HomePage(), binding: HomeBinding(),

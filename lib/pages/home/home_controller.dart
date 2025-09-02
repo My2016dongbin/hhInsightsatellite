@@ -321,9 +321,12 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-    postBridgeBuffer();//缓冲区区域边界
-    postDays();
-    postType();
+    Future.delayed(const Duration(milliseconds: 1000),(){
+      postBridgeBuffer();//缓冲区区域边界
+      getCenter();//中心点显示范围
+      postDays();
+      postType();
+    });
     Future.delayed(const Duration(milliseconds: 2000),(){
       getVersion();
     });
@@ -875,6 +878,8 @@ class HomeController extends GetxController {
                                 Icon(Icons.turned_in_not_rounded,color: HhColors.titleColor_55,size: 18.w*3,),
                                 SizedBox(width: 3.w*3,),
                                 Text('${item["fireNo"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
+                                SizedBox(width: 20.w*3,),
+                                Text('监测次数 ${item["frequency"]}次',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
                                 SizedBox(width: 10.w*3,),
                               ],
                             ),
@@ -1000,6 +1005,7 @@ class HomeController extends GetxController {
   }
 
   void showFireInfo() {
+    CommonUtils().closeAllOverlays();
     showModalBottomSheet(context: Get.context!, builder: (a){
       return Container(
         width: 1.sw,
@@ -1173,8 +1179,9 @@ class HomeController extends GetxController {
           ],
         ),
       );
-    },isDismissible: true,enableDrag: false,isScrollControlled: true);
+    },isDismissible: true,enableDrag: false,isScrollControlled: true,);
   }
+
 
   Future<int> postFire(bool showList) async {
     if(!isFromPush){
@@ -1400,12 +1407,12 @@ class HomeController extends GetxController {
       addCirclePolygon(center: position, radiusMeter: 1000);
       aMapMarkers.add(mk);
     }
-    if(allFireList.isNotEmpty && (fireInfo==null || fireInfo["latitude"]==null)){
+    /*if(allFireList.isNotEmpty && (fireInfo==null || fireInfo["latitude"]==null)){
       ///跳到第一火点
       final gcj = ParseLocation.gps84_To_Gcj02(double.parse("${allFireList[0]["latitude"]}"),double.parse("${allFireList[0]["longitude"]}"));
       LatLng position = LatLng(gcj[0],gcj[1]);
       gdMapController.moveCamera(CameraUpdate.newLatLng(position));
-    }
+    }*/
   }
 
   /// 清除所有圆形
@@ -1427,6 +1434,42 @@ class HomeController extends GetxController {
       EventBusUtil.getInstance().fire(HhLoading(show: false));
       bridgeData = resultS["data"];
       drawBridge();
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
+    }
+
+  }
+
+  ///获取中心点
+  Future<void> getCenter() async {
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    var resultS = await HhHttp().request(RequestUtils.center,method: DioMethod.get);
+    HhLog.d("center -- $resultS");
+    if(resultS["code"]==200 && resultS["data"] != null){
+      EventBusUtil.getInstance().fire(HhLoading(show: false));
+      dynamic data = resultS["data"];
+      if(data!=null){
+        dynamic coordinates = data["coordinates"];
+        if(coordinates!=null){
+          try{
+            dynamic listOut = coordinates[0];
+            dynamic listA = listOut[0];
+            dynamic listB = listOut[2];
+            double centerZoom = 3.6;
+                LatLng centerLatLng = CommonUtils().midpointGreatCircle(LatLng(listA[1], listA[0]),LatLng(listB[1], listB[0]));
+            centerZoom = CommonUtils().zoomForSquareByDiagonal(LatLng(listA[1], listA[0]),LatLng(listB[1], listB[0]),sidePx: 1.sh);
+
+            ///跳转中心点
+            gdMapController.moveCamera(CameraUpdate.newLatLngZoom(centerLatLng,centerZoom-0.7));
+          }catch(e){
+            gdMapController.moveCamera(CameraUpdate.newLatLngZoom(const LatLng(36.629094,104.755542),3.6));
+          }
+        }else{
+          gdMapController.moveCamera(CameraUpdate.newLatLngZoom(const LatLng(36.629094,104.755542),3.6));
+        }
+      }else{
+        gdMapController.moveCamera(CameraUpdate.newLatLngZoom(const LatLng(36.629094,104.755542),3.6));
+      }
     }else{
       EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(resultS["msg"])));
     }

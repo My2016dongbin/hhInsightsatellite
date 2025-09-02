@@ -18,6 +18,7 @@ class RequestUtils{
   static const satelliteTypeTenant = '$base/system/satelliteConfig/permissionSelectTenantId';//卫星类型查询-租户内类型查询-
   static const landType = '$base/system/satelliteConfig/landTypeList';//地址类型查询-
   static const bridge = '$base/system/areaPolygon/queryUserAreaList';//'$base/satellite/areaPolygon/queryUserAreaList';//获取区域边界-
+  static const center = '$base/system/areaPolygon/queryUserAreaEnvelopeList';//获取中心点范围-
   static const bridgeBuffer = '$base/system/areaPolygon/queryUserAreaBufferList';//'$base/satellite/areaPolygon/queryUserAreaList';//获取区域边界-
   static const typePermission = '$base/system/satelliteConfig/permissionSelectUserId';//'$base/system/satelliteConfig/permissionSelect';//用户查询各类型权限-
   static const typePermissionEdit = '$base/system/satelliteConfig/permissionEditUserId';//'$base/system/satelliteConfig/permissionEdit';//用户修改各类型权限-
