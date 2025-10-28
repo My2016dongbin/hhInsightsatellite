@@ -5,37 +5,34 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bmflocation/flutter_bmflocation.dart';
 import 'package:flutter_bugly/flutter_bugly.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/pages/common/launch/launch_controller.dart';
-import 'package:insightsatellite/pages/home/home_controller.dart';
-import 'package:insightsatellite/pages/home/home_view.dart';
+import 'package:insightsatellite/pages/common/location/location_service.dart';
 import 'package:insightsatellite/res/strings.dart';
 import 'package:insightsatellite/routes/app_pages.dart';
-import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/CustomNavigatorObserver.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
-import 'package:insightsatellite/utils/HhColors.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
 import 'package:insightsatellite/utils/SPKeys.dart';
 import 'package:insightsatellite/widgets/app_view.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tpns_flutter_plugin/tpns_flutter_plugin.dart';
-import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 
-void main() {
+void main() async{
   //1334*750
   WidgetsFlutterBinding.ensureInitialized();
   //竖屏
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
+  ///高德地图同意隐私政策（必须）
+  await AmapLocationService().init();
+
   FlutterError.onError = (FlutterErrorDetails details) {
     /*"<user:'${CustomerModel.phone}'>\n<token:'${CustomerModel.token}'>\n${details.stack}"*/
   };
@@ -84,20 +81,6 @@ class MyAppState extends State<HhApp> {
   @override
   void initState() {
     super.initState();
-
-    ///百度地图sdk初始化鉴权
-    /// 设置是否隐私政策
-    LocationFlutterPlugin myLocPlugin = LocationFlutterPlugin();
-    myLocPlugin.setAgreePrivacy(true);
-    BMFMapSDK.setAgreePrivacy(true);
-    if (Platform.isIOS) {
-      BMFMapSDK.setApiKeyAndCoordType(
-          'owgFMBW3FyDXDU1yYUrkmwU5yyUOuuQG', BMF_COORD_TYPE.BD09LL);
-    } else if (Platform.isAndroid) {
-      // Android 目前不支持接口设置Apikey,
-      // 请在主工程的Manifest文件里设置，详细配置方法请参考官网(https://lbsyun.baidu.com/)demo
-      BMFMapSDK.setCoordType(BMF_COORD_TYPE.BD09LL);
-    }
 
     ///推送注册
     if (Platform.isIOS) {//com.haohai.insightsatellites

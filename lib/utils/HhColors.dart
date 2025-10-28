@@ -13,6 +13,7 @@ class HhColors {
   static const transBlueColor = Color(0xFF98BAFE);
   static const transBlueColors = Color(0x223477FF);
   static const transRedColors = Color(0x22FF5C5C);
+  static const backColorF57 = Color(0xFFF5F7F7);
   static const grayAATextColor = Color(0xFFAAAAAA);//深灰字体颜色
   static const grayBBTextColor = Color(0xFFBBBBBB);//深灰字体颜色
   static const grayCCTextColor = Color(0xFFCCCCCC);//深灰字体颜色

@@ -40,10 +40,10 @@ dependencies:
   easy_refresh: ^3.4.0
   event_bus: ^2.0.0
   loader_overlay: ^4.0.1
-  flutter_spinkit: ^5.2.1
+  flutter_spinkit: 5.2.1
   flutter_screenutil: ^5.9.0
-  dio: ^5.4.2
-  dio_cookie_manager: ^3.1.1
+  dio: 5.8.0+1
+  dio_cookie_manager: 3.2.0
   package_info_plus: ^5.0.1
   device_info_plus: ^9.1.2
   intl: ^0.18.1
@@ -73,10 +73,6 @@ dependencies:
   webview_flutter: ^4.8.0
   path_provider: ^2.1.4
   shared_preferences: ^2.2.3
-  flutter_bmflocation: ^3.3.0
-  flutter_baidu_mapapi_map: ^3.8.1
-  flutter_baidu_mapapi_search: ^3.8.1
-  flutter_baidu_mapapi_utils: ^3.8.1
   pinput: ^4.0.0
   tpns_flutter_plugin:
     git:
@@ -85,7 +81,7 @@ dependencies:
   encrypt: ^5.0.3
   audioplayers: ^5.2.1
   video_player: ^2.9.1
-  video_thumbnail: ^0.5.3
+  video_thumbnail: 0.5.3
   amap_flutter_map: ^3.0.0
   amap_flutter_location: ^3.0.0
 

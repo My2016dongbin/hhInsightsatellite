@@ -121,12 +121,16 @@ class UploadPage extends StatelessWidget {
                           Get.to(() => LocationPage(),
                               binding: LocationBinding());
                         },
-                        child: Row(
-                          children: [
-                            Image.asset('assets/images/common/ic_tomap.png',width:8.w*3,height: 10.w*3,fit: BoxFit.fill,),
-                            SizedBox(width: 3.w*3,),
-                            Text("定位",style: TextStyle(color: HhColors.themeColor,fontSize: 12.sp*3),),
-                          ],
+                        child: Container(
+                          padding: EdgeInsets.all(10.w*3),
+                          color: HhColors.trans,
+                          child: Row(
+                            children: [
+                              Image.asset('assets/images/common/ic_tomap.png',width:8.w*3,height: 10.w*3,fit: BoxFit.fill,),
+                              SizedBox(width: 3.w*3,),
+                              Text("定位",style: TextStyle(color: HhColors.themeColor,fontSize: 12.sp*3),),
+                            ],
+                          ),
                         ),
                       )
                     ],

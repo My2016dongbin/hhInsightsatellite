@@ -11,6 +11,17 @@ class HhLoading{
 
   HhLoading({required this.show,this.title});
 }
+class LocResult{
+  String title;
+  String detail;
+  double lat;
+  double lng;
+  String province;
+  String city;
+  String district;
+
+  LocResult(this.title,this.detail,this.lat,this.lng,this.province,this.city,this.district);
+}
 class LocText{
   String ?text;
 

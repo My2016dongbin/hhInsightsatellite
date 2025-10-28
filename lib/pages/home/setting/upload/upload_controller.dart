@@ -57,9 +57,9 @@ class UploadController extends GetxController {
   Future<void> onInit() async {
     super.onInit();
     versionSubscription =
-        EventBusUtil.getInstance().on<LocationSearch>().listen((event) {
-          addressController.text = event.address;
-          List<double> parse = ParseLocation.bd09_To_gps84(event.latitude,event.longitude);
+        EventBusUtil.getInstance().on<LocResult>().listen((event) {
+          addressController.text = event.detail;
+          List<double> parse = ParseLocation.gcj02_To_Gps84(event.lat,event.lng);
           latitudeController.text = CommonUtils().latLngCount("${parse[0]}");
           longitudeController.text = CommonUtils().latLngCount("${parse[1]}");
           ///省市区

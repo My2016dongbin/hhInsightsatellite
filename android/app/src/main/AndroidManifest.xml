@@ -3,7 +3,6 @@
     <application
         android:icon="${APP_ICON}"
         android:label="${APP_NAME}"
-        android:name="com.ehaohai.insightsatellite.MyApplication"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:largeHeap="true"

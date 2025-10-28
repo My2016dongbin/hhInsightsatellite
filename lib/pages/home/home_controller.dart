@@ -8,14 +8,13 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
-import 'package:flutter_bmflocation/flutter_bmflocation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
+import 'package:insightsatellite/pages/common/location/location_service.dart';
 import 'package:insightsatellite/pages/home/feedback/feedback_binding.dart';
 import 'package:insightsatellite/pages/home/feedback/feedback_view.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
@@ -33,10 +32,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
-import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 
-import '../../bus/event_class.dart';
 import '../../utils/EventBusUtils.dart';
 
 class HomeController extends GetxController {
@@ -51,7 +48,6 @@ class HomeController extends GetxController {
   final unhandledFriendApplicationCount = 0.obs;
   final unhandledGroupApplicationCount = 0.obs;
   final unhandledCount = 0.obs;
-  final LocationFlutterPlugin _myLocPlugin = LocationFlutterPlugin();
 
   Function()? onScrollToUnreadMessage;
   late StreamSubscription? showToastSubscription;
@@ -313,7 +309,6 @@ class HomeController extends GetxController {
             CommonData.context!.loaderOverlay.hide();
           }
     });
-    getLocation();
     //获取通知权限
     Future.delayed(const Duration(milliseconds: 2000), () {
       requestNotificationPermission();
@@ -337,93 +332,21 @@ class HomeController extends GetxController {
     //satellite:fireFeedback:add火情反馈
     feedBackStatus.value = await CommonUtils().hasPermission("fireFeedback");
     super.onInit();
+
+    ///定位服务
+    checkLocation();
   }
 
-  Future<void> getLocation() async {
-    if (Platform.isIOS) {
-      //接受定位回调
-      _myLocPlugin.singleLocationCallback(callback: (BaiduLocation result) {
-        //result为定位结果
-        HhLog.e("location isIOS ${result.latitude},${result.longitude}");
-        CommonData.latitude = result.latitude;
-        CommonData.longitude = result.longitude;
-      });
-    } else if (Platform.isAndroid) {
-      //接受定位回调
-      _myLocPlugin.seriesLocationCallback(callback: (BaiduLocation result) {
-        //result为定位结果
-        HhLog.d("location isAndroid ${result.latitude},${result.longitude}");
-        CommonData.latitude = result.latitude;
-        CommonData.longitude = result.longitude;
-        EventBusUtil.getInstance().fire(Location());
+  void checkLocation(){
+    ///处理原生定位初始化延时问题
+    AmapLocationService().dispose();
+    AmapLocationService().init();
+    AmapLocationService().startLocation();
+    if(!AmapLocationService().hasResult){
+      Future.delayed(const Duration(milliseconds: 10000),(){
+        checkLocation();
       });
     }
-    //设置定位参数
-    Map iosMap = initIOSOptions().getMap();
-    Map androidMap = initAndroidOptions().getMap();
-    _myLocPlugin.prepareLoc(androidMap, iosMap);
-    //开启定位
-    if (Platform.isIOS) {
-      _myLocPlugin
-          .singleLocation({'isReGeocode': true, 'isNetworkState': true});
-    } else if (Platform.isAndroid) {
-      _myLocPlugin.startLocation();
-    }
-
-    Future.delayed(const Duration(milliseconds: 10000)).then((value) {
-      getLocation();
-    });
-  }
-
-  BaiduLocationAndroidOption initAndroidOptions() {
-    BaiduLocationAndroidOption options = BaiduLocationAndroidOption(
-        // 定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
-        locationMode: BMFLocationMode.hightAccuracy,
-        // 是否需要返回地址信息
-        isNeedAddress: true,
-        // 是否需要返回海拔高度信息
-        isNeedAltitude: true,
-        // 是否需要返回周边poi信息
-        isNeedLocationPoiList: true,
-        // 是否需要返回新版本rgc信息
-        isNeedNewVersionRgc: true,
-        // 是否需要返回位置描述信息
-        isNeedLocationDescribe: true,
-        // 是否使用gps
-        openGps: true,
-        // 可选，设置场景定位参数，包括签到场景、运动场景、出行场景
-        locationPurpose: BMFLocationPurpose.sport,
-        // 坐标系
-        coordType: BMFLocationCoordType.bd09ll,
-        // 设置发起定位请求的间隔，int类型，单位ms
-        // 如果设置为0，则代表单次定位，即仅定位一次，默认为0
-        scanspan: 0);
-    return options;
-  }
-
-  BaiduLocationIOSOption initIOSOptions() {
-    BaiduLocationIOSOption options = BaiduLocationIOSOption(
-      // 坐标系
-      coordType: BMFLocationCoordType.bd09ll,
-      // 位置获取超时时间
-      locationTimeout: 10,
-      // 获取地址信息超时时间
-      reGeocodeTimeout: 10,
-      // 应用位置类型 默认为automotiveNavigation
-      activityType: BMFActivityType.automotiveNavigation,
-      // 设置预期精度参数 默认为best
-      desiredAccuracy: BMFDesiredAccuracy.best,
-      // 是否需要最新版本rgc数据
-      isNeedNewVersionRgc: true,
-      // 指定定位是否会被系统自动暂停
-      pausesLocationUpdatesAutomatically: false,
-      // 指定是否允许后台定位,
-      // 允许的话是可以进行后台定位的，但需要项目配置允许后台定位，否则会报错，具体参考开发文档
-      allowsBackgroundLocationUpdates: true,
-      // 设定定位的最小更新距离
-      distanceFilter: 10,
-    );
-    return options;
   }
 
   Future<void> getVersion() async {
@@ -1498,29 +1421,6 @@ class HomeController extends GetxController {
       viewStatus.value = false;
       viewStatus.value = true;
     });
-  }
-
-  mapOptions() {
-    return BMFMapOptions(
-        center: BMFCoordinate(CommonData.latitude ?? 36.30865,
-            CommonData.longitude ?? 120.314037),
-        zoomLevel: 6,
-        showMapScaleBar:true,
-        mapScaleBarPosition:BMFPoint(Platform.isIOS?20.h*3:40.w*3,Platform.isIOS?40.h*3:160.h*3),
-        compassEnabled: true,
-        showZoomControl: false,
-        showDEMLayer: true,
-        //地图是否展示地形图层默认false，since 3.6.0
-        overlookEnabled: mapChangeTag.value == 3 ? true : false,
-        // 设定地图View能否支持俯仰角
-        buildingsEnabled: mapChangeTag.value == 3 ? true : false,
-        // 设定地图是否现显示3D楼块效果
-        overlooking: mapChangeTag.value == 3 ? -45 : 0,
-        // 地图俯视角度，在手机上当前可使用的范围为－45～0度 (ios取int值)
-        mapType:
-            mapTypeTag.value == 3 ? BMFMapType.Standard : BMFMapType.Satellite,
-        mapPadding: BMFEdgeInsets(left: 30.w, top: 0, right: 30.w, bottom: 0),
-    );
   }
 
   void parseSatelliteChoose(int index) {

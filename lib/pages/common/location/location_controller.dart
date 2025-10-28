@@ -1,99 +1,84 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_baidu_mapapi_map/flutter_baidu_mapapi_map.dart';
-import 'package:flutter_baidu_mapapi_base/flutter_baidu_mapapi_base.dart';
-import 'package:flutter_baidu_mapapi_search/flutter_baidu_mapapi_search.dart';
-import 'package:get/get.dart';
+import 'package:amap_flutter_map/amap_flutter_map.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart' hide Response, FormData, MultipartFile;
+import 'package:amap_flutter_base/amap_flutter_base.dart';
+import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
-import 'package:insightsatellite/pages/common/model/model_class.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
+import 'package:insightsatellite/utils/HhHttp.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
+import 'package:insightsatellite/utils/RequestUtils.dart';
 
 class LocationController extends GetxController {
-  late BuildContext context;
+  final index = 0.obs;
   final Rx<bool> testStatus = true.obs;
-  final Rx<bool> pageStatus = false.obs;
-  final Rx<double> longitude = 0.0.obs;
-  final Rx<double> latitude = 0.0.obs;
-  final Rx<String> locText = ''.obs;
-  BMFMapController ?controller;
-  String province = "";
-  String city = "";
-  String district = "";
+  final Rx<String> locTitle = '点击地图选择地址'.obs;
+  final Rx<String> locDetail = '点击地图选择地址'.obs;
+  final Rx<double> locLat = 0.0.obs;
+  final Rx<double> locLng = 0.0.obs;
+  late String province = '';
+  late String city = '';
+  late String district = '';
+  late BuildContext context;
+  late AMapController gdMapController;
+  final RxSet<Marker> aMapMarkers = <Marker>{}.obs;
 
   @override
   Future<void> onInit() async {
+
     super.onInit();
   }
 
-  void onBMFMapCreated(BMFMapController controller_) {
-    controller = controller_;
-    userMarker();
-    controller?.setCenterCoordinate(BMFCoordinate(CommonData.latitude??36.308577,CommonData.longitude??120.314397),false);
-    controller?.setZoomTo(17);
-    controller?.setMapOnClickedMapBlankCallback(callback: (BMFCoordinate coordinate) {
-      controller?.cleanAllMarkers();
+  /// 创建完成回调
+  void onGDMapCreated(AMapController controller) {
+    gdMapController = controller;
 
-      latitude.value = coordinate.latitude;
-      longitude.value = coordinate.longitude;
+    if(CommonData.latitude!=0){
+      gdMapController.moveCamera(CameraUpdate.newLatLngZoom(LatLng(CommonData.latitude!,CommonData.longitude!), 14));
+    }
+  }
 
-      userMarker();
-
-      /// 创建BMFMarker
-      BMFMarker marker = BMFMarker(
-          position: BMFCoordinate(coordinate.latitude,coordinate.longitude),
-          enabled: false,
-          visible: true,
-          identifier: "location",
-          icon: 'assets/images/common/icon_point.png');
-
-      /// 添加Marker
-      controller?.addMarker(marker);
-      locSearch();
+  Future<void> postModel() async {
+    Map<String, dynamic> map = {};
+    var result = await HhHttp().request(RequestUtils.fireSearch,method: DioMethod.put,params: map,data: {
+      "id":""
     });
-  }
 
-  void userMarker() {
-    /// 创建BMFMarker
-    BMFMarker point = BMFMarker(
-        position: BMFCoordinate(CommonData.latitude??36.308577,CommonData.longitude??120.314397),
-        enabled: false,
-        visible: true,
-        identifier: "location",
-        icon: 'assets/images/common/icon_blue_loc.png');
+    HhLog.d("postModel -- $result");
+    if(result["code"]==0 && result["data"]!=null){
 
-    /// 添加Marker
-    controller?.addMarker(point);
+    }else{
+      EventBusUtil.getInstance().fire(HhToast(title: CommonUtils().msgString(result["msg"])));
+    }
   }
 
 
-  Future<void> locSearch() async {
-    // 构造检索参数
-    BMFReverseGeoCodeSearchOption reverseGeoCodeSearchOption =
-    BMFReverseGeoCodeSearchOption(
-        location: BMFCoordinate(latitude.value!, longitude.value!));
-    // 检索实例
-    BMFReverseGeoCodeSearch reverseGeoCodeSearch = BMFReverseGeoCodeSearch();
-    // 逆地理编码回调
-    reverseGeoCodeSearch.onGetReverseGeoCodeSearchResult(callback:
-        (BMFReverseGeoCodeSearchResult result,
-        BMFSearchErrorCode errorCode) {
-      HhLog.d("逆地理编码  errorCode = $errorCode, result = ${result.toMap()}");
-      List<BMFPoiInfo> ?poiList = result.poiList;
-      if(poiList!=null && poiList.isNotEmpty){
-        locText.value = CommonUtils().parseNull("${poiList[0].name}", "定位中..");
-      }else{
-        locText.value = CommonUtils().parseNull("${result.address}", "定位中..");
-      }
-      if(result.addressDetail!=null){
-        province = result.addressDetail!.province??"";
-        city = result.addressDetail!.city??"";
-        district = result.addressDetail!.district??"";
-      }
-      ///回传定位结果
-      EventBusUtil.getInstance().fire(LocationSearch(locText.value,latitude.value,longitude.value,province,city,district));
-    });
-    /// 发起检索
-    bool flag = await reverseGeoCodeSearch.reverseGeoCodeSearch(reverseGeoCodeSearchOption);
+  Future<void> searchLocation(lng,lat) async {
+    var result = await HhHttp().request(
+        "https://restapi.amap.com/v3/geocode/regeo?key=a94a9e0e144b7a5cf77c229713275500&location=$lng,$lat&extensions=all&radius=1000",
+        method: DioMethod.get);
+
+    HhLog.d("searchLocation -- $result");
+    locDetail.value = result["regeocode"]["formatted_address"];
+    locTitle.value = "${result["regeocode"]["addressComponent"]["province"]??""}${result["regeocode"]["addressComponent"]["city"]??""}${result["regeocode"]["addressComponent"]["district"]??""}".replaceAll("[", "").replaceAll("]", "");
+    locLat.value = lat;
+    locLng.value = lng;
+    province = "${result["regeocode"]["addressComponent"]["province"]??""}";
+    city = "${result["regeocode"]["addressComponent"]["city"]??""}";
+    district = "${result["regeocode"]["addressComponent"]["district"]??""}";
   }
+
+  void updateMarker(latLng){
+    aMapMarkers.clear();
+    Marker mk = Marker(
+        anchor: const Offset(0.5,0.5),
+        position: latLng,
+        icon: BitmapDescriptor.fromIconPath('assets/images/common/icon_blue_loc.png'),
+        onTap: (v){
+        }
+    );
+    aMapMarkers.add(mk);
+  }
+
 }
