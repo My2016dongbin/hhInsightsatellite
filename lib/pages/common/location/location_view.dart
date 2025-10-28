@@ -166,7 +166,7 @@ class LocationPage extends StatelessWidget {
                   child: Container(
                     width: 1.sw,
                     height: 45.w*3,
-                    margin: EdgeInsets.fromLTRB(0, 10.w*3, 0, 10.w*3),
+                    margin: EdgeInsets.fromLTRB(0, 10.w*3, 0, 20.w*3),
                     decoration: BoxDecoration(
                         color: HhColors.themeColor,
                         borderRadius: BorderRadius.circular(23.w*3)),

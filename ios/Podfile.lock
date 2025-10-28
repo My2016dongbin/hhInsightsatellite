@@ -12,36 +12,10 @@ PODS:
     - AMapFoundation (>= 1.8.0)
   - audioplayers_darwin (0.0.1):
     - Flutter
-  - BaiduMapKit/Base (6.6.4)
-  - BaiduMapKit/Map (6.6.4):
-    - BaiduMapKit/Base
-  - BaiduMapKit/Search (6.6.4):
-    - BaiduMapKit/Base
-  - BaiduMapKit/Utils (6.6.4):
-    - BaiduMapKit/Base
-  - BMKLocationKit (2.1.3)
   - Bugly (2.6.1)
   - device_info_plus (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - flutter_baidu_mapapi_base (3.9.0):
-    - BaiduMapKit/Utils (= 6.6.4)
-    - Flutter
-  - flutter_baidu_mapapi_map (3.9.0):
-    - BaiduMapKit/Map (= 6.6.4)
-    - Flutter
-    - flutter_baidu_mapapi_base
-  - flutter_baidu_mapapi_search (3.9.0):
-    - BaiduMapKit/Search (= 6.6.4)
-    - Flutter
-    - flutter_baidu_mapapi_base
-  - flutter_baidu_mapapi_utils (3.9.0):
-    - BaiduMapKit/Utils (= 6.6.4)
-    - Flutter
-    - flutter_baidu_mapapi_base
-  - flutter_bmflocation (3.7.0):
-    - BMKLocationKit (~> 2.1.1)
-    - Flutter
   - flutter_bugly (0.0.1):
     - Bugly (= 2.6.1)
     - Flutter
@@ -94,11 +68,6 @@ DEPENDENCIES:
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
-  - flutter_baidu_mapapi_base (from `.symlinks/plugins/flutter_baidu_mapapi_base/ios`)
-  - flutter_baidu_mapapi_map (from `.symlinks/plugins/flutter_baidu_mapapi_map/ios`)
-  - flutter_baidu_mapapi_search (from `.symlinks/plugins/flutter_baidu_mapapi_search/ios`)
-  - flutter_baidu_mapapi_utils (from `.symlinks/plugins/flutter_baidu_mapapi_utils/ios`)
-  - flutter_bmflocation (from `.symlinks/plugins/flutter_bmflocation/ios`)
   - flutter_bugly (from `.symlinks/plugins/flutter_bugly/ios`)
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
@@ -118,8 +87,6 @@ SPEC REPOS:
     - AMap3DMap
     - AMapFoundation
     - AMapLocation
-    - BaiduMapKit
-    - BMKLocationKit
     - Bugly
     - libwebp
     - TPNS-iOS
@@ -135,16 +102,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
-  flutter_baidu_mapapi_base:
-    :path: ".symlinks/plugins/flutter_baidu_mapapi_base/ios"
-  flutter_baidu_mapapi_map:
-    :path: ".symlinks/plugins/flutter_baidu_mapapi_map/ios"
-  flutter_baidu_mapapi_search:
-    :path: ".symlinks/plugins/flutter_baidu_mapapi_search/ios"
-  flutter_baidu_mapapi_utils:
-    :path: ".symlinks/plugins/flutter_baidu_mapapi_utils/ios"
-  flutter_bmflocation:
-    :path: ".symlinks/plugins/flutter_bmflocation/ios"
   flutter_bugly:
     :path: ".symlinks/plugins/flutter_bugly/ios"
   image_gallery_saver:
@@ -179,16 +136,9 @@ SPEC CHECKSUMS:
   AMapFoundation: 9885c48fc3a78fdfb84a0299a2293e56ea3c9fec
   AMapLocation: 8c46dbe995333ad6cae147d54a7307a577020be0
   audioplayers_darwin: ccf9c770ee768abb07e26d90af093f7bab1c12ab
-  BaiduMapKit: 84991811cb07b24c6ead7d59022c13245427782c
-  BMKLocationKit: 79689c9898474cbad4a93a5f0cc06c8c97fa2b02
   Bugly: 217ac2ce5f0f2626d43dbaa4f70764c953a26a31
   device_info_plus: 335f3ce08d2e174b9fdc3db3db0f4e3b1f66bd89
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_baidu_mapapi_base: 24dd82034374c6f52a73e90316834c63ff8d4f64
-  flutter_baidu_mapapi_map: f799cc1bb3d39196b8d3d59399ca8635e690bd44
-  flutter_baidu_mapapi_search: 290fb2391e21deaa14234647dbbb159e4d428111
-  flutter_baidu_mapapi_utils: 0c69394243d51e97f521f396e150aaaf31e84e29
-  flutter_bmflocation: 4619298514ab54b492f32bd8f6b5c92dce3246ac
   flutter_bugly: a77131ff7b385a481c594830dc89aa53e8e7fbee
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
   image_picker_ios: a768de0d44b0925de635738f5030f9f2727eb996

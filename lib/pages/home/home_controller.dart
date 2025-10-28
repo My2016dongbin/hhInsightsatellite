@@ -929,6 +929,9 @@ class HomeController extends GetxController {
 
   void showFireInfo() {
     CommonUtils().closeAllOverlays();
+    if(fireInfo == null || (fireInfo["formattedAddress"] == null && fireInfo["observeTimestr"] == null)){
+      return;
+    }
     showModalBottomSheet(context: Get.context!, builder: (a){
       return Container(
         width: 1.sw,
