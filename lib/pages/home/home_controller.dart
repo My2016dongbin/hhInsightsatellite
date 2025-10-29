@@ -1215,7 +1215,7 @@ class HomeController extends GetxController {
               allFireList.addAll(newItems);
               //处理数据
               parseData();
-              fireInfo = {};
+              //fireInfo = {};
               initMarker();
             }
             if(showList){
@@ -1244,7 +1244,7 @@ class HomeController extends GetxController {
           fireListDialog();
         }
 
-        fireInfo = {};
+        //fireInfo = {};
         initMarker();
         return 1;
       }else{
