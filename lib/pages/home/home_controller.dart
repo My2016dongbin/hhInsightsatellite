@@ -2045,6 +2045,10 @@ class HomeController extends GetxController {
         }
       }
     }
+
+    Future.delayed(const Duration(milliseconds: 5000),(){
+      initMarker();
+    });
   }
 
   void putDrawBridgeQueue(List<dynamic> ins,{dynamic lineColor}) {
