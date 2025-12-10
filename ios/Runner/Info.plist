@@ -50,40 +50,55 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>为了方便您查看获取媒体资料信息需要访问媒体资料库，是否允许此App获取媒体资料库权限？</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>mqtt.tcp</string>
 	</array>
-	<key>NSCalendarsUsageDescription</key>
-	<string>为了方便您查看获取日期信息需要访问日历，是否允许此App获取日历权限？</string>
-	<key>NSCameraUsageDescription</key>
-	<string>为了您正常使用相机拍摄并在上传火警信息时拍摄火警照片，我们需要访问您终端设备的摄像头权限，是否允许打开相机权限？</string>
-	<key>NSContactsUsageDescription</key>
-	<string>为了方便您发现公司同事需要访问您的通讯录，是否允许此App获取通讯录权限？</string>
-	<key>NSDocumentsFolderUsageDescription</key>
-	<string>需要获取登录信息是否允许打开文件访问权限？</string>
-	<key>NSDownloadsFolderUsageDescription</key>
-	<string>需要获取登录信息是否允许打开文件访问权限？</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>Looking for local tcp Bonjour service</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>需要实时获取您的定位用来在展示的地图中更新您的位置是否允许此权限？</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>需要实时获取您的定位用来在展示的地图中更新您的位置是否允许此权限？</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>需要定位您的位置来显示在地图中是否允许打开定位？</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>为了您正常使用相机拍摄并在上传火警信息时拍摄火警照片，我们需要权限访问您的麦克风以录制视频，是否允许？</string>
-	<key>NSMotionUsageDescription</key>
-	<string>为了方便您查看获取运动与健身信息需要访问运动与健身，是否允许此App获取运动与健身权限？</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>为了您正常使用相机拍摄并在上传火警信息时拍摄火警照片，我们需要权限保存视频到相册，是否允许？</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>需要获取个人照片进行图片上传图片保存服务是否允许此App获取访问相册权限？</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>为了方便您的输入需要访问语音识别，是否允许此App获取语音识别权限？</string>
+	<key>NSAppleMusicUsageDescription</key>
+    <string>App 需要访问您的媒体资料库，用于读取本地音频文件以支持媒体展示等功能。只有在您主动使用相关功能时才会访问。</string>
+
+    <key>NSCalendarsUsageDescription</key>
+    <string>App 需要访问您的日历，用于读取或写入日程信息，以便设置提醒或查看日期内容。仅在您主动执行相关操作时才会访问。</string>
+
+    <key>NSCameraUsageDescription</key>
+    <string>App 需要访问摄像头，用于拍摄火情上报照片、视频或上传资料时进行拍摄。仅在您主动打开拍摄功能时才会访问。</string>
+
+    <key>NSContactsUsageDescription</key>
+    <string>App 需要访问您的通讯录，用于查找同事或简化联系人选择流程。仅在您主动使用相关功能时才会访问。</string>
+
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>App 需要访问您的文档，用于选择、导入或上传资料文件。仅在您主动选择文件时才会访问。</string>
+
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>App 需要访问您的下载文件夹，用于选择或上传需要提交的资料文件。仅在您主动操作时才会访问。</string>
+
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>App 需要访问局域网，用于搜索本地设备（如 TCP/Bonjour 服务）以支持相关交互功能。</string>
+
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>App 需要持续访问您的位置信息，用于实时导航、路线规划以及在地图上更新当前位置。仅在您使用导航功能期间才会使用。</string>
+
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>App 需要访问您的位置信息，用于在导航过程中保持路线更新与位置同步。仅在导航执行时才会使用。</string>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>App 需要访问您的位置信息，用于定位当前位置、展示地图位置和路线规划。仅在您打开地图或相关功能时才会访问。</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>App 需要访问麦克风，用于录制视频或进行语音输入，仅在您主动使用录音或视频功能时才会访问。</string>
+
+    <key>NSMotionUsageDescription</key>
+    <string>App 需要访问您的运动与健身数据，用于处理移动状态等相关信息，以支持运动或行走相关功能。仅在您主动使用这些功能时才会访问。</string>
+
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>App 需要保存照片或视频到您的相册，用于导出拍摄内容或保存火情上报资料。仅在您主动执行保存操作时才会访问。</string>
+
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>App 需要访问您的相册，用于选择图片进行火情上报、反馈截图上传。仅在您主动选择图片时才会访问。</string>
+
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>App 需要访问语音识别，用于将您的语音转成文字以提升输入效率。仅在您使用语音输入功能时才会访问。</string>
+
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
