@@ -3,7 +3,17 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://repo.amap.com/repository/android' }
+        // 使用阿里云镜像加速高德地图下载
+        maven {
+            url 'https://maven.aliyun.com/repository/public'
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/google'
+        }
+        // 高德地图特定仓库
+        maven {
+            url 'https://maven.aliyun.com/repository/central'
+        }
     }
 
     dependencies {
@@ -16,8 +26,17 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://repo.amap.com/repository/android' }
-        maven { url "https://a.amap.com/repository/release" }
+        // 使用阿里云镜像加速高德地图下载
+        maven {
+            url 'https://maven.aliyun.com/repository/public'
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/google'
+        }
+        // 高德地图特定仓库
+        maven {
+            url 'https://maven.aliyun.com/repository/central'
+        }
     }
 }
 

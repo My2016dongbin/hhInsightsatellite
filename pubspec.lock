@@ -117,10 +117,10 @@ packages:
     dependency: transitive
     description:
       name: back_button_interceptor
-      sha256: b85977faabf4aeb95164b3b8bf81784bed4c54ea1aef90a036ab6927ecf80c5a
+      sha256: "8354b03320043db546e3f446af171faaa71384100486444113628f7db1e7fe9b"
       url: "https://pub.dev"
     source: hosted
-    version: "8.0.4"
+    version: "7.0.3"
   boolean_selector:
     dependency: transitive
     description:
@@ -205,18 +205,18 @@ packages:
     dependency: "direct main"
     description:
       name: cupertino_icons
-      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
+      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.8"
+    version: "1.0.6"
   date_picker_plus:
     dependency: "direct main"
     description:
       name: date_picker_plus
-      sha256: e2693c3514430cdc874d071dcb80a717385cb94206e8e458137c993b5c69d9a7
+      sha256: "9b22c94f86c76b20ebe46fa3e54544266400556a8ec9ad5508868ef3180ee513"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
+    version: "4.1.0"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -237,26 +237,18 @@ packages:
     dependency: "direct main"
     description:
       name: dio
-      sha256: "253a18bbd4851fecba42f7343a1df3a9a4c1d31a2c1b37e221086b4fa8c8dbc9"
+      sha256: "11e40df547d418cc0c4900a9318b26304e665da6fa4755399a9ff9efd09034b5"
       url: "https://pub.dev"
     source: hosted
-    version: "5.8.0+1"
+    version: "5.4.3+1"
   dio_cookie_manager:
     dependency: "direct main"
     description:
       name: dio_cookie_manager
-      sha256: "47cacbf6a783c263bfa7cd7d08101e93127d87760ddb003ba289162f7be0f679"
+      sha256: e79498b0f632897ff0c28d6e8178b4bc6e9087412401f618c31fa0904ace050d
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
-  dio_web_adapter:
-    dependency: transitive
-    description:
-      name: dio_web_adapter
-      sha256: "0a2e95fc6bdeb623bb623fc41e90e6924e9a3bbd65089f9221f83c185366b479"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
+    version: "3.1.1"
   dotted_dashed_line:
     dependency: "direct main"
     description:
@@ -269,10 +261,10 @@ packages:
     dependency: "direct main"
     description:
       name: easy_refresh
-      sha256: "486e30abfcaae66c0f2c2798a10de2298eb9dc5e0bb7e1dba9328308968cae0c"
+      sha256: f36324c7f50291f85085bd64b39abe6b63909481bfa527f9c654d17ef172de30
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.0"
+    version: "3.3.4"
   encrypt:
     dependency: "direct main"
     description:
@@ -285,10 +277,10 @@ packages:
     dependency: "direct main"
     description:
       name: event_bus
-      sha256: "1a55e97923769c286d295240048fc180e7b0768902c3c2e869fe059aafa15304"
+      sha256: "44baa799834f4c803921873e7446a2add0f3efa45e101a054b1f0ab9b95f8edc"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -370,10 +362,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_bugly
-      sha256: e5e0b64a19a1482fe37fda905ed518513f73ceef8da4de7de25719efd1a3682f
+      sha256: a2d3c034dfea70052b4d4d8ed71d09d12c6cac1eb00b915832bb4386ed648087
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.0.2"
   flutter_datetime_picker_plus:
     dependency: "direct main"
     description:
@@ -407,10 +399,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_screenutil
-      sha256: "8239210dd68bee6b0577aa4a090890342d04a136ce1c81f98ee513fc0ce891de"
+      sha256: "8cf100b8e4973dc570b6415a2090b0bfaa8756ad333db46939efc3e774ee100d"
       url: "https://pub.dev"
     source: hosted
-    version: "5.9.3"
+    version: "5.9.0"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -593,10 +585,10 @@ packages:
     dependency: "direct main"
     description:
       name: loader_overlay
-      sha256: f3dd16e26cf705f64dd6e8ad36b1b6c15c1f58cb6ecf1f6edeb259f296eb4774
+      sha256: ccd07ad7050a29c076f0f518fd79f59ba51b6fc39f4d9ec11b2f61ba4111ae88
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.4+1"
+    version: "4.0.1"
   logger:
     dependency: "direct main"
     description:
