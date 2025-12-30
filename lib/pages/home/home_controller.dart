@@ -1353,6 +1353,7 @@ class HomeController extends GetxController {
 
   ///获取区域边界
   Future<void> postBridge() async {
+    bridgeTimes = 0;
     EventBusUtil.getInstance().fire(HhLoading(show: true));
     var resultS = await HhHttp().request(RequestUtils.bridge,method: DioMethod.get);
     HhLog.d("postBridge -- $resultS");
@@ -1407,7 +1408,7 @@ class HomeController extends GetxController {
     EventBusUtil.getInstance().fire(HhLoading(show: true));
     var resultS = await HhHttp().request(RequestUtils.bridgeBuffer,method: DioMethod.get);
     HhLog.d("bridgeBuffer -- $resultS");
-    if(resultS["code"]==200 && resultS["data"] != null){
+    if(resultS["code"]==200 && resultS["data"] != null && resultS["data"].isNotEmpty){
       EventBusUtil.getInstance().fire(HhLoading(show: false));
       bridgeData = resultS["data"];
       drawBridgeBuffer();
@@ -1988,7 +1989,7 @@ class HomeController extends GetxController {
     }
     bridgeTimes = now;
     for(dynamic model in bridgeData){
-      HhLog.d("buffer $model");
+      HhLog.d("drawBridge $model");
       String type = model["areaPolygon"]["type"];
       if(type == "MultiPolygon"){
         List<dynamic> coordinates = model["areaPolygon"]["coordinates"];
@@ -2003,7 +2004,7 @@ class HomeController extends GetxController {
         }
       }
       if(type == "Polygon"){
-        List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
+        List<dynamic> coordinates = model["areaPolygon"]["coordinates"];
         for(int m = 0; m < coordinates.length; m++){
           List<dynamic> mid = coordinates[m];
           Future.delayed(Duration(milliseconds: mid.length ~/ 2),(){
@@ -2014,61 +2015,71 @@ class HomeController extends GetxController {
     }
   }
   void drawBridgeBuffer() {
-    aMapPolygons.clear();
-    int now = DateTime.now().millisecondsSinceEpoch;
-    if(now - bridgeTimes < 2000){
-      return;
-    }
-    bridgeTimes = now;
-    for(dynamic model in bridgeData){
-      HhLog.d("buffer $model");
-      String type = model["areaCodeBuffer"]["type"];
-      if(type == "MultiPolygon"){
-        List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
-        for(int m = 0; m < coordinates.length; m++){
-          List<dynamic> mid = coordinates[m];
-          for(int i = 0; i < mid.length; i++){
-            List<dynamic> ins = mid[i];
-            Future.delayed(Duration(milliseconds: ins.length ~/ 2),(){
-              putDrawBridgeQueue(ins,lineColor:HhColors.whiteColor);
+    try {
+      aMapPolygons.clear();
+      int now = DateTime
+          .now()
+          .millisecondsSinceEpoch;
+      if (now - bridgeTimes < 2000) {
+        return;
+      }
+      bridgeTimes = now;
+      for (dynamic model in bridgeData) {
+        HhLog.d("buffer $model");
+        String type = model["areaCodeBuffer"]["type"];
+        if (type == "MultiPolygon") {
+          List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
+          for (int m = 0; m < coordinates.length; m++) {
+            List<dynamic> mid = coordinates[m];
+            for (int i = 0; i < mid.length; i++) {
+              List<dynamic> ins = mid[i];
+              Future.delayed(Duration(milliseconds: ins.length ~/ 2), () {
+                putDrawBridgeQueue(ins, lineColor: HhColors.whiteColor);
+              });
+            }
+          }
+        }
+        if (type == "Polygon") {
+          List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
+          for (int m = 0; m < coordinates.length; m++) {
+            List<dynamic> mid = coordinates[m];
+            Future.delayed(Duration(milliseconds: mid.length ~/ 2), () {
+              putDrawBridgeQueue(mid, lineColor: HhColors.whiteColor);
             });
           }
         }
       }
-      if(type == "Polygon"){
-        List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
-        for(int m = 0; m < coordinates.length; m++){
-          List<dynamic> mid = coordinates[m];
-          Future.delayed(Duration(milliseconds: mid.length ~/ 2),(){
-            putDrawBridgeQueue(mid,lineColor:HhColors.whiteColor);
-          });
-        }
-      }
-    }
 
-    Future.delayed(const Duration(milliseconds: 5000),(){
-      initMarker();
-    });
+      Future.delayed(const Duration(milliseconds: 5000), () {
+        initMarker();
+      });
+    }catch(e){
+      postBridge();
+    }
   }
 
   void putDrawBridgeQueue(List<dynamic> ins,{dynamic lineColor}) {
-    List<LatLng> points = [];
-    for(int p = 0; p < ins.length; p++){
-      List<dynamic> point = ins[p];//[124.143026, 50.566138]
-      //1.转成 LatLng
-      points.add(LatLng(point[1], point[0]));
+    try{
+      List<LatLng> points = [];
+      for(int p = 0; p < ins.length; p++){
+        List<dynamic> point = ins[p];//[124.143026, 50.566138]
+        //1.转成 LatLng
+        points.add(LatLng(point[1], point[0]));
+      }
+      //简化多边形
+      List<LatLng> pointsOut = douglasPeucker(points, 0.00005);
+      points = pointsOut;
+      ///2.创建多边形添加到地图 && 添加id标记
+      final id = 'bridge_${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(1000)}';
+      aMapPolygons.add(Polygon(points: points,
+        visible:true,
+        joinType:JoinType.bevel,
+        strokeWidth: 3,
+        strokeColor: lineColor??Colors.blue,
+        fillColor: HhColors.trans,)..setIdForCopy(id));
+    }catch(e){
+      HhLog.e("putDrawBridgeQueue $e");
     }
-    //简化多边形
-    List<LatLng> pointsOut = douglasPeucker(points, 0.00005);
-    points = pointsOut;
-    ///2.创建多边形添加到地图 && 添加id标记
-    final id = 'bridge_${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(1000)}';
-    aMapPolygons.add(Polygon(points: points,
-      visible:true,
-      joinType:JoinType.bevel,
-      strokeWidth: 3,
-      strokeColor: lineColor??Colors.blue,
-      fillColor: HhColors.trans,)..setIdForCopy(id));
   }
 
   ///处理数据-分组排序by time or fireNo
