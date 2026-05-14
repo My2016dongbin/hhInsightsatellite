@@ -20,10 +20,11 @@ import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
 import 'package:insightsatellite/utils/SPKeys.dart';
 import 'package:insightsatellite/widgets/app_view.dart';
+import 'package:insightsatellite/widgets/top_alarm_notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tpns_flutter_plugin/tpns_flutter_plugin.dart';
 
-void main() async{
+void main() async {
   //1334*750
   WidgetsFlutterBinding.ensureInitialized();
   //竖屏
@@ -48,15 +49,14 @@ void main() async{
   FlutterBugly.postCatchedException(() {
     runApp(MyApp());
   });*/
-  WidgetsFlutterBinding.ensureInitialized();//package_info_plus
+  WidgetsFlutterBinding.ensureInitialized(); //package_info_plus
   FlutterBugly.postCatchedException(() {
     // 如果需要 ensureInitialized，请在这里运行。
     // WidgetsFlutterBinding.ensureInitialized();
     runApp(const HhApp());
+
     ///注册bugly
-    FlutterBugly.init(
-        androidAppId: "72edb522a0",
-        iOSAppId: "a6c9a6a21d");
+    FlutterBugly.init(androidAppId: "72edb522a0", iOSAppId: "a6c9a6a21d");
   });
 
   if (Platform.isAndroid) {
@@ -81,11 +81,16 @@ class MyAppState extends State<HhApp> {
   @override
   void initState() {
     super.initState();
+    if (!Get.isRegistered<TopAlarmNotificationService>()) {
+      Get.put(TopAlarmNotificationService(), permanent: true);
+    }
 
     ///推送注册
-    if (Platform.isIOS) {//com.haohai.insightsatellites
+    if (Platform.isIOS) {
+      //com.haohai.insightsatellites
       XgFlutterPlugin().startXg("1600042053", "IX7J7A5CK0HA");
-    } else {//com.ehaohai.insightsatellite
+    } else {
+      //com.ehaohai.insightsatellite
       XgFlutterPlugin().startXg("1500042052", "AU47N360I2FK");
     }
     XgFlutterPlugin().setEnableDebug(true);
@@ -100,37 +105,37 @@ class MyAppState extends State<HhApp> {
       xgPushClickAction: (Map<String, dynamic> msg) async {
         ///消息点击刷新
         HhLog.d("HomePage -> xgPushClickAction -> $msg");
-        try{
+        try {
           dynamic custom = jsonDecode(msg['customMessage']);
           String id = custom["id"];
-          if(msg["actionType"]==0){
+          if (msg["actionType"] == 0) {
             EventBusUtil.getInstance().fire(MessageClick(id: id));
           }
-        }catch(e){
+        } catch (e) {
           //
         }
-
       },
       onReceiveNotificationResponse: (Map<String, dynamic> msg) async {
-
-        if(DateTime.now().millisecondsSinceEpoch - CommonData.pushTime > 3000){
+        if (DateTime.now().millisecondsSinceEpoch - CommonData.pushTime >
+            3000) {
           CommonData.pushTime = DateTime.now().millisecondsSinceEpoch;
+
           ///消息刷新
           EventBusUtil.getInstance().fire(Message());
           HhLog.d("HomePage -> onReceiveNotificationResponse -> $msg");
+
           ///播放提示音
           final SharedPreferences prefs = await SharedPreferences.getInstance();
-          bool voice = prefs.getBool(SPKeys().voice)??false;
-          if(voice){
+          bool voice = prefs.getBool(SPKeys().voice) ?? false;
+          if (voice) {
             final AudioPlayer audioPlayer = AudioPlayer();
             audioPlayer.play(AssetSource('audio/common/find_fire.mp3'));
           }
         }
-        try{
+        try {
           dynamic custom = jsonDecode(msg['customMessage']);
           HhLog.d("HomePage -> $custom ");
-
-        }catch(e){
+        } catch (e) {
           //
         }
       },
@@ -139,7 +144,8 @@ class MyAppState extends State<HhApp> {
       },
     );
     // 全局设置
-    EasyRefresh.defaultHeaderBuilder = () => const CupertinoHeader(triggerOffset: 20);
+    EasyRefresh.defaultHeaderBuilder =
+        () => const CupertinoHeader(triggerOffset: 20);
     EasyRefresh.defaultFooterBuilder = () => const CupertinoFooter();
   }
 

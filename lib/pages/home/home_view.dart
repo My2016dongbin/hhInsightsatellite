@@ -9,6 +9,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
 import 'package:insightsatellite/pages/home/home_controller.dart';
+import 'package:insightsatellite/pages/home/mqtt/mqtt_controller.dart';
 import 'package:insightsatellite/pages/home/setting/setting_binding.dart';
 import 'package:insightsatellite/pages/home/setting/setting_view.dart';
 import 'package:insightsatellite/utils/CommonUtils.dart';
@@ -21,6 +22,7 @@ import 'package:amap_flutter_base/amap_flutter_base.dart';
 
 class HomePage extends StatelessWidget {
   final logic = Get.find<HomeController>();
+  final logicMqtt = Get.find<MqttController>();
 
   HomePage({super.key});
 
