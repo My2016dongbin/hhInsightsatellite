@@ -50,7 +50,7 @@ class MqttController extends GetxController {
     client =
         MqttServerClient(CommonData.mqttIP, 'flutter_mqtt-client-$clientId');
     client.port = CommonData.mqttPORT;
-    client.useWebSocket = true;
+    // client.useWebSocket = true;
     client.websocketProtocols = MqttClientConstants.protocolsSingleDefault;
     client.logging(on: true);
     client.keepAlivePeriod = 20;
@@ -79,8 +79,8 @@ class MqttController extends GetxController {
       return;
     }
 
-    // client.subscribe('${CommonData.alarmTopic}$id', MqttQos.atLeastOnce);
-    client.subscribe('${CommonData.alarmTopic}280', MqttQos.atLeastOnce);
+    client.subscribe('${CommonData.alarmTopic}$id', MqttQos.atLeastOnce);
+    // client.subscribe('${CommonData.alarmTopic}310953824250630276', MqttQos.atLeastOnce);
 
     client.updates
         ?.listen((List<MqttReceivedMessage<MqttMessage>> messages) async {
@@ -96,11 +96,9 @@ class MqttController extends GetxController {
 
         if (messages[0].topic.contains(CommonData.alarmTopic)) {
           final dynamic model = jsonDecode(payload);
-          if ("${model["messageType"]}" == "deviceAlarm") {
-            EventBusUtil.getInstance().fire(Message());
-            await _playAlarmAudioIfNeeded();
-            _showAlarmNotification(model);
-          }
+          EventBusUtil.getInstance().fire(Message());
+          await _playAlarmAudioIfNeeded();
+          _showAlarmNotification(model);
         }
       } catch (e) {
         HhLog.e("mqtt_listen_error ${e.toString()}");
@@ -147,7 +145,7 @@ class MqttController extends GetxController {
 
     service.showNotification(
       TopAlarmNotificationData(
-        title: '火情预警',
+        title: '卫星报警',
         timeText: timeText,
         message: content,
         dedupeKey: dedupeKey,
@@ -161,18 +159,12 @@ class MqttController extends GetxController {
   }
 
   String _parseAlarmTime(dynamic model) {
-    final dynamic otherInfo = model["otherInfomation"];
-    String timeText =
-        "${otherInfo is Map ? otherInfo["warningTime"] : model["warningTime"] ?? ''}";
-    timeText = timeText.trim();
-    if (RegExp(r'^\d{10,}$').hasMatch(timeText)) {
-      return CommonUtils().parseLongTime(timeText);
-    }
+    String timeText = "${model["time"]}";
     return timeText;
   }
 
   String _parseAlarmContent(dynamic model) {
-    final String content = "${model["content"] ?? ''}".trim();
+    final String content = "${model["formattedAddress"] ?? ''}发现火警".trim();
     if (content.isNotEmpty && content != 'null') {
       return content;
     }
@@ -180,15 +172,7 @@ class MqttController extends GetxController {
   }
 
   String _parseDedupeKey(dynamic model, String content, String timeText) {
-    final String alarmId = "${model["linkId"] ?? model["id"] ?? ''}".trim();
-    if (alarmId.isNotEmpty) {
-      return "alarm_$alarmId";
-    }
-    final dynamic otherInfo = model["otherInfomation"];
-    final String deviceNo =
-        "${model["deviceNo"] ?? model["deviceId"] ?? (otherInfo is Map ? otherInfo["deviceNo"] : '')}"
-            .trim();
-    final String alarmType = "${model["alarmType"] ?? ''}".trim();
-    return "${deviceNo}_${alarmType}_${content}_$timeText";
+    final String alarmId = "${model["id"] ?? ''}".trim();
+    return "alarm_$alarmId";
   }
 }

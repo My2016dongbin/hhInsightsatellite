@@ -29,11 +29,11 @@ class CommonData {
   static dynamic fireInfo = {};
   static BuildContext? context;
   static String fileStart = "http://web.ehaohai.com:2019";
-  static const String mqttIP = 'ws://117.132.5.139:18034/wsUrl/mqtt';
-  static const int mqttPORT = 18034;
+  static const String mqttIP = '192.168.1.102';
+  static const int mqttPORT = 1883;
   static String mqttAccount = "admin";
-  static String mqttPassword = "QIyG0!bhfS";
-  static String alarmTopic = "/deviceAlarm/kakouApp/";
+  static String mqttPassword = "admin123";
+  static String alarmTopic = "app/fire-alarm/";
 
   static String china = "010000000000";
   static String clientId = "428a8310cd442757ae699df5d894f051";
