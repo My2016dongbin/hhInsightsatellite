@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:insightsatellite/bus/bus_bean.dart';
 import 'package:insightsatellite/pages/common/common_data.dart';
-import 'package:insightsatellite/utils/CommonUtils.dart';
 import 'package:insightsatellite/utils/EventBusUtils.dart';
 import 'package:insightsatellite/utils/HhLog.dart';
 import 'package:insightsatellite/utils/SPKeys.dart';
@@ -46,11 +45,13 @@ class MqttController extends GetxController {
 
   Future<void> initMqtt() async {
     clientId = getRandomId();
+    final Uri mqttUri = _parseMqttUri(CommonData.mqttIP);
+    final int mqttPort = _parseMqttPort(mqttUri);
 
     client =
-        MqttServerClient(CommonData.mqttIP, 'flutter_mqtt-client-$clientId');
-    client.port = CommonData.mqttPORT;
-    // client.useWebSocket = true;
+        MqttServerClient(mqttUri.toString(), 'flutter_mqtt-client-$clientId');
+    client.port = mqttPort;
+    client.useWebSocket = true;
     client.websocketProtocols = MqttClientConstants.protocolsSingleDefault;
     client.logging(on: true);
     client.keepAlivePeriod = 20;
@@ -71,7 +72,8 @@ class MqttController extends GetxController {
     client.connectionMessage = connMessage;
 
     try {
-      HhLog.d('mqtt_page Connecting...   $clientId');
+      HhLog.d(
+          'mqtt_page Connecting... url=${mqttUri.toString()} port=$mqttPort clientId=$clientId');
       await client.connect();
     } on Exception catch (e) {
       HhLog.d('mqtt_page Connection failed: $e   $clientId');
@@ -121,6 +123,24 @@ class MqttController extends GetxController {
   String getRandomId() {
     final Random random = Random();
     return "${random.nextInt(999999)}";
+  }
+
+  Uri _parseMqttUri(String url) {
+    final Uri uri = Uri.parse(url);
+    if (uri.scheme != 'ws' && uri.scheme != 'wss') {
+      throw ArgumentError('MQTT websocket url must start with ws:// or wss://');
+    }
+    return uri;
+  }
+
+  int _parseMqttPort(Uri uri) {
+    if (uri.hasPort) {
+      return uri.port;
+    }
+    if (CommonData.mqttPORT > 0) {
+      return CommonData.mqttPORT;
+    }
+    return uri.scheme == 'wss' ? 443 : 80;
   }
 
   Future<void> _playAlarmAudioIfNeeded() async {

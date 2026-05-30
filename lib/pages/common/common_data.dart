@@ -1,6 +1,4 @@
-import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:insightsatellite/utils/HhColors.dart';
 import 'package:amap_flutter_base/amap_flutter_base.dart';
 
 class CommonData {
@@ -29,10 +27,10 @@ class CommonData {
   static dynamic fireInfo = {};
   static BuildContext? context;
   static String fileStart = "http://web.ehaohai.com:2019";
-  static const String mqttIP = '192.168.1.102';
-  static const int mqttPORT = 1883;
+  static const String mqttIP = 'ws://wx3.ehaohai.com/mqtt';
+  static const int mqttPORT = 80;
   static String mqttAccount = "admin";
-  static String mqttPassword = "admin123";
+  static String mqttPassword = "Haohai!@3\$%";
   static String alarmTopic = "app/fire-alarm/";
 
   static String china = "010000000000";
