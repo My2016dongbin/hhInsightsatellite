@@ -36,7 +36,7 @@ class TopAlarmNotificationService extends GetxService {
   OverlayEntry? _currentEntry;
   bool _isShowing = false;
 
-  static const int _maxQueueLength = 50;
+  static const int _maxQueueLength = 10;
   static const Duration _dedupeWindow = Duration(milliseconds: 1500);
   static const Duration _overlayRetryDelay = Duration(milliseconds: 120);
 

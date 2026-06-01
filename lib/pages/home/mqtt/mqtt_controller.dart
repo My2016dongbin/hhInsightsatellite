@@ -20,11 +20,26 @@ class MqttController extends GetxController {
   late MqttServerClient client;
   late String id;
   late String clientId;
+  final AudioPlayer _alarmAudioPlayer = AudioPlayer();
+  final List<_MqttQueueItem?> _mqttQueue =
+      List<_MqttQueueItem?>.filled(_mqttQueueCapacity, null);
+  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>?
+      _updatesSubscription;
+  int _lastAlarmAudioPlayAt = 0;
+  int _mqttQueueHead = 0;
+  int _mqttQueueCount = 0;
+  bool _isProcessingMqttQueue = false;
+
+  static const int _alarmAudioIntervalMillis = 5000;
+  static const int _mqttQueueCapacity = 10;
 
   @override
   void onClose() {
     try {
+      _updatesSubscription?.cancel();
+      _clearMqttQueue();
       client.disconnect();
+      _alarmAudioPlayer.dispose();
     } catch (_) {
       //
     }
@@ -84,23 +99,22 @@ class MqttController extends GetxController {
     client.subscribe('${CommonData.alarmTopic}$id', MqttQos.atLeastOnce);
     // client.subscribe('${CommonData.alarmTopic}310953824250630276', MqttQos.atLeastOnce);
 
-    client.updates
-        ?.listen((List<MqttReceivedMessage<MqttMessage>> messages) async {
+    _updatesSubscription = client.updates
+        ?.listen((List<MqttReceivedMessage<MqttMessage>> messages) {
       try {
-        final recMessage = messages[0].payload as MqttPublishMessage;
-        final payload = utf8.decode(
-          recMessage.payload.message,
-          allowMalformed: true,
-        );
-        HhLog.d(
-          'mqtt_page Received message: $payload from topic: ${messages[0].topic}   $clientId',
-        );
-
-        if (messages[0].topic.contains(CommonData.alarmTopic)) {
-          final dynamic model = jsonDecode(payload);
-          EventBusUtil.getInstance().fire(Message());
-          await _playAlarmAudioIfNeeded();
-          _showAlarmNotification(model);
+        for (final MqttReceivedMessage<MqttMessage> message in messages) {
+          if (!message.topic.contains(CommonData.alarmTopic)) {
+            continue;
+          }
+          final recMessage = message.payload as MqttPublishMessage;
+          final payload = utf8.decode(
+            recMessage.payload.message,
+            allowMalformed: true,
+          );
+          HhLog.d(
+            'mqtt_page Received message: $payload from topic: ${message.topic}   $clientId',
+          );
+          _enqueueMqttMessage(_MqttQueueItem(message.topic, payload));
         }
       } catch (e) {
         HhLog.e("mqtt_listen_error ${e.toString()}");
@@ -143,13 +157,94 @@ class MqttController extends GetxController {
     return uri.scheme == 'wss' ? 443 : 80;
   }
 
+  void _enqueueMqttMessage(_MqttQueueItem item) {
+    final int writeIndex =
+        (_mqttQueueHead + _mqttQueueCount) % _mqttQueueCapacity;
+    _mqttQueue[writeIndex] = item;
+
+    if (_mqttQueueCount == _mqttQueueCapacity) {
+      _mqttQueueHead = (_mqttQueueHead + 1) % _mqttQueueCapacity;
+      HhLog.d('mqtt_page queue full, overwrite oldest message');
+    } else {
+      _mqttQueueCount++;
+    }
+
+    _processMqttQueue();
+  }
+
+  _MqttQueueItem? _dequeueMqttMessage() {
+    if (_mqttQueueCount == 0) {
+      return null;
+    }
+
+    final _MqttQueueItem? item = _mqttQueue[_mqttQueueHead];
+    _mqttQueue[_mqttQueueHead] = null;
+    _mqttQueueHead = (_mqttQueueHead + 1) % _mqttQueueCapacity;
+    _mqttQueueCount--;
+    return item;
+  }
+
+  void _clearMqttQueue() {
+    for (int i = 0; i < _mqttQueue.length; i++) {
+      _mqttQueue[i] = null;
+    }
+    _mqttQueueHead = 0;
+    _mqttQueueCount = 0;
+    _isProcessingMqttQueue = false;
+  }
+
+  void _processMqttQueue() {
+    if (_isProcessingMqttQueue) {
+      return;
+    }
+
+    _isProcessingMqttQueue = true;
+    Future<void>(() async {
+      try {
+        while (_mqttQueueCount > 0 && !isClosed) {
+          final _MqttQueueItem? item = _dequeueMqttMessage();
+          if (item == null) {
+            continue;
+          }
+          await _handleMqttQueueItem(item);
+          await Future<void>.delayed(Duration.zero);
+        }
+      } finally {
+        _isProcessingMqttQueue = false;
+        if (_mqttQueueCount > 0 && !isClosed) {
+          _processMqttQueue();
+        }
+      }
+    });
+  }
+
+  Future<void> _handleMqttQueueItem(_MqttQueueItem item) async {
+    try {
+      final dynamic model = jsonDecode(item.payload);
+      EventBusUtil.getInstance().fire(Message());
+      await _playAlarmAudioIfNeeded();
+      _showAlarmNotification(model);
+    } catch (e) {
+      HhLog.e("mqtt_queue_handle_error ${e.toString()}");
+    }
+  }
+
   Future<void> _playAlarmAudioIfNeeded() async {
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _lastAlarmAudioPlayAt < _alarmAudioIntervalMillis) {
+      HhLog.d('mqtt_page alarm audio skipped by 5s throttle');
+      return;
+    }
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final bool voice = prefs.getBool(SPKeys().voice) ?? false;
-    if (voice) {
-      final AudioPlayer audioPlayer = AudioPlayer();
-      audioPlayer.play(AssetSource('audio/common/find_fire.mp3'));
+    if (!voice) {
+      return;
     }
+
+    _lastAlarmAudioPlayAt = now;
+    await _alarmAudioPlayer.stop();
+    await _alarmAudioPlayer.play(AssetSource('audio/common/find_fire.mp3'));
   }
 
   void _showAlarmNotification(dynamic model) {
@@ -195,4 +290,11 @@ class MqttController extends GetxController {
     final String alarmId = "${model["id"] ?? ''}".trim();
     return "alarm_$alarmId";
   }
+}
+
+class _MqttQueueItem {
+  _MqttQueueItem(this.topic, this.payload);
+
+  final String topic;
+  final String payload;
 }
