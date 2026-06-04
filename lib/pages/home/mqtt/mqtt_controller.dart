@@ -360,7 +360,7 @@ class MqttController extends GetxController {
             ? Get.find<TopAlarmNotificationService>()
             : Get.put(TopAlarmNotificationService(), permanent: true);
 
-    final String alarmId = "${model["linkId"] ?? model["id"] ?? ''}".trim();
+    final String alarmId = "${model["id"] ?? ''}".trim();
     final String timeText = _parseAlarmTime(model);
     final String content = _parseAlarmContent(model);
     final String dedupeKey = _parseDedupeKey(model, content, timeText);
@@ -381,12 +381,12 @@ class MqttController extends GetxController {
   }
 
   String _parseAlarmTime(dynamic model) {
-    String timeText = "${model["time"]}";
+    String timeText = "${model["alarmDatetime"]}";
     return timeText;
   }
 
   String _parseAlarmContent(dynamic model) {
-    final String content = "${model["formattedAddress"] ?? ''}发现火警".trim();
+    final String content = "${model["address"] ?? ''}发现火警".trim();
     if (content.isNotEmpty && content != 'null') {
       return content;
     }

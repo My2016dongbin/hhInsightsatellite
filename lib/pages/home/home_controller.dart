@@ -2186,7 +2186,7 @@ class HomeController extends GetxController {
     time = now;
     EventBusUtil.getInstance().fire(HhLoading(show: true));
     var result = await HhHttp().request("${RequestUtils.fireSearchInfo}$eventId",method: DioMethod.get);
-    HhLog.d("fireSearch info -- ${RequestUtils.fireSearchInfo}");
+    HhLog.d("fireSearch info -- ${RequestUtils.fireSearchInfo}$eventId");
     HhLog.d("fireSearch info -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     easyController.finishLoad(IndicatorResult.success,true);
@@ -2194,7 +2194,9 @@ class HomeController extends GetxController {
       fireInfo = result["data"];
       showFireInfo();
       initMarker();
-      final gcj = ParseLocation.gps84_To_Gcj02(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"));
+      String coordinate = "${fireInfo["coordinate"]}";
+      List<String> latLngList = coordinate.split(",");
+      final gcj = ParseLocation.gps84_To_Gcj02(double.parse(latLngList[1]),double.parse(latLngList[0]));
       LatLng position = LatLng(gcj[0],gcj[1]);
       gdMapController.moveCamera(
           CameraUpdate.newLatLngZoom(position,15.0)
