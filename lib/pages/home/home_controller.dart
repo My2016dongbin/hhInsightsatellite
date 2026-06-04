@@ -162,6 +162,7 @@ class HomeController extends GetxController {
   late int postFireLong = 0;
   late List<dynamic> bridgeData = [];
   late int bridgeTimes = 0;
+  bool bridgeMapReloaded = false;
 
   //多区域选择（第一条固定，后面的为列表数据）
   final RxList<dynamic> gridSearchList = [].obs;
@@ -684,7 +685,9 @@ class HomeController extends GetxController {
   void onGDMapCreated(AMapController controller) {
     gdMapController = controller;
     Future.delayed(const Duration(milliseconds: 1000),(){
-      postBridgeBuffer();//缓冲区区域边界
+      if(bridgeData.isEmpty || aMapPolygons.isEmpty){
+        postBridgeBuffer();//缓冲区区域边界
+      }
       getCenter();//中心点显示范围
       postDays();
       postType();
@@ -1997,12 +2000,12 @@ class HomeController extends GetxController {
   }
 
   void drawBridge() {
-    aMapPolygons.clear();
     int now = DateTime.now().millisecondsSinceEpoch;
     if(now - bridgeTimes < 2000){
       return;
     }
     bridgeTimes = now;
+    Set<Polygon> polygons = {};
     for(dynamic model in bridgeData){
       HhLog.d("drawBridge $model");
       String type = model["areaPolygon"]["type"];
@@ -2012,9 +2015,10 @@ class HomeController extends GetxController {
           List<dynamic> mid = coordinates[m];
           for(int i = 0; i < mid.length; i++){
             List<dynamic> ins = mid[i];
-            Future.delayed(Duration(milliseconds: ins.length ~/ 2),(){
-              putDrawBridgeQueue(ins,lineColor:HhColors.yellow);
-            });
+            Polygon? polygon = buildBridgePolygon(ins,lineColor:HhColors.yellow);
+            if(polygon != null){
+              polygons.add(polygon);
+            }
           }
         }
       }
@@ -2022,16 +2026,18 @@ class HomeController extends GetxController {
         List<dynamic> coordinates = model["areaPolygon"]["coordinates"];
         for(int m = 0; m < coordinates.length; m++){
           List<dynamic> mid = coordinates[m];
-          Future.delayed(Duration(milliseconds: mid.length ~/ 2),(){
-            putDrawBridgeQueue(mid,lineColor:HhColors.yellow);
-          });
+          Polygon? polygon = buildBridgePolygon(mid,lineColor:HhColors.yellow);
+          if(polygon != null){
+            polygons.add(polygon);
+          }
         }
       }
     }
+    aMapPolygons.assignAll(polygons);
+    reloadMapAfterBridgeReady(polygons);
   }
   void drawBridgeBuffer() {
     try {
-      aMapPolygons.clear();
       int now = DateTime
           .now()
           .millisecondsSinceEpoch;
@@ -2039,6 +2045,7 @@ class HomeController extends GetxController {
         return;
       }
       bridgeTimes = now;
+      Set<Polygon> polygons = {};
       for (dynamic model in bridgeData) {
         HhLog.d("buffer $model");
         String type = model["areaCodeBuffer"]["type"];
@@ -2048,9 +2055,10 @@ class HomeController extends GetxController {
             List<dynamic> mid = coordinates[m];
             for (int i = 0; i < mid.length; i++) {
               List<dynamic> ins = mid[i];
-              Future.delayed(Duration(milliseconds: ins.length ~/ 2), () {
-                putDrawBridgeQueue(ins, lineColor: HhColors.whiteColor);
-              });
+              Polygon? polygon = buildBridgePolygon(ins, lineColor: HhColors.whiteColor);
+              if(polygon != null){
+                polygons.add(polygon);
+              }
             }
           }
         }
@@ -2058,12 +2066,15 @@ class HomeController extends GetxController {
           List<dynamic> coordinates = model["areaCodeBuffer"]["coordinates"];
           for (int m = 0; m < coordinates.length; m++) {
             List<dynamic> mid = coordinates[m];
-            Future.delayed(Duration(milliseconds: mid.length ~/ 2), () {
-              putDrawBridgeQueue(mid, lineColor: HhColors.whiteColor);
-            });
+            Polygon? polygon = buildBridgePolygon(mid, lineColor: HhColors.whiteColor);
+            if(polygon != null){
+              polygons.add(polygon);
+            }
           }
         }
       }
+      aMapPolygons.assignAll(polygons);
+      reloadMapAfterBridgeReady(polygons);
 
       Future.delayed(const Duration(milliseconds: 5000), () {
         initMarker();
@@ -2073,7 +2084,18 @@ class HomeController extends GetxController {
     }
   }
 
-  void putDrawBridgeQueue(List<dynamic> ins,{dynamic lineColor}) {
+  void reloadMapAfterBridgeReady(Set<Polygon> polygons) {
+    if (bridgeMapReloaded || polygons.isEmpty) {
+      return;
+    }
+    bridgeMapReloaded = true;
+    Future.delayed(const Duration(milliseconds: 100), () {
+      viewStatus.value = false;
+      viewStatus.value = true;
+    });
+  }
+
+  Polygon? buildBridgePolygon(List<dynamic> ins,{dynamic lineColor}) {
     try{
       List<LatLng> points = [];
       for(int p = 0; p < ins.length; p++){
@@ -2086,12 +2108,24 @@ class HomeController extends GetxController {
       points = pointsOut;
       ///2.创建多边形添加到地图 && 添加id标记
       final id = 'bridge_${DateTime.now().microsecondsSinceEpoch}_${Random().nextInt(1000)}';
-      aMapPolygons.add(Polygon(points: points,
+      return Polygon(points: points,
         visible:true,
         joinType:JoinType.bevel,
         strokeWidth: 3,
         strokeColor: lineColor??Colors.blue,
-        fillColor: HhColors.trans,)..setIdForCopy(id));
+        fillColor: HhColors.trans,)..setIdForCopy(id);
+    }catch(e){
+      HhLog.e("buildBridgePolygon $e");
+      return null;
+    }
+  }
+
+  void putDrawBridgeQueue(List<dynamic> ins,{dynamic lineColor}) {
+    try{
+      Polygon? polygon = buildBridgePolygon(ins,lineColor: lineColor);
+      if(polygon != null){
+        aMapPolygons.add(polygon);
+      }
     }catch(e){
       HhLog.e("putDrawBridgeQueue $e");
     }
