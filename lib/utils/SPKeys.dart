@@ -1,6 +1,7 @@
 class SPKeys{
   final String endpoint = 'endpoint';
   final String id = 'id';
+  final String areaCode = 'areaCode';
   final String tenantId = 'tenantId';
   final String deptId = 'deptId';
   final String username = 'username';

@@ -6,17 +6,19 @@ class RequestUtils{
   // static const base = 'http://192.168.1.102:9900';//release
   // static const base = 'http://wechattestfront.ehaohai.com/api';//域名外网
   // static const base = 'http://192.168.1.195:8011/api';//测试
-  static const base = 'http://wx3.ehaohai.com/api';//正式
+  static const base = 'http://172.16.50.31:8013/prod-api';//正式
 
   static const login = '$base/auth/login';//密码登录-
   static const userInfo = '$base/system/user/getInfo/app';//个人信息查询-
   // static const userInfo = '$base/system/user/getInfo';//web个人信息查询-
   static const userDays = '$base/system/user/checkStatus';//个人期限查询-
-  static const fireSearch = '$base/haohai-satellite/SatelliteFireAlarm/page';//火警分页查询-
-  static const fireSearchInfo = '$base/haohai-satellite/SatelliteFireAlarm/getById';//火警详情查询-
+  // static const fireSearch = '$base/haohai-satellite/SatelliteFireAlarm/page';//火警分页查询-OLD3.0
+  static const fireSearch = '$base/haohai-satellite/fireAlarm/list';//火警分页查询-
+  static const fireSearchInfo = '$base/haohai-satellite/fireAlarm/';//火警详情查询-
+  static const monitorCount = '$base/haohai-satellite/fireAlarm/monitorCount';//观测频次查询-
   static const satelliteType = '$base/system/satelliteConfig/satelliteSeriesList';//'$base/system/satelliteConfig/satelliteCodeList';//卫星类型查询-
   static const satelliteTypeTenant = '$base/system/satelliteConfig/permissionSelectTenantId';//卫星类型查询-租户内类型查询-
-  static const landType = '$base/system/satelliteConfig/landTypeList';//地址类型查询-
+  static const landType = '$base/system/satelliteConfig/landTypeList';//地貌类型查询-
   static const bridge = '$base/system/areaPolygon/queryUserAreaList';//'$base/satellite/areaPolygon/queryUserAreaList';//获取区域边界-
   static const center = '$base/system/areaPolygon/queryUserAreaEnvelopeList';//获取中心点范围-
   static const bridgeBuffer = '$base/system/areaPolygon/queryUserAreaBufferList';//'$base/satellite/areaPolygon/queryUserAreaList';//获取区域边界-

@@ -88,6 +88,7 @@ class LaunchController extends GetxController {
       if (result != null && result["code"]==200) {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString(SPKeys().id, '${result["data"]["user"]["userId"]}');
+        prefs.setString(SPKeys().areaCode, '${result["data"]["user"]["areaCode"]}');
         prefs.setString(SPKeys().tenantId, '${result["data"]["user"]["tenantId"]}');
         prefs.setString(SPKeys().username, '${result["data"]["user"]["userName"]}');
         prefs.setString(SPKeys().nickname, '${result["data"]["user"]["nickName"]}');

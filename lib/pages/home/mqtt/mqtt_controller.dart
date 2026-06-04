@@ -59,44 +59,19 @@ class MqttController extends GetxController {
   }
 
   Future<void> initMqtt() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String areaCode = prefs.getString(SPKeys().areaCode) ?? "";
     clientId = getRandomId();
     final Uri mqttUri = _parseMqttUri(CommonData.mqttIP);
     final int mqttPort = _parseMqttPort(mqttUri);
 
-    client =
-        MqttServerClient(mqttUri.toString(), 'flutter_mqtt-client-$clientId');
-    client.port = mqttPort;
-    client.useWebSocket = true;
-    client.websocketProtocols = MqttClientConstants.protocolsSingleDefault;
-    client.logging(on: true);
-    client.keepAlivePeriod = 20;
-    client.onDisconnected = onDisconnected;
-    client.onConnected = onConnected;
-    client.onSubscribed = onSubscribed;
-    client.autoReconnect = true;
-    client.setProtocolV311();
-
-    final connMessage = MqttConnectMessage()
-        .withClientIdentifier(clientId)
-        .authenticateAs(CommonData.mqttAccount, CommonData.mqttPassword)
-        .withWillTopic('${CommonData.alarmTopic}$id')
-        .withWillMessage('Disconnected')
-        .startClean()
-        .withWillQos(MqttQos.atLeastOnce);
-
-    client.connectionMessage = connMessage;
-
-    try {
-      HhLog.d(
-          'mqtt_page Connecting... url=${mqttUri.toString()} port=$mqttPort clientId=$clientId');
-      await client.connect();
-    } on Exception catch (e) {
-      HhLog.d('mqtt_page Connection failed: $e   $clientId');
-      client.disconnect();
+    final bool connected = await _connectMqttWithFallback(mqttUri, mqttPort);
+    if (!connected) {
       return;
     }
 
-    client.subscribe('${CommonData.alarmTopic}$id', MqttQos.atLeastOnce);
+    final String topic = _alarmSubscribeTopic(areaCode);
+    client.subscribe(topic, MqttQos.atLeastOnce);
     // client.subscribe('${CommonData.alarmTopic}310953824250630276', MqttQos.atLeastOnce);
 
     _updatesSubscription = client.updates
@@ -137,6 +112,138 @@ class MqttController extends GetxController {
   String getRandomId() {
     final Random random = Random();
     return "${random.nextInt(999999)}";
+  }
+
+  Future<bool> _connectMqttWithFallback(Uri mqttUri, int mqttPort) async {
+    final List<Uri> uris = _mqttUriCandidates(mqttUri);
+    final List<_MqttConnectOption> options = <_MqttConnectOption>[
+      _MqttConnectOption(
+        protocols: MqttClientConstants.protocolsSingleDefault,
+        useAlternateWebSocketImplementation: false,
+        name: 'single-protocol',
+      ),
+      _MqttConnectOption(
+        protocols: MqttClientConstants.protocolsMultipleDefault,
+        useAlternateWebSocketImplementation: false,
+        name: 'multi-protocol',
+      ),
+      _MqttConnectOption(
+        protocols: <String>[],
+        useAlternateWebSocketImplementation: false,
+        name: 'no-protocol',
+      ),
+    ];
+    if (mqttUri.scheme == 'wss') {
+      options.add(
+        _MqttConnectOption(
+          protocols: MqttClientConstants.protocolsSingleDefault,
+          useAlternateWebSocketImplementation: true,
+          name: 'alternate-single-protocol',
+        ),
+      );
+    }
+
+    for (final Uri uri in uris) {
+      for (final _MqttConnectOption option in options) {
+        client = _createMqttClient(uri, mqttPort, option);
+        try {
+          HhLog.d(
+              'mqtt_page Connecting... url=${uri.toString()} port=$mqttPort mode=${option.name} clientId=$clientId');
+          await client.connect();
+          HhLog.d(
+              'mqtt_page Connected by ${option.name} url=${uri.toString()} clientId=$clientId');
+          return true;
+        } catch (e) {
+          HhLog.d(
+              'mqtt_page Connection failed mode=${option.name} url=${uri.toString()} error=$e   $clientId');
+          try {
+            client.disconnect();
+          } catch (_) {
+            //
+          }
+        }
+      }
+    }
+
+    HhLog.d('mqtt_page all websocket connection attempts failed   $clientId');
+    return false;
+  }
+
+  MqttServerClient _createMqttClient(
+    Uri mqttUri,
+    int mqttPort,
+    _MqttConnectOption option,
+  ) {
+    final MqttServerClient mqttClient = MqttServerClient(
+      mqttUri.toString(),
+      'flutter_mqtt-client-$clientId',
+      maxConnectionAttempts: 1,
+    );
+    mqttClient.port = mqttPort;
+    mqttClient.useWebSocket = true;
+    mqttClient.useAlternateWebSocketImplementation =
+        option.useAlternateWebSocketImplementation;
+    mqttClient.websocketProtocols = option.protocols;
+    mqttClient.logging(on: true);
+    mqttClient.keepAlivePeriod = 20;
+    mqttClient.onDisconnected = onDisconnected;
+    mqttClient.onConnected = onConnected;
+    mqttClient.onSubscribed = onSubscribed;
+    mqttClient.autoReconnect = true;
+    mqttClient.setProtocolV311();
+    mqttClient.connectionMessage = MqttConnectMessage()
+        .withClientIdentifier(clientId)
+        .authenticateAs(CommonData.mqttAccount, CommonData.mqttPassword)
+        .withWillTopic(_willTopic())
+        .withWillMessage('Disconnected')
+        .startClean()
+        .withWillQos(MqttQos.atLeastOnce);
+    return mqttClient;
+  }
+
+  List<Uri> _mqttUriCandidates(Uri uri) {
+    final List<Uri> candidates = <Uri>[uri];
+    if (uri.path.isNotEmpty && !uri.path.endsWith('/')) {
+      candidates.add(uri.replace(path: '${uri.path}/'));
+    }
+    return candidates;
+  }
+
+  String _alarmSubscribeTopic(String areaCode) {
+    return _joinMqttTopic(CommonData.alarmTopic, _areaCodeToTopic(areaCode));
+  }
+
+  String _areaCodeToTopic(String areaCode) {
+    final String normalizedAreaCode = areaCode.replaceAll(RegExp(r'\D'), '');
+    if (normalizedAreaCode.isEmpty) {
+      return '#';
+    }
+
+    final List<String> segments = <String>[];
+    for (int i = 0; i < normalizedAreaCode.length; i += 2) {
+      final int end = min(i + 2, normalizedAreaCode.length);
+      final String segment = normalizedAreaCode.substring(i, end);
+      final String rest = normalizedAreaCode.substring(i);
+      if (RegExp(r'^0+$').hasMatch(rest)) {
+        segments.add('#');
+        break;
+      }
+      segments.add(segment);
+    }
+
+    return segments.join('/');
+  }
+
+  String _joinMqttTopic(String prefix, String suffix) {
+    final String normalizedPrefix =
+        prefix.endsWith('/') ? prefix.substring(0, prefix.length - 1) : prefix;
+    final String normalizedSuffix =
+        suffix.startsWith('/') ? suffix.substring(1) : suffix;
+    return '$normalizedPrefix/$normalizedSuffix';
+  }
+
+  String _willTopic() {
+    return '${CommonData.alarmTopic}client/$id/status';
   }
 
   Uri _parseMqttUri(String url) {
@@ -297,4 +404,16 @@ class _MqttQueueItem {
 
   final String topic;
   final String payload;
+}
+
+class _MqttConnectOption {
+  _MqttConnectOption({
+    required this.protocols,
+    required this.useAlternateWebSocketImplementation,
+    required this.name,
+  });
+
+  final List<String> protocols;
+  final bool useAlternateWebSocketImplementation;
+  final String name;
 }

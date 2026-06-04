@@ -28,9 +28,11 @@ class FeedBackController extends GetxController {
   Future<void> onInit() async {
     super.onInit();
     if(CommonData.fireInfo!=null){
-      addressController.text = "${CommonData.fireInfo["formattedAddress"]}";
-      latitudeController.text = "${CommonData.fireInfo["latitude"]}";
-      longitudeController.text = "${CommonData.fireInfo["longitude"]}";
+      String coordinate = "${CommonData.fireInfo["coordinate"]}";
+      List<String> latLngList = coordinate.split(",");
+      addressController.text = "${CommonData.fireInfo["address"]}";
+      latitudeController.text = latLngList[1];
+      longitudeController.text = latLngList[0];
     }
   }
 

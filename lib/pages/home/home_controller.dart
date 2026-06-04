@@ -316,12 +316,6 @@ class HomeController extends GetxController {
 
     startTime.value = CommonUtils().parseLongTimeLong(DateTime.now().subtract(const Duration(hours: 3)).millisecondsSinceEpoch);
     endTime.value = CommonUtils().parseLongTimeLong(DateTime.now().millisecondsSinceEpoch);
-    Future.delayed(const Duration(milliseconds: 1000),(){
-      postBridgeBuffer();//缓冲区区域边界
-      getCenter();//中心点显示范围
-      postDays();
-      postType();
-    });
     Future.delayed(const Duration(milliseconds: 2000),(){
       getVersion();
     });
@@ -689,6 +683,12 @@ class HomeController extends GetxController {
   /// 创建完成回调
   void onGDMapCreated(AMapController controller) {
     gdMapController = controller;
+    Future.delayed(const Duration(milliseconds: 1000),(){
+      postBridgeBuffer();//缓冲区区域边界
+      getCenter();//中心点显示范围
+      postDays();
+      postType();
+    });
 
     //aMapMarkers.add(Marker(position: const LatLng(35.66,126.88),icon: BitmapDescriptor.fromIconPath('assets/images/common/ic_fires_red.png')));
   }
@@ -771,7 +771,9 @@ class HomeController extends GetxController {
                           Get.back();
                           fireInfo = item;
                           initMarker();
-                          final gcj = ParseLocation.gps84_To_Gcj02(double.parse("${fireInfo["latitude"]}"),double.parse("${fireInfo["longitude"]}"));
+                          String coordinate = "${fireInfo["coordinate"]}";
+                          List<String> latLngList = coordinate.split(",");
+                          final gcj = ParseLocation.gps84_To_Gcj02(double.parse(latLngList[1]),double.parse(latLngList[0]));
                           LatLng latLng = LatLng(gcj[0],gcj[1]);
                           gdMapController.moveCamera(
                               CameraUpdate.newLatLngZoom(latLng,15.0)
@@ -792,7 +794,7 @@ class HomeController extends GetxController {
                                 SizedBox(width: 10.w*3,),
                                 Icon(Icons.access_time_rounded,color: HhColors.titleColor_55,size: 18.w*3,),
                                 SizedBox(width: 3.w*3,),
-                                Text('${item["observeTimestr"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
+                                Text('${item["alarmDatetime"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
                                 SizedBox(width: 10.w*3,),
                               ],
                             )): !item["showNo"]?const SizedBox():Row(
@@ -802,7 +804,7 @@ class HomeController extends GetxController {
                                 SizedBox(width: 3.w*3,),
                                 Text('${item["fireNo"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
                                 SizedBox(width: 20.w*3,),
-                                Text('监测次数 ${item["frequency"]}次',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                                //Text('监测次数 ${item["frequency"]}次',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
                                 SizedBox(width: 10.w*3,),
                               ],
                             ),
@@ -813,7 +815,7 @@ class HomeController extends GetxController {
                                 SizedBox(width: 10.w*3,),
                                 Icon(Icons.location_on,color: HhColors.titleColor_55,size: 18.w*3,),
                                 SizedBox(width: 3.w*3,),
-                                Expanded(child: Text('${item["formattedAddress"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),)),
+                                Expanded(child: Text('${item["address"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),)),
                                 SizedBox(width: 10.w*3,),
                               ],
                             ),
@@ -927,185 +929,198 @@ class HomeController extends GetxController {
     },barrierDismissible: true);
   }
 
-  void showFireInfo() {
-    CommonUtils().closeAllOverlays();
-    if(fireInfo == null || (fireInfo["formattedAddress"] == null && fireInfo["observeTimestr"] == null)){
-      return;
-    }
-    showModalBottomSheet(context: Get.context!, builder: (a){
-      return Container(
-        width: 1.sw,
-        height: 0.62.sh,
-        decoration: BoxDecoration(
-            color: HhColors.whiteColor,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(0.w))
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            SizedBox(height: 10.w*3,),
-            Row(
-              children: [
-                SizedBox(width: 10.w*3,),
-                Text('火点详情',style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),),
-                SizedBox(width: 20.w*3,),
-                feedBackStatus.value?BouncingWidget(
-                    duration: const Duration(milliseconds: 100),
-                    scaleFactor: 0.6,
-                    onPressed: (){
-                      CommonData.fireInfo = fireInfo;
-                      Get.to(() => FeedBackPage(),
-                          binding: FeedBackBinding(),preventDuplicates: false);
-                    },
-                    child: Container(
-                        padding: EdgeInsets.fromLTRB(8.w*3, 2.w*3, 8.w*3, 2.w*3),
-                        decoration: BoxDecoration(
-                            color: HhColors.red2.withAlpha(185),
-                            borderRadius: BorderRadius.circular(2.w*3)
-                        ),
-                        child: Text("反馈",style: TextStyle(color: HhColors.whiteColor,fontSize: 12.sp*3),))
-                ):const SizedBox(),
-                SizedBox(width: 10.w*3,),
-              ],
-            ),
-            SizedBox(height: 5.w*3,),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('地址：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Expanded(child: Text('${fireInfo["formattedAddress"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),)),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('观测时间：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["observeTimestr"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('经纬度：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Expanded(child: Text('${fireInfo["longitude"]} , ${fireInfo["latitude"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),)),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('可信度：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["reliability"]}%',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('明火面积：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["hotArea"]}公顷',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('像元面积：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["pixelArea"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('像元数：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["pixelNum"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('观测频次：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["frequency"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('土地类型：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Expanded(child: Text('林地（${fireInfo["woodland"]}%）草地（${fireInfo["grassland"]}%）农田（${fireInfo["farmland"]}%）其他（${fireInfo["otherType"]}%）',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3,),)),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('数据源：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["satelliteCode"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
-                      child: Row(
-                        children: [
-                          Text('火点编号：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                          Text('${fireInfo["fireNo"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10.w*3, 15.w*3, 10.w*3, 15.w*3),
-                      child: Row(
-                        children: [
-                          InkWell(
-                            onTap: (){
-                              CommonUtils().showPictureDialog(Get.context!,url: "${fireInfo["visibleLightImgUrl"]}");
-                            },
-                            child: Image.network("${fireInfo["visibleLightImgUrl"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
-                              return Image.asset('assets/images/common/ic_no_pic.png',width:160.w*3,height: 100.w*3,fit: BoxFit.fill,);
-                            },),
+  Future<void> showFireInfo() async {
+    Map<String, dynamic> map = {};
+    map['fireNo'] = '${fireInfo["fireNo"]}';
+    EventBusUtil.getInstance().fire(HhLoading(show: true));
+    var result = await HhHttp().request(RequestUtils.monitorCount,method: DioMethod.get,params:map);
+    EventBusUtil.getInstance().fire(HhLoading(show: false));
+    if(result["code"]==200){
+      HhLog.d("monitorCount $result");
+      String count = "${result["data"]??1}";
+
+      CommonUtils().closeAllOverlays();
+      if(fireInfo == null || (fireInfo["formattedAddress"] == null && fireInfo["alarmDatetime"] == null)){
+        return;
+      }
+      String coordinate = "${fireInfo["coordinate"]}";
+      List<String> latLngList = coordinate.split(",");
+      showModalBottomSheet(context: Get.context!, builder: (a){
+        return Container(
+          width: 1.sw,
+          height: 0.62.sh,
+          decoration: BoxDecoration(
+              color: HhColors.whiteColor,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(0.w))
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SizedBox(height: 10.w*3,),
+              Row(
+                children: [
+                  SizedBox(width: 10.w*3,),
+                  Text('火点详情',style: TextStyle(color: HhColors.blackColor,fontSize: 14.sp*3),),
+                  SizedBox(width: 20.w*3,),
+                  feedBackStatus.value?BouncingWidget(
+                      duration: const Duration(milliseconds: 100),
+                      scaleFactor: 0.6,
+                      onPressed: (){
+                        CommonData.fireInfo = fireInfo;
+                        Get.to(() => FeedBackPage(),
+                            binding: FeedBackBinding(),preventDuplicates: false);
+                      },
+                      child: Container(
+                          padding: EdgeInsets.fromLTRB(8.w*3, 2.w*3, 8.w*3, 2.w*3),
+                          decoration: BoxDecoration(
+                              color: HhColors.red2.withAlpha(185),
+                              borderRadius: BorderRadius.circular(2.w*3)
                           ),
-                          SizedBox(width: 20.w*3,),
-                          InkWell(
-                            onTap: (){
-                              CommonUtils().showPictureDialog(Get.context!,url: "${fireInfo["thermalImagingImgUrl"]}");
-                            },
-                            child: Image.network("${fireInfo["thermalImagingImgUrl"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
-                              return Image.asset('assets/images/common/ic_no_pic.png',width:160.w*3,height: 100.w*3,fit: BoxFit.fill,);
-                            },),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                          child: Text("反馈",style: TextStyle(color: HhColors.whiteColor,fontSize: 12.sp*3),))
+                  ):const SizedBox(),
+                  SizedBox(width: 10.w*3,),
+                ],
               ),
-            )
-          ],
-        ),
-      );
-    },isDismissible: true,enableDrag: false,isScrollControlled: true,);
+              SizedBox(height: 5.w*3,),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('地址：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Expanded(child: Text('${fireInfo["address"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),)),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('观测时间：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Text('${fireInfo["alarmDatetime"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('经纬度：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Expanded(child: Text('${latLngList[0]} , ${latLngList[1]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),)),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('可信度：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Text('${fireInfo["reliability"]}%',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('明火面积：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Text('${fireInfo["hotArea"]}公顷',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('像元面积：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Text('${fireInfo["pixelArea"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('像元数：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Text('${fireInfo["pixelNum"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('观测频次：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Text(count,style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('土地类型：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Expanded(child: Text('林地（${fireInfo["woodland"]}%）草地（${fireInfo["grassland"]}%）农田（${fireInfo["farmland"]}%）其他（${fireInfo["otherType"]}%）',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3,),)),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('数据源：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Text('${fireInfo["satelliteCode"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 10.w*3, 10.w*3, 0),
+                        child: Row(
+                          children: [
+                            Text('火点编号：',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                            Text('${fireInfo["fireNo"]}',style: TextStyle(color: HhColors.blackColor,fontSize: 12.sp*3),),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.fromLTRB(10.w*3, 15.w*3, 10.w*3, 15.w*3),
+                        child: Row(
+                          children: [
+                            InkWell(
+                              onTap: (){
+                                CommonUtils().showPictureDialog(Get.context!,url: "${fireInfo["picPath1"]}");
+                              },
+                              child: Image.network("${fireInfo["picPath1"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
+                                return Image.asset('assets/images/common/ic_no_pic.png',width:160.w*3,height: 100.w*3,fit: BoxFit.fill,);
+                              },),
+                            ),
+                            SizedBox(width: 20.w*3,),
+                            InkWell(
+                              onTap: (){
+                                CommonUtils().showPictureDialog(Get.context!,url: "${fireInfo["picPath2"]}");
+                              },
+                              child: Image.network("${fireInfo["picPath2"]}",width:160.w*3,height: 100.w*3,fit: BoxFit.fill,errorBuilder: (a,b,c){
+                                return Image.asset('assets/images/common/ic_no_pic.png',width:160.w*3,height: 100.w*3,fit: BoxFit.fill,);
+                              },),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      },isDismissible: true,enableDrag: false,isScrollControlled: true,);
+    }
+
   }
 
 
@@ -1129,7 +1144,7 @@ class HomeController extends GetxController {
     Map<String, dynamic> map = {};
     map['pageNum'] = '$pageNum';
     map['pageSize'] = '$pageSize';
-    if(streetCode.isNotEmpty){
+    /*if(streetCode.isNotEmpty){
       map['areaCode'] = streetCode;
     }else{
       if(areaCode.isNotEmpty){
@@ -1178,21 +1193,21 @@ class HomeController extends GetxController {
           }
         }
       }
-    }
-
-    HhLog.d("gridTest map ${map['areaCode']}");
+    }*/
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    map['areaCode'] = prefs.getString(SPKeys().areaCode)??"";
     map['satelliteSeriesList'] = satelliteStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
-    map['landTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
+    //map['forestTypeList'] = landTypeStrList.toString().replaceAll(" ", "").replaceAll("[", "").replaceAll("]", "");
     map['startTime'] = startTime.value;
     map['endTime'] = endTime.value;
-    map['sortField'] = "observeTimestr";
-    map['sortType'] = "desc";
-    if(otherCacheShow.value){
+    /*map['sortField'] = "alarmDatetime";
+    map['sortType'] = "desc";*/
+    /*if(otherCacheShow.value){
       map['bufferArea'] = otherCache.value?"1":"0";
     }
     if(otherOutShow.value){
       map['overseasHeatSources'] = otherOut.value?"1":"0";
-    }
+    }*/
     try{
       var result = await HhHttp().request(RequestUtils.fireSearch,method: DioMethod.get,params:map);
       HhLog.d("fireSearch -- ${RequestUtils.fireSearch} -- $map ");
@@ -1215,7 +1230,6 @@ class HomeController extends GetxController {
               allFireList.addAll(newItems);
               //处理数据
               parseData();
-              //fireInfo = {};
               initMarker();
             }
             if(showList){
@@ -1244,7 +1258,6 @@ class HomeController extends GetxController {
           fireListDialog();
         }
 
-        //fireInfo = {};
         initMarker();
         return 1;
       }else{
@@ -1312,7 +1325,9 @@ class HomeController extends GetxController {
     viewStatus.value = true;
     for(dynamic model in allFireList){
       /// 创建BMFMarker
-      final gcj = ParseLocation.gps84_To_Gcj02(double.parse("${model["latitude"]}"),double.parse("${model["longitude"]}"));
+      String coordinate = "${model["coordinate"]}";
+      List<String> latLngList = coordinate.split(",");
+      final gcj = ParseLocation.gps84_To_Gcj02(double.parse(latLngList[1]),double.parse(latLngList[0]));
       LatLng position = LatLng(gcj[0],gcj[1]);
       Marker mk = Marker(
         anchor: const Offset(0.5,0.5),
@@ -2087,7 +2102,7 @@ class HomeController extends GetxController {
     // 1. 分组
     Map<String, List<dynamic>> groupedData = {};
     for (var item in allFireList) {
-      String fireNo = fireTypeByTime.value?item["observeTimestr"]:item["fireNo"];
+      String fireNo = fireTypeByTime.value?item["alarmDatetime"]:item["fireNo"];
       if (!groupedData.containsKey(fireNo)) {
         groupedData[fireNo] = [];
       }
@@ -2109,13 +2124,13 @@ class HomeController extends GetxController {
     String lastTagNo = "";
     for(int i = 0; i < allFireList.length;i++){
       dynamic model = allFireList[i];
-      if(lastTagTime==model["observeTimestr"]){//observeTimestr fireNo
+      if(lastTagTime==model["alarmDatetime"]){//alarmDatetime fireNo
         model["showTime"] = false;
       }else{
         model["showTime"] = true;
-        lastTagTime = model["observeTimestr"];
+        lastTagTime = model["alarmDatetime"];
       }
-      if(lastTagNo==model["fireNo"]){//observeTimestr fireNo
+      if(lastTagNo==model["fireNo"]){//alarmDatetime fireNo
         model["showNo"] = false;
       }else{
         model["showNo"] = true;
@@ -2136,10 +2151,8 @@ class HomeController extends GetxController {
     }
     time = now;
     EventBusUtil.getInstance().fire(HhLoading(show: true));
-    Map<String, dynamic> map = {};
-    map['id'] = eventId;
-    var result = await HhHttp().request(RequestUtils.fireSearchInfo,method: DioMethod.get,params:map);
-    HhLog.d("fireSearch info -- ${RequestUtils.fireSearchInfo} -- $map ");
+    var result = await HhHttp().request("${RequestUtils.fireSearchInfo}$eventId",method: DioMethod.get);
+    HhLog.d("fireSearch info -- ${RequestUtils.fireSearchInfo}");
     HhLog.d("fireSearch info -- $result");
     EventBusUtil.getInstance().fire(HhLoading(show: false));
     easyController.finishLoad(IndicatorResult.success,true);

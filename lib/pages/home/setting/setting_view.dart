@@ -144,7 +144,7 @@ class SettingPage extends StatelessWidget {
                         margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
                       ),
                       ///报警上报
-                      logic.uploadStatus.value?BouncingWidget(
+                      /*logic.uploadStatus.value?BouncingWidget(
                         duration: const Duration(milliseconds: 100),
                         scaleFactor: 0.2,
                         onPressed: (){
@@ -167,7 +167,7 @@ class SettingPage extends StatelessWidget {
                         height: 1.w,
                         width: 1.sw,
                         margin: EdgeInsets.fromLTRB(15.w*3, 0, 15.w*3, 0),
-                      ):const SizedBox(),
+                      ):const SizedBox(),*/
                     ],
                   ),
                 ),
@@ -215,7 +215,7 @@ class SettingPage extends StatelessWidget {
     showModalBottomSheet(context: logic.context, builder: (a){
       return Obx(() =>Container(
         width: 1.sw,
-        height: 0.7.sh,
+        height: 0.4.sh,
         padding: EdgeInsets.fromLTRB(15.w*3, 10.w*3, 15.w*3, 10.w*3),
         decoration: BoxDecoration(
             color: HhColors.whiteColor,
@@ -257,7 +257,7 @@ class SettingPage extends StatelessWidget {
               ),
               SizedBox(height: 15.w*3,),*/
               ///地貌类型
-              Row(
+              /*Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('地貌类型：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
@@ -265,9 +265,9 @@ class SettingPage extends StatelessWidget {
                   logic.landTypeStatus.value?Expanded(child: Wrap(children: buildLandTypeItems(),)):const SizedBox()
                 ],
               ),
-              SizedBox(height: 10.w*3,),
+              SizedBox(height: 10.w*3,),*/
               ///报警过滤
-              Row(
+              /*Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
@@ -332,7 +332,7 @@ class SettingPage extends StatelessWidget {
                     ),
                   ):const SizedBox()
                 ],
-              ),
+              ),*/
               /*SizedBox(height: 15.w*3,),
               ///火警数量
               Row(
@@ -343,9 +343,9 @@ class SettingPage extends StatelessWidget {
                   logic.fireCountStatus.value?Expanded(child: Wrap(children: buildFireCountItems(),)):const SizedBox()
                 ],
               ),*/
-              SizedBox(height: 15.w*3,),
+              /*SizedBox(height: 15.w*3,),*/
               ///其他选项
-              (logic.otherOutT.value || logic.otherCacheT.value)?Row(
+              /*(logic.otherOutT.value || logic.otherCacheT.value)?Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('其他选项：',style: TextStyle(color: HhColors.blackColor,fontSize: 13.sp*3),),
@@ -389,7 +389,7 @@ class SettingPage extends StatelessWidget {
                     ],
                   ),
                 ],
-              ):const SizedBox(),
+              ):const SizedBox(),*/
               SizedBox(height: 30.w*3,),
               ///按钮
               Row(

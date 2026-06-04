@@ -626,7 +626,7 @@ class HomePage extends StatelessWidget {
         builder: (a) {
           return Obx(() => Container(
                 width: 1.sw,
-                height: 0.7.sh,
+                height: 0.45.sh,
                 padding:
                     EdgeInsets.fromLTRB(15.w * 3, 10.w * 3, 15.w * 3, 10.w * 3),
                 decoration: BoxDecoration(
@@ -809,7 +809,7 @@ class HomePage extends StatelessWidget {
                       ),
 
                       ///地貌类型
-                      Row(
+                      /*Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -831,10 +831,10 @@ class HomePage extends StatelessWidget {
                       ),
                       SizedBox(
                         height: 10.w * 3,
-                      ),
+                      ),*/
 
                       ///区域查询
-                      Row(
+                      /*Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
@@ -1059,7 +1059,7 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                         ],
-                      ),
+                      ),*/
                       ((!logic.otherOutShow.value) &&
                               (!logic.otherCacheShow.value))
                           ? const SizedBox()
@@ -1068,7 +1068,7 @@ class HomePage extends StatelessWidget {
                             ),
 
                       ///其他选项
-                      ((!logic.otherOutShow.value) &&
+                      /*((!logic.otherOutShow.value) &&
                               (!logic.otherCacheShow.value))
                           ? const SizedBox()
                           : Row(
@@ -1173,7 +1173,7 @@ class HomePage extends StatelessWidget {
                             ),
                       SizedBox(
                         height: 30.w * 3,
-                      ),
+                      ),*/
 
                       ///按钮
                       Row(
